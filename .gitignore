@@ -1,0 +1,11 @@
+# `nix build` symlinks (root flake + per-skill sub-flakes)
+/result
+/result-*
+/skills/*/result
+/skills/*/result-*
+
+# Project-scope skills the dev-shell reconcile hook installs.
+/.claude/skills/
+
+# Per-branch git worktrees (see `using-git-worktrees` skill).
+/.worktrees/

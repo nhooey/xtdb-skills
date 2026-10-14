@@ -1,0 +1,14 @@
+{
+  "name": "xtdb-skills",
+  "description": "Agent skills for XTDB.",
+  "owner": {
+    "name": "nhooey"
+  },
+  "plugins": [
+    {
+      "name": "xtdb-skills",
+      "source": ".",
+      "description": "XTDB agent skills collection. Skills are auto-discovered from ./skills/*."
+    }
+  ]
+}
