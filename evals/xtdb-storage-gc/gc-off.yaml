@@ -1,0 +1,15 @@
+# gc-on.yaml with the collector off, for comparison.
+server:
+  host: '*'
+  port: 5432
+log: !Local
+  path: "/var/lib/xtdb/log"
+storage: !Local
+  path: "/var/lib/xtdb/buffers"
+indexer:
+  rowsPerBlock: 50
+garbageCollector:
+  enabled: false
+  blocksToKeep: 2
+  garbageLifetime: PT0S
+  approxRunInterval: PT3S

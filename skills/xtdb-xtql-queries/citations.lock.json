@@ -58,6 +58,11 @@
       "lines" : [ 192, 213 ],
       "sha256" : "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782"
     },
+    "rel" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 298, 329 ],
+      "sha256" : "675102c5f73b8a0a86ed60c96f715d9727897a8168071f91eb713edf2aad3436"
+    },
     "from" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 105, 190 ],

@@ -1,0 +1,67 @@
+;; Examples for the xtdb-history-cost-design skill, run by
+;; `clojure -M:eval examples xtdb-history-cost-design` from evals/. Setups
+;; write with explicit valid times so as-of reads have a past to read; the
+;; `:run/…` and :private tables are private to each example (see
+;; src/xtdb_eval.clj).
+{:skill "../../skills/xtdb-history-cost-design/SKILL.md"
+
+ :example
+ [;; --- the skill's examples ------------------------------------------------
+  {:id "split-as-of"
+   :private [:products :product-prices]
+   :setup [[[:put-docs {:into :products, :valid-from #inst "2020-01-01"}
+             {:xt/id "p1", :title "Kettle", :description "A long description"}]
+            [:put-docs {:into :product-prices, :valid-from #inst "2020-01-01"} {:xt/id "p1", :price 30, :stock 5}]]
+           [[:put-docs {:into :product-prices, :valid-from #inst "2021-01-01"} {:xt/id "p1", :price 25, :stock 4}]]
+           [[:put-docs {:into :product-prices, :valid-from #inst "2022-01-01"} {:xt/id "p1", :price 28, :stock 9}]]]
+   :args [#inst "2021-06-01"]
+   :expected [{:id "p1", :title "Kettle", :price 25, :stock 4}]}
+
+  ;; --- observations ------------------------------------------------------
+  {:id "whole-document-versions"
+   :setup [[[:put-docs :run/products {:xt/id "p1", :description "A long description", :price 30}]]
+           [[:put-docs :run/products {:xt/id "p1", :description "A long description", :price 25}]]
+           [[:put-docs :run/products {:xt/id "p1", :description "A long description", :price 28}]]]
+   :query (from :run/products {:bind [description price], :for-system-time :all-time})
+   :expected [{:description "A long description", :price 30}
+              {:description "A long description", :price 25}
+              {:description "A long description", :price 28}]}
+
+  {:id "split-stable-versions"
+   :setup [[[:put-docs :run/products {:xt/id "p1", :description "A long description"}]
+            [:put-docs :run/prices {:xt/id "p1", :price 30}]]
+           [[:put-docs :run/prices {:xt/id "p1", :price 25}]]
+           [[:put-docs :run/prices {:xt/id "p1", :price 28}]]]
+   :query (from :run/products {:bind [description], :for-system-time :all-time})
+   :expected [{:description "A long description"}]}
+
+  {:id "split-volatile-versions"
+   :setup [[[:put-docs :run/products {:xt/id "p1", :description "A long description"}]
+            [:put-docs :run/prices {:xt/id "p1", :price 30}]]
+           [[:put-docs :run/prices {:xt/id "p1", :price 25}]]
+           [[:put-docs :run/prices {:xt/id "p1", :price 28}]]]
+   :query (from :run/prices {:bind [price], :for-system-time :all-time})
+   :expected [{:price 30} {:price 25} {:price 28}]}
+
+  {:id "identical-put-adds-version"
+   :setup [[[:put-docs :run/prices {:xt/id "p1", :price 30}]]
+           [[:put-docs :run/prices {:xt/id "p1", :price 30}]]]
+   :query (-> (from :run/prices {:bind [price], :for-system-time :all-time})
+              (aggregate {:versions (row-count)}))
+   :expected [{:versions 2}]}
+
+  {:id "split-missing-half"
+   :setup [[[:put-docs :run/products {:xt/id "p1", :title "Kettle"}]
+            [:put-docs :run/products {:xt/id "p2", :title "Toaster"}]
+            [:put-docs :run/prices {:xt/id "p1", :price 30}]]]
+   :query (unify (from :run/products [{:xt/id id} title])
+                 (from :run/prices [{:xt/id id} price]))
+   :expected [{:id "p1", :title "Kettle", :price 30}]}
+
+  {:id "split-left-join"
+   :setup [[[:put-docs :run/products {:xt/id "p1", :title "Kettle"}]
+            [:put-docs :run/products {:xt/id "p2", :title "Toaster"}]
+            [:put-docs :run/prices {:xt/id "p1", :price 30}]]]
+   :query (unify (from :run/products [{:xt/id id} title])
+                 (left-join (from :run/prices [{:xt/id id} price]) [id price]))
+   :expected [{:id "p1", :title "Kettle", :price 30} {:id "p2", :title "Toaster"}]}]}

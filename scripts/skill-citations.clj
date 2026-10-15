@@ -194,7 +194,7 @@
                          (permalink repo tag {:path path :lines (get entry "lines")}) ")")]))
      (into {} (for [{:keys [id example]} (:observed cfg)]
                 [id (str "[^" id "]: Observed on XTDB " (:xtdb (:source cfg) tag) ": example `" example
-                         "` in [examples.edn](" (:observations cfg) "), re-run by the eval's `examples` command.")])))))
+                         "` in [examples.edn](" (:observations cfg) "), re-run by the eval's `" (:observed-by cfg "examples") "` command.")])))))
 
 ;; --- commands --------------------------------------------------------------
 

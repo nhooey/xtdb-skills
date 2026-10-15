@@ -1,0 +1,37 @@
+{
+  "repo" : "xtdb/xtdb",
+  "tag" : "v2.1.0",
+  "commit" : "ca78d5609dfa7393c465c1e1435a8f20fa3eb371",
+  "files" : {
+    "docs/src/content/docs/about/txs-in-xtdb.md" : "8be6a9f0f8065ba6b7e631adece00dc9d0a6fb15b44132714661fe01ebeeb239",
+    "docs/src/content/docs/about/time-in-xtdb.md" : "2502c541c3f698128057c71242561ea6a695c6a795dafe01a356bbf7d89b5985",
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "4021d44b47bf478bcfb661532d6cebf4b08327fa0eefe50debc8154db342d03c"
+  },
+  "citations" : {
+    "atomic-txs" : {
+      "path" : "docs/src/content/docs/about/txs-in-xtdb.md",
+      "lines" : [ 11, 11 ],
+      "sha256" : "86076283879945b5c078ec90eb98772186110d683b8dc565d14fbe2d832d3115"
+    },
+    "system-time" : {
+      "path" : "docs/src/content/docs/about/time-in-xtdb.md",
+      "lines" : [ 35, 81 ],
+      "sha256" : "cd9f67c3e02cd788b2b1140dbab65fa8419da53d33192f4d5e9b1cb678656ad0"
+    },
+    "unify-clauses" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 62, 78 ],
+      "sha256" : "2105f0a8eb1ab52e4f54957950536341a190cd95e93cf58351705c547f07c0a1"
+    },
+    "temporal-filters" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 162, 190 ],
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+    },
+    "joins" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 192, 213 ],
+      "sha256" : "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782"
+    }
+  }
+}

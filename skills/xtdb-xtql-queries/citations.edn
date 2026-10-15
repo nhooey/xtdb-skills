@@ -21,7 +21,8 @@
  :observations "../../evals/xtdb-xtql-queries/examples.edn"
 
  :cite
- [{:id "grammar" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Operators" :intro true}
+ [{:id "rel" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Rel(ation)"}
+  {:id "grammar" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Operators" :intro true}
   {:id "source-operators" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Source operators"}
   {:id "tail-operators" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Tail operators"}
   {:id "unify-clauses" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify clauses"}
@@ -48,5 +49,9 @@
   {:id "obs-q-in-with" :example "q-in-with"}
   {:id "obs-exists-in-where" :example "not-exists-vector"}
   {:id "obs-exists-with-fn" :example "exists-bare"}
+  {:id "obs-rel-ids" :example "rel-ids"}
+  {:id "obs-temporal-columns" :example "temporal-columns"}
+  {:id "obs-system-columns" :example "system-columns"}
+  {:id "obs-current-system-to" :example "current-system-to-absent"}
   {:id "obs-q-in-return" :example "q-in-return"}
   {:id "obs-row-count-zero" :example "row-count-zero"}]}

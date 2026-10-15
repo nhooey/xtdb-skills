@@ -1,4 +1,4 @@
-;; Examples run by `clojure -M:eval examples` against seed.edn.
+;; Examples run by `clojure -M:eval examples xtdb-xtql-queries` from evals/, against seed.edn.
 ;;
 ;; An example without :query is one of the skill's own: each ```clojure
 ;; block in :skill is preceded by `<!-- xtql-example: id… -->`, one id per
@@ -32,6 +32,17 @@
               {:customer-id 2, :customer-name "Brian", :order-id 103, :order-value 80}
               {:customer-id 3, :customer-name "Chen", :order-id 104, :order-value 400}
               {:customer-id 2, :customer-name "Brian", :order-id 105, :order-value 610}]}
+
+  {:id "rel-ids"
+   :args [[{:id 1} {:id 3}]]
+   :expected [{:id 1, :customer-name "Ada"} {:id 3, :customer-name "Chen"}]}
+
+  {:id "temporal-columns"
+   ;; The current price has no :to, its valid time being open.
+   :exact-keys? true
+   :expected [{:price 10, :from #inst "2020-01-01", :to #inst "2021-01-01"}
+              {:price 12, :from #inst "2021-01-01", :to #inst "2023-01-01"}
+              {:price 15, :from #inst "2023-01-01"}]}
 
   {:id "valid-time-in"
    :expected [{:product "widget", :price 12} {:product "gadget", :price 50}]}
@@ -75,6 +86,24 @@
                                                 (return customer-name)))
                                           customer-id])}))
    :expect-error "subquery not allowed in expr here"}
+
+  {:id "system-columns"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "v1"}]]
+           [[:put-docs :run/docs {:xt/id 1, :v "v2"}]]]
+   :query (-> (from :run/docs {:bind [v {:xt/system-from sf, :xt/system-to st}]
+                               :for-system-time :all-time})
+              (order-by sf)
+              (return v {:open (nil? st)}))
+   :ordered? true
+   :expected [{:v "v1", :open false} {:v "v2", :open true}]}
+
+  {:id "current-system-to-absent"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "v1"}]]
+           [[:put-docs :run/docs {:xt/id 1, :v "v2"}]]]
+   :query (from :run/docs [v {:xt/system-to st}])
+   ;; The current version binds no st at all.
+   :exact-keys? true
+   :expected [{:v "v2"}]}
 
   {:id "row-count-zero"
    :query (-> (from :posts [{:xt/id pid} title])

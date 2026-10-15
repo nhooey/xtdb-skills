@@ -1,0 +1,76 @@
+;; Examples for the xtdb-erase-and-history skill, run by
+;; `clojure -M:eval examples xtdb-erase-and-history` from evals/. Each
+;; example's :setup transactions run first, in `:run/…` tables private to
+;; the run (see src/xtdb_eval.clj). An example with :query is an
+;; observation the skill cites; one without is a block in the skill.
+{:skill "../../skills/xtdb-erase-and-history/SKILL.md"
+
+ :example
+ [;; --- the skill's examples ------------------------------------------------
+  {:id "history-of-id"
+   :private [:docs]
+   :setup [[[:put-docs :docs {:xt/id 1, :v "v1"}]]
+           [[:put-docs :docs {:xt/id 1, :v "v2"}]]]
+   :ordered? true
+   :expected [{:v "v1"} {:v "v2"}]}
+
+  ;; --- observations ------------------------------------------------------
+  {:id "erase-removes-all-versions"
+   :setup [[[:put-docs {:into :run/docs, :valid-from #inst "2020-01-01"} {:xt/id 1, :v "old"}]]
+           [[:put-docs {:into :run/docs, :valid-from #inst "2022-01-01"} {:xt/id 1, :v "new"}]]
+           [[:erase-docs :run/docs 1]]]
+   :query (from :run/docs {:bind [v], :for-valid-time :all-time, :for-system-time :all-time})
+   :expected []}
+
+  {:id "delete-keeps-history"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "old"}]]
+           [[:delete-docs :run/docs 1]]]
+   :query (from :run/docs {:bind [v], :for-system-time :all-time})
+   :expected [{:v "old"}]}
+
+  {:id "delete-hides-current"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "old"}]]
+           [[:delete-docs :run/docs 1]]]
+   :query (from :run/docs [v])
+   :expected []}
+
+  {:id "erase-then-put"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "v1"}]]
+           [[:put-docs :run/docs {:xt/id 1, :v "v2"}]]
+           [[:erase-docs :run/docs 1]]
+           [[:put-docs :run/docs {:xt/id 1, :v "v2"}]]]
+   :query (from :run/docs {:bind [v], :for-valid-time :all-time, :for-system-time :all-time})
+   :expected [{:v "v2"}]}
+
+  {:id "put-then-erase"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "v1"}]]
+           [[:put-docs :run/docs {:xt/id 1, :v "v2"}]]
+           [[:erase-docs :run/docs 1]]]
+   :query (from :run/docs {:bind [v], :for-valid-time :all-time, :for-system-time :all-time})
+   :expected []}
+
+  {:id "erase-is-per-table"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "here"}]
+            [:put-docs :run/other {:xt/id 1, :v "there"}]]
+           [[:erase-docs :run/docs 1]]]
+   :query (from :run/other [v])
+   :expected [{:v "there"}]}
+
+  {:id "identical-put-adds-version"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :v "same"}]]
+           [[:put-docs :run/docs {:xt/id 1, :v "same"}]]]
+   :query (-> (from :run/docs {:bind [v], :for-system-time :all-time})
+              (aggregate {:versions (row-count)}))
+   :expected [{:versions 2}]}
+
+  {:id "put-stores-whole-document"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :stable "big", :volatile 1}]]
+           [[:put-docs :run/docs {:xt/id 1, :stable "big", :volatile 2}]]]
+   :query (from :run/docs {:bind [stable volatile], :for-system-time :all-time})
+   :expected [{:stable "big", :volatile 1} {:stable "big", :volatile 2}]}
+
+  {:id "patch-adds-whole-version"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :stable "big", :volatile 1}]]
+           [[:patch-docs :run/docs {:xt/id 1, :volatile 2}]]]
+   :query (from :run/docs {:bind [stable volatile], :for-system-time :all-time})
+   :expected [{:stable "big", :volatile 1} {:stable "big", :volatile 2}]}]}

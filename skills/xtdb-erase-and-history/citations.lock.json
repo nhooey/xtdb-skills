@@ -1,0 +1,37 @@
+{
+  "repo" : "xtdb/xtdb",
+  "tag" : "v2.1.0",
+  "commit" : "ca78d5609dfa7393c465c1e1435a8f20fa3eb371",
+  "files" : {
+    "docs/src/content/docs/about/time-in-xtdb.md" : "2502c541c3f698128057c71242561ea6a695c6a795dafe01a356bbf7d89b5985",
+    "docs/src/content/docs/reference/main/xtql/txs.md" : "68c444c3aff1c1edfa66077a786588a49a814ad4e09ff6374b778bb60cdfe12a",
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "4021d44b47bf478bcfb661532d6cebf4b08327fa0eefe50debc8154db342d03c"
+  },
+  "citations" : {
+    "system-time" : {
+      "path" : "docs/src/content/docs/about/time-in-xtdb.md",
+      "lines" : [ 35, 81 ],
+      "sha256" : "cd9f67c3e02cd788b2b1140dbab65fa8419da53d33192f4d5e9b1cb678656ad0"
+    },
+    "patch-docs" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
+      "lines" : [ 68, 127 ],
+      "sha256" : "053f89528c53ed194b780d48c12a120606a9666cf1a18b35e6a447d7ec8ba02d"
+    },
+    "delete-docs" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
+      "lines" : [ 129, 178 ],
+      "sha256" : "0634e4ae22b549d5588e19392b63ac470e76cff7101ddb3db1508ff3405b21ec"
+    },
+    "erase-docs" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
+      "lines" : [ 180, 208 ],
+      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd"
+    },
+    "temporal-filters" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 162, 190 ],
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+    }
+  }
+}
