@@ -1,0 +1,85 @@
+;; Examples run by `clojure -M:eval examples` against seed.edn.
+;;
+;; An example without :query is one of the skill's own: each ```clojure
+;; block in :skill is preceded by `<!-- xtql-example: id… -->`, one id per
+;; top-level form, and the form is the query. An example with :query is an
+;; observation: behaviour no source states, which the skill cites as an
+;; :observed footnote (see its citations.edn), so a new XTDB release that
+;; changes it fails here. :args fill a `fn` query's parameters. Each
+;; example expects either :expected rows or an :expect-error substring.
+{:skill "../../skills/xtdb-xtql-queries/SKILL.md"
+
+ :example
+ [;; --- the skill's examples ------------------------------------------------
+  {:id "bind-project"
+   :expected [{:customer-name "Ada", :city "London"} {:customer-name "Brian", :city "Paris"}
+              {:customer-name "Chen", :city "London"} {:customer-name "Dana", :city "Berlin"}]}
+
+  {:id "bind-rename"
+   :expected [{:name "Ada", :city "London"} {:name "Brian", :city "Paris"}
+              {:name "Chen", :city "London"} {:name "Dana", :city "Berlin"}]}
+
+  {:id "bind-literal"
+   :expected [{:customer-name "Ada"} {:customer-name "Chen"}]}
+
+  {:id "bind-param"
+   :args ["London"]
+   :expected [{:customer-name "Ada"} {:customer-name "Chen"}]}
+
+  {:id "unify-join"
+   :expected [{:customer-id 1, :customer-name "Ada", :order-id 101, :order-value 250}
+              {:customer-id 1, :customer-name "Ada", :order-id 102, :order-value 1200}
+              {:customer-id 2, :customer-name "Brian", :order-id 103, :order-value 80}
+              {:customer-id 3, :customer-name "Chen", :order-id 104, :order-value 400}
+              {:customer-id 2, :customer-name "Brian", :order-id 105, :order-value 610}]}
+
+  {:id "valid-time-in"
+   :expected [{:product "widget", :price 12} {:product "gadget", :price 50}]}
+
+  {:id "not-exists-vector"
+   :expected [{:customer-name "Dana"}]}
+
+  {:id "exists-bare"
+   ;; Dana, who has no orders, is left out.
+   :expected [{:customer-name "Ada"} {:customer-name "Brian"} {:customer-name "Chen"}]}
+
+  {:id "q-in-with"
+   :expected [{:order-id 101, :customer-name "Ada"} {:order-id 102, :customer-name "Ada"}
+              {:order-id 103, :customer-name "Brian"} {:order-id 104, :customer-name "Chen"}
+              {:order-id 105, :customer-name "Brian"}]}
+
+  {:id "nested-field"
+   :expected [{:title "Hello"} {:title "Quiet"}]}
+
+  ;; --- observations ------------------------------------------------------
+  {:id "v1-query-map"
+   :query {:find [e] :where [[e :xt/id]]}
+   :expect-error "Unknown query type"}
+
+  {:id "star-in-unify"
+   :query (unify (from :customers [*]) (from :orders [*]))
+   :expect-error "* is not a valid in from when inside a unify context"}
+
+  {:id "args-map-ignored"
+   :query (-> (from :customers [{:xt/id cid} customer-name])
+              (where (exists? (from :orders [{:customer-id cid}]) {:args [cid]}))
+              (return customer-name))
+   ;; Every customer, Dana included, though Dana has no orders.
+   :expected [{:customer-name "Ada"} {:customer-name "Brian"} {:customer-name "Chen"} {:customer-name "Dana"}]}
+
+  {:id "q-in-return"
+   :query (-> (from :orders [{:xt/id order-id} customer-id])
+              (return order-id
+                      {:customer-name (q [(fn [cid]
+                                            (-> (from :customers [{:xt/id cid} customer-name])
+                                                (return customer-name)))
+                                          customer-id])}))
+   :expect-error "subquery not allowed in expr here"}
+
+  {:id "row-count-zero"
+   :query (-> (from :posts [{:xt/id pid} title])
+              (with {:n (q [(fn [pid] (-> (from :comments [{:post-id pid}])
+                                          (aggregate {:n (row-count)})))
+                            pid])})
+              (return title n))
+   :expected [{:title "Hello", :n 2} {:title "Bonjour", :n 1} {:title "Quiet", :n 0}]}]}

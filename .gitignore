@@ -9,3 +9,6 @@
 
 # Per-branch git worktrees (see `using-git-worktrees` skill).
 /.worktrees/
+
+# Clojure CLI classpath cache for the evals.
+/evals/*/.cpcache/

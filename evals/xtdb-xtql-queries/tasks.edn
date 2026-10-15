@@ -1,0 +1,177 @@
+;; XTQL eval tasks. Each task is answered with one XTQL query, run with
+;; `xt/q` against the fixture in seed.edn, and scored against :expected.
+;; :ordered? true compares rows in order; otherwise as a multiset. Column
+;; names compare with `-` and `_` treated alike.
+{:schema "Tables and their columns, as XTQL sees them (every table's key is :xt/id):
+
+customers  :xt/id (int), :customer-name, :city, :vip (boolean)
+orders     :xt/id (int), :customer-id (-> customers), :order-value (int),
+           :status (\"shipped\" | \"pending\" | \"cancelled\"), :tags (vector of strings)
+posts      :xt/id (string), :title, :author-id (-> customers),
+           :meta (a nested map with keys :lang and :words)
+comments   :xt/id (string), :post-id (-> posts), :body, :rating (int)
+people     :xt/id (string, the person's name), :parent (string)
+prices     :xt/id (string, the product name), :price (int); prices change over
+           VALID TIME, so each product has several versions in history"
+
+ :tasks
+ [{:id "t01-project"
+   :prompt "List every customer's name."
+   :expected [{:customer-name "Ada"} {:customer-name "Brian"} {:customer-name "Chen"} {:customer-name "Dana"}]}
+
+  {:id "t02-literal-filter"
+   :prompt "List the id and name of every customer whose city is London."
+   :expected [{:id 1, :customer-name "Ada"} {:id 3, :customer-name "Chen"}]}
+
+  {:id "t03-where"
+   :prompt "List the id and value of every order worth more than 500."
+   :expected [{:id 102, :order-value 1200} {:id 105, :order-value 610}]}
+
+  {:id "t04-order-limit"
+   :prompt "Return the id and value of the two most valuable orders, most valuable first."
+   :ordered? true
+   :expected [{:id 102, :order-value 1200} {:id 105, :order-value 610}]}
+
+  {:id "t05-offset"
+   :prompt "Sort orders by value ascending, skip the first one, and return the id and value of the next two."
+   :ordered? true
+   :expected [{:id 101, :order-value 250} {:id 104, :order-value 400}]}
+
+  {:id "t06-aggregate-count"
+   :prompt "Count the orders in each status."
+   :expected [{:status "shipped", :n 3} {:status "pending", :n 1} {:status "cancelled", :n 1}]}
+
+  {:id "t07-join-sum"
+   :prompt "For each customer that has orders, return their name and the total value of their orders."
+   :expected [{:customer-name "Ada", :total 1450} {:customer-name "Brian", :total 690} {:customer-name "Chen", :total 400}]}
+
+  {:id "t08-left-join"
+   :prompt "List every customer's name with the id of each of their orders; customers without orders appear once with a null order id."
+   :expected [{:customer-name "Ada", :order-id 101} {:customer-name "Ada", :order-id 102}
+              {:customer-name "Brian", :order-id 103} {:customer-name "Brian", :order-id 105}
+              {:customer-name "Chen", :order-id 104} {:customer-name "Dana", :order-id nil}]}
+
+  {:id "t09-not-exists"
+   :prompt "List the names of customers who have no orders."
+   :expected [{:customer-name "Dana"}]}
+
+  {:id "t10-exists"
+   :prompt "List the names of customers with at least one shipped order, each name once."
+   :expected [{:customer-name "Ada"} {:customer-name "Brian"}]}
+
+  {:id "t11-unify-where-or"
+   :prompt "List the order id and customer name for every order where the customer is a VIP or the order is worth more than 1000."
+   :expected [{:order-id 101, :customer-name "Ada"} {:order-id 102, :customer-name "Ada"}]}
+
+  {:id "t12-concat"
+   :prompt "For each customer, return one column `label` holding the name followed by the city in parentheses, e.g. `Ada (London)`."
+   :expected [{:label "Ada (London)"} {:label "Brian (Paris)"} {:label "Chen (London)"} {:label "Dana (Berlin)"}]}
+
+  {:id "t13-star-without"
+   :prompt "Return every column of every order except tags."
+   :expected [{:xt/id 101, :customer-id 1, :order-value 250, :status "shipped"}
+              {:xt/id 102, :customer-id 1, :order-value 1200, :status "pending"}
+              {:xt/id 103, :customer-id 2, :order-value 80, :status "shipped"}
+              {:xt/id 104, :customer-id 3, :order-value 400, :status "cancelled"}
+              {:xt/id 105, :customer-id 2, :order-value 610, :status "shipped"}]}
+
+  {:id "t14-unnest"
+   :prompt "Return one row per order and tag: the order id and the tag. Orders without tags produce no rows."
+   :expected [{:order-id 101, :tag "gift"} {:order-id 101, :tag "express"} {:order-id 102, :tag "bulk"}
+              {:order-id 104, :tag "express"} {:order-id 105, :tag "gift"}]}
+
+  {:id "t15-rel"
+   :prompt "Using an inline relation in the query that maps widget to category \"tools\" and gadget to category \"toys\", return each product's name, category and current price."
+   :expected [{:product "widget", :category "tools", :price 15} {:product "gadget", :category "toys", :price 45}]}
+
+  {:id "t16-current-version"
+   :prompt "Return each product's name and current price."
+   :expected [{:product "widget", :price 15} {:product "gadget", :price 45}]}
+
+  {:id "t17-valid-time-at"
+   :prompt "Return each product's name and its price as of valid time 2020-07-01T00:00:00Z."
+   :expected [{:product "widget", :price 10} {:product "gadget", :price 50}]}
+
+  {:id "t18-all-time-history"
+   :prompt "Return the full valid-time price history of widget: the price and the start and end of each version's valid time, oldest first."
+   :ordered? true
+   :expected [{:price 10, :valid-from #inst "2020-01-01", :valid-to #inst "2021-01-01"}
+              {:price 12, :valid-from #inst "2021-01-01", :valid-to #inst "2023-01-01"}
+              {:price 15, :valid-from #inst "2023-01-01", :valid-to nil}]}
+
+  {:id "t19-valid-time-in"
+   :prompt "List the names of products whose price was above 40 at any point during calendar year 2021 (valid time), each name once."
+   :expected [{:product "gadget"}]}
+
+  {:id "t20-join-rename"
+   :prompt "List each post's title with its author's customer name."
+   :expected [{:title "Hello", :customer-name "Ada"} {:title "Bonjour", :customer-name "Brian"} {:title "Quiet", :customer-name "Dana"}]}
+
+  {:id "t21-count-with-zero"
+   :prompt "Return every post's title and its number of comments, including posts with no comments (count 0)."
+   :expected [{:title "Hello", :n 2} {:title "Bonjour", :n 1} {:title "Quiet", :n 0}]}
+
+  {:id "t22-nested-field"
+   :prompt "List the titles of posts whose meta lang is \"en\"."
+   :expected [{:title "Hello"} {:title "Quiet"}]}
+
+  {:id "t23-siblings-left-join"
+   :prompt "List every person and each of their siblings (same parent, different person); a person without siblings appears once with a null sibling."
+   :expected [{:person "alice", :sibling "bob"} {:person "bob", :sibling "alice"} {:person "carol", :sibling "erin"}
+              {:person "erin", :sibling "carol"} {:person "dave", :sibling nil}]}
+
+  {:id "t24-avg"
+   :prompt "For each post that has comments, return its title and the average comment rating."
+   :expected [{:title "Hello", :avg-rating 3.5} {:title "Bonjour", :avg-rating 4.0}]}
+
+  {:id "t25-order-desc"
+   :prompt "List customer names in reverse alphabetical order."
+   :ordered? true
+   :expected [{:customer-name "Dana"} {:customer-name "Chen"} {:customer-name "Brian"} {:customer-name "Ada"}]}
+
+  {:id "t26-max-no-group"
+   :prompt "Return a single row with the highest order value, in a column named max-value."
+   :expected [{:max-value 1200}]}
+
+  {:id "t27-count-distinct"
+   :prompt "Return a single row with the number of distinct customer cities, in a column named n."
+   :expected [{:n 3}]}
+
+  {:id "t28-array-contains"
+   :prompt "List the ids of orders whose tags include \"gift\"."
+   :expected [{:order-id 101} {:order-id 105}]}
+
+  {:id "t29-arithmetic"
+   :prompt "For each order return its id, value and a column tax equal to 20% of the value."
+   :expected [{:order-id 101, :order-value 250, :tax 50.0} {:order-id 102, :order-value 1200, :tax 240.0}
+              {:order-id 103, :order-value 80, :tax 16.0} {:order-id 104, :order-value 400, :tax 80.0}
+              {:order-id 105, :order-value 610, :tax 122.0}]}
+
+  {:id "t30-like"
+   :prompt "List the names of customers whose name starts with C or D."
+   :expected [{:customer-name "Chen"} {:customer-name "Dana"}]}
+
+  {:id "t31-scalar-subquery"
+   :prompt "For each order return its id and the name of its customer, fetching the name with a scalar subquery rather than a join."
+   :expected [{:order-id 101, :customer-name "Ada"} {:order-id 102, :customer-name "Ada"} {:order-id 103, :customer-name "Brian"}
+              {:order-id 104, :customer-name "Chen"} {:order-id 105, :customer-name "Brian"}]}
+
+  ;; Held out: added after the first runs revised the skill, to test the
+  ;; same features (subquery arguments, exists?, nested fields) in new shapes.
+
+  {:id "t32-exists-filtered"
+   :prompt "List the titles of posts that have at least one comment rated 5."
+   :expected [{:title "Hello"}]}
+
+  {:id "t33-nested-compare"
+   :prompt "List the titles of posts whose meta words count is greater than 100."
+   :expected [{:title "Hello"} {:title "Bonjour"}]}
+
+  {:id "t34-subquery-count-filter"
+   :prompt "List the names of customers with at least two orders, counting them with a subquery."
+   :expected [{:customer-name "Ada"} {:customer-name "Brian"}]}
+
+  {:id "t35-subquery-max"
+   :prompt "For every customer return their name and the value of their most valuable order (null for customers without orders), using a subquery."
+   :expected [{:customer-name "Ada", :top 1200} {:customer-name "Brian", :top 610}
+              {:customer-name "Chen", :top 400} {:customer-name "Dana", :top nil}]}]}

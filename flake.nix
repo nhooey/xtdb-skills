@@ -72,7 +72,7 @@
         let
           citations = import ./nix/citations.nix {
             inherit pkgs;
-            skillsDir = ./skills;
+            root = ./.;
           };
         in
         {
@@ -93,6 +93,13 @@
               help = "lock, verify or drift-check a skill's upstream citations";
               package = citations.tool;
             }
+          ];
+
+          # Babashka runs the repo scripts; the Clojure CLI runs the evals,
+          # which talk to an XTDB node through the XTDB client.
+          devshells.default.packages = [
+            pkgs.babashka
+            pkgs.clojure
           ];
 
           treefmt = {
