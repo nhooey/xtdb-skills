@@ -11,4 +11,4 @@
 /.worktrees/
 
 # Clojure CLI classpath cache for the evals.
-/evals/*/.cpcache/
+/evals/.cpcache/

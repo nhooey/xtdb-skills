@@ -1,0 +1,17 @@
+# The node for the garbage-collector observations: the Docker image's own
+# local config, small blocks so a few writes roll several, and the
+# collector on with nothing kept back.
+server:
+  host: '*'
+  port: 5432
+log: !Local
+  path: "/var/lib/xtdb/log"
+storage: !Local
+  path: "/var/lib/xtdb/buffers"
+indexer:
+  rowsPerBlock: 50
+garbageCollector:
+  enabled: true
+  blocksToKeep: 2
+  garbageLifetime: PT0S
+  approxRunInterval: PT3S

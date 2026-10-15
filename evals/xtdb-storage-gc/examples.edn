@@ -1,0 +1,22 @@
+;; Observations for the xtdb-storage-gc skill, made by
+;; `clojure -M:eval storage xtdb-storage-gc` from evals/. That command starts
+;; :image twice on a fresh data directory, once with gc-on.yaml and once
+;; with gc-off.yaml, writes the same rows to each, waits, and compares the
+;; two storage directories. Each example names one fact it checks.
+{:skill "../../skills/xtdb-storage-gc/SKILL.md"
+
+ :storage {:image "ghcr.io/xtdb/xtdb:2.1.0"
+           :port 15433
+           :blocks-to-keep 2
+           ;; 12 transactions rewriting the same 60 ids, with 50 rows per block
+           :rounds 12
+           :rows 60
+           :settle-ms 40000}
+
+ :example
+ [{:id "gc-yaml-starts" :check :gc-starts}
+  {:id "gc-off-silent" :check :gc-off-silent}
+  {:id "gc-keeps-recent-blocks" :check :keeps-recent-blocks}
+  {:id "gc-deletes-superseded" :check :deletes-superseded}
+  {:id "gc-keeps-l0" :check :keeps-l0}
+  {:id "gc-log-untouched" :check :log-untouched}]}

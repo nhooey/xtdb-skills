@@ -95,6 +95,23 @@ omit the vector when the outer and inner names match — see
 [Subqueries](#subqueries) for a form that silently drops
 arguments.[^arguments][^subqueries][^obs-exists-with-fn][^obs-args-map-ignored]
 
+## Joining a list of values
+
+`rel` turns a vector of maps into rows, binding their keys like `from`
+does, and takes a parameter in place of the literal vector.[^rel] Inside
+`unify`, a shared variable makes it a join, so a list of ids passed as an
+argument selects those rows:[^unify-clauses][^obs-rel-ids]
+
+<!-- xtql-example: rel-ids -->
+```clojure
+(fn [ids]
+  (unify (from :customers [{:xt/id id} customer-name])
+         (rel ids [id])))
+```
+
+Here `ids` is `[{:id 1} {:id 3}]`: one map per row, not a vector of bare
+ids.[^rel][^obs-rel-ids]
+
 ## Temporal filters
 
 <!-- xtql-example: valid-time-in -->
@@ -108,6 +125,24 @@ keyword `:all-time`; a missing filter means `at` now in both valid and
 system time.[^temporal-filters] The parser takes `:all-time` only as a
 keyword and checks the argument count of each form, so `(in t)` or
 `all-time` as a symbol is a parse error, not an empty result.[^src-parse-temporal-filter]
+
+Each version's time range is readable as columns: bind `:xt/valid-from`,
+`:xt/valid-to`, `:xt/system-from` or `:xt/system-to` in `from` like any
+other key.[^obs-temporal-columns][^obs-system-columns] With
+`:for-valid-time :all-time` that lists a row's valid-time versions and
+when each applied:
+
+<!-- xtql-example: temporal-columns -->
+```clojure
+(from :prices {:bind [{:xt/id "widget"} price {:xt/valid-from from, :xt/valid-to to}]
+               :for-valid-time :all-time})
+```
+
+With `:for-system-time :all-time` and the system-time columns, it lists
+the versions as recorded, an earlier one with a `:xt/system-to` and the
+current one without.[^obs-system-columns] A `:xt/valid-to` or
+`:xt/system-to` that is still open is absent from the row rather than a
+far-future time.[^obs-temporal-columns][^obs-current-system-to]
 
 ## Subqueries
 
@@ -221,3 +256,8 @@ the report names, then `bump` to the new tag.
 [^src-xt-q]: [api.clj `(defn plan-q`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/api/src/main/clojure/xtdb/api.clj#L86-L126)
 [^obs-exists-in-where]: Observed on XTDB v2.1.0: example `not-exists-vector` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-exists-with-fn]: Observed on XTDB v2.1.0: example `exists-bare` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-rel-ids]: Observed on XTDB v2.1.0: example `rel-ids` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-temporal-columns]: Observed on XTDB v2.1.0: example `temporal-columns` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^rel]: [queries.md § Rel(ation), v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L298-L329)
+[^obs-current-system-to]: Observed on XTDB v2.1.0: example `current-system-to-absent` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-system-columns]: Observed on XTDB v2.1.0: example `system-columns` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.

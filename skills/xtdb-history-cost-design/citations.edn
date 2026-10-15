@@ -1,0 +1,26 @@
+;; Spans of xtdb/xtdb this skill cites (:cite) and eval examples it cites
+;; for behaviour no source states (:observed). See the README's "Citing
+;; XTDB sources" for the anchor kinds and the `skill-citations` commands.
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.1.0"
+          :watch ["docs/src/content/docs/reference/main/xtql/queries.md"
+                  "docs/src/content/docs/about/txs-in-xtdb.md"
+                  "docs/src/content/docs/about/time-in-xtdb.md"]}
+
+ :observations "../../evals/xtdb-history-cost-design/examples.edn"
+
+ :cite
+ [{:id "atomic-txs" :path "docs/src/content/docs/about/txs-in-xtdb.md" :line "sends them as an atomic message on a shared log"}
+  {:id "system-time" :path "docs/src/content/docs/about/time-in-xtdb.md" :heading "System time"}
+  {:id "unify-clauses" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify clauses"}
+  {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}
+  {:id "joins" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Joins - join, left join"}]
+
+ :observed
+ [{:id "obs-whole-versions" :example "whole-document-versions"}
+  {:id "obs-split-volatile" :example "split-volatile-versions"}
+  {:id "obs-split-stable" :example "split-stable-versions"}
+  {:id "obs-identical-put" :example "identical-put-adds-version"}
+  {:id "obs-split-as-of" :example "split-as-of"}
+  {:id "obs-split-missing" :example "split-missing-half"}
+  {:id "obs-split-left-join" :example "split-left-join"}]}

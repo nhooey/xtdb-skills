@@ -55,7 +55,12 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 | Name | Description | Link |
 | --- | --- | --- |
-| xtdb-xtql-queries | Write, read and debug XTQL queries for XTDB 2.x, pinned to XTDB v2.1.0. | [skills/xtdb-xtql-queries](skills/xtdb-xtql-queries) |
+| xtdb-erase-and-history | What put, patch, delete and erase keep in XTDB 2.x history, and how to drop a row's history but keep the row. | [skills/xtdb-erase-and-history](skills/xtdb-erase-and-history) |
+| xtdb-history-cost-design | Split a document's volatile fields into their own table so history doesn't store the whole document per change. | [skills/xtdb-history-cost-design](skills/xtdb-history-cost-design) |
+| xtdb-storage-gc | Turn on XTDB 2.x's storage garbage collector, off by default, and what it never deletes. | [skills/xtdb-storage-gc](skills/xtdb-storage-gc) |
+| xtdb-xtql-queries | Write, read and debug XTQL queries for XTDB 2.x. | [skills/xtdb-xtql-queries](skills/xtdb-xtql-queries) |
+
+Each is pinned to XTDB v2.1.0.
 
 ## Citing XTDB sources
 
@@ -78,16 +83,19 @@ skill-citations pairs  skills/<skill>                # each citing passage besid
 
 ## Measuring a skill
 
-A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/xtdb-xtql-queries/` measures the skill against a real XTDB instead. It is Clojure and talks to the node through the XTDB client: `seed.edn` holds the fixture as transactions, `tasks.edn` holds 35 tasks with their expected rows, and `examples.edn` holds the expected result of every example in the skill plus the observations its footnotes cite.
+A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 35 tasks with their expected rows.
 
 ```sh
 docker run -d --rm --name xtdb-eval -p 15432:5432 ghcr.io/xtdb/xtdb:2.1.0
-cd evals/xtdb-xtql-queries
-clojure -M:eval seed                                   # load seed.edn
-clojure -M:eval prompt > tasks.txt                     # the sheet an answerer gets
-clojure -M:eval score baseline.edn with-skill.edn      # answer files: {task-id query-string}
-clojure -M:eval examples                               # the skill's examples and the observations
+cd evals
+clojure -M:eval seed xtdb-xtql-queries                 # load seed.edn
+clojure -M:eval prompt xtdb-xtql-queries > tasks.txt   # the sheet an answerer gets
+clojure -M:eval score xtdb-xtql-queries baseline.edn with-skill.edn   # {task-id query-string}
+clojure -M:eval examples xtdb-xtql-queries xtdb-erase-and-history xtdb-history-cost-design
+clojure -M:eval storage xtdb-storage-gc                # about 2 minutes; needs Docker
 ```
+
+`storage` starts its own two nodes, one with the garbage collector on and one with it off, writes the same rows to both, and compares their storage directories.
 
 Every ```` ```clojure ```` block in the skill is preceded by `<!-- xtql-example: id… -->`, one id per top-level form; `examples` fails on an unmarked block, so a new example can't go untested. `skill-citations pairs` feeds a reviewer who checks each claim against only what it cites. That catches misreadings, while running queries catches errors in the sources themselves, such as the docs' `exists`.
 

@@ -1,0 +1,28 @@
+;; Spans of xtdb/xtdb this skill cites (:cite) and eval examples it cites
+;; for behaviour no source states (:observed). See the README's "Citing
+;; XTDB sources" for the anchor kinds and the `skill-citations` commands.
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.1.0"
+          :watch ["docs/src/content/docs/reference/main/xtql/txs.md"
+                  "docs/src/content/docs/about/time-in-xtdb.md"]}
+
+ :observations "../../evals/xtdb-erase-and-history/examples.edn"
+
+ :cite
+ [{:id "system-time" :path "docs/src/content/docs/about/time-in-xtdb.md" :heading "System time"}
+  {:id "patch-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`patch-docs`"}
+  {:id "delete-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`delete-docs`"}
+  {:id "erase-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`erase-docs`"}
+  {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}]
+
+ :observed
+ [{:id "obs-identical-put" :example "identical-put-adds-version"}
+  {:id "obs-put-whole" :example "put-stores-whole-document"}
+  {:id "obs-patch-whole" :example "patch-adds-whole-version"}
+  {:id "obs-history-of-id" :example "history-of-id"}
+  {:id "obs-delete-hides-current" :example "delete-hides-current"}
+  {:id "obs-delete-keeps-history" :example "delete-keeps-history"}
+  {:id "obs-erase-all-versions" :example "erase-removes-all-versions"}
+  {:id "obs-erase-per-table" :example "erase-is-per-table"}
+  {:id "obs-erase-then-put" :example "erase-then-put"}
+  {:id "obs-put-then-erase" :example "put-then-erase"}]}

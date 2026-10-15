@@ -1,0 +1,53 @@
+;; Spans of xtdb/xtdb this skill cites (:cite) and eval checks it cites for
+;; behaviour no source states (:observed), made by the eval's `storage`
+;; command. See the README's "Citing XTDB sources" for the anchor kinds.
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.1.0"
+          :watch ["core/src/main/kotlin/xtdb/garbage_collector"
+                  "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt"
+                  "core/src/main/kotlin/xtdb/api/CompactorConfig.kt"
+                  "core/src/main/kotlin/xtdb/api/log/LocalLog.kt"
+                  "core/src/main/clojure/xtdb/garbage_collector.clj"
+                  "core/src/main/clojure/xtdb/trie_catalog.clj"
+                  "docs/src/content/docs/ops/config/log.md"
+                  "docs/src/content/docs/ops/config/log/kafka.md"]}
+
+ :observations "../../evals/xtdb-storage-gc/examples.edn"
+ :observed-by "storage"
+
+ :cite
+ [{:id "gc-config" :path "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt" :form "data class GarbageCollectorConfig("}
+  {:id "gc-init" :path "core/src/main/clojure/xtdb/garbage_collector.clj" :form "(defmethod ig/init-key :xtdb/garbage-collector"}
+  {:id "gc-accessor" :path "core/src/main/clojure/xtdb/garbage_collector.clj" :form "(defn garbage-collector"}
+  {:id "clj-config" :path "core/src/main/clojure/xtdb/garbage_collector.clj" :form "(defmethod xtn/apply-config! :xtdb/garbage-collector"}
+  {:id "node-config" :path "core/src/main/kotlin/xtdb/api/Xtdb.kt" :line "var garbageCollector: GarbageCollectorConfig"}
+  {:id "yaml-config" :path "core/src/main/kotlin/xtdb/api/YamlSerde.kt" :form "fun nodeConfig(yamlString: String)"}
+  {:id "duration-serde" :path "api/src/main/kotlin/xtdb/Serde.kt" :form "object DurationSerde"}
+  {:id "gc-class" :path "core/src/main/kotlin/xtdb/garbage_collector/GarbageCollector.kt" :form "class GarbageCollector @JvmOverloads constructor("}
+  {:id "block-gc" :path "core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt" :form "class BlockGarbageCollector("}
+  {:id "garbage-fn" :path "core/src/main/clojure/xtdb/trie_catalog.clj" :form "(defn garbage-fn"}
+  {:id "supersede" :path "core/src/main/clojure/xtdb/trie_catalog.clj" :form "(defn- supersede-by-block-idx"}
+  {:id "garbage-tries" :path "core/src/main/clojure/xtdb/trie_catalog.clj" :form "(defn garbage-tries"}
+  {:id "compactor-add" :path "core/src/main/kotlin/xtdb/compactor/Compactor.kt" :line "trieCatalog.addTries("}
+  {:id "node-clj-key" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :garbage-collector"}
+  {:id "event-order" :path "core/src/main/kotlin/xtdb/trie/EventRowPointer.kt" :line "r.systemFrom.compareTo(l.systemFrom)"}
+  {:id "segment-merge" :path "core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt" :form "internal class SegmentMerge("}
+  {:id "erase-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`erase-docs`"}
+  {:id "local-log" :path "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" :form "class LocalLog("}
+  {:id "log-local-disk" :path "docs/src/content/docs/ops/config/log.md" :heading "Local disk"}
+  {:id "epoch" :path "docs/src/content/docs/ops/config/log.md" :heading "Bumping an Epoch"}
+  {:id "kafka-topic" :path "modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt" :form "private fun AdminClient.ensureTopicExists("}
+  {:id "kafka-setup" :path "docs/src/content/docs/ops/config/log/kafka.md" :heading "Setup"}
+  {:id "compactor-threads" :path "core/src/main/kotlin/xtdb/api/CompactorConfig.kt" :line "var threads: Int ="}
+  {:id "compactor-config" :path "core/src/main/kotlin/xtdb/api/CompactorConfig.kt" :line "availableProcessors() / 2"}
+  {:id "compactor-init" :path "core/src/main/clojure/xtdb/compactor.clj" :form "(defmethod ig/init-key :xtdb/compactor"}
+  {:id "erase-disk" :path "docs/src/content/docs/quickstart/sql-overview.mdx" :heading "ERASE as 'hard' delete"}
+  {:id "polygon-erase" :path "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt" :form "class PolygonCalculator("}]
+
+ :observed
+ [{:id "obs-superseded" :example "gc-deletes-superseded"}
+  {:id "obs-yaml-starts" :example "gc-yaml-starts"}
+  {:id "obs-off-silent" :example "gc-off-silent"}
+  {:id "obs-keeps-blocks" :example "gc-keeps-recent-blocks"}
+  {:id "obs-keeps-l0" :example "gc-keeps-l0"}
+  {:id "obs-log-untouched" :example "gc-log-untouched"}]}
