@@ -1,0 +1,38 @@
+;; Fixture for the XTQL eval: XTDB transactions, submitted in order by
+;; `clojure -M:eval seed`. Each table's columns are listed in tasks.edn.
+[[[:put-docs :customers
+   {:xt/id 1, :customer-name "Ada", :city "London", :vip true}
+   {:xt/id 2, :customer-name "Brian", :city "Paris", :vip false}
+   {:xt/id 3, :customer-name "Chen", :city "London", :vip false}
+   {:xt/id 4, :customer-name "Dana", :city "Berlin", :vip true}]
+
+  [:put-docs :orders
+   {:xt/id 101, :customer-id 1, :order-value 250, :status "shipped", :tags ["gift" "express"]}
+   {:xt/id 102, :customer-id 1, :order-value 1200, :status "pending", :tags ["bulk"]}
+   {:xt/id 103, :customer-id 2, :order-value 80, :status "shipped", :tags []}
+   {:xt/id 104, :customer-id 3, :order-value 400, :status "cancelled", :tags ["express"]}
+   {:xt/id 105, :customer-id 2, :order-value 610, :status "shipped", :tags ["gift"]}]
+
+  [:put-docs :posts
+   {:xt/id "p1", :title "Hello", :author-id 1, :meta {:lang "en", :words 120}}
+   {:xt/id "p2", :title "Bonjour", :author-id 2, :meta {:lang "fr", :words 300}}
+   {:xt/id "p3", :title "Quiet", :author-id 4, :meta {:lang "en", :words 40}}]
+
+  [:put-docs :comments
+   {:xt/id "c1", :post-id "p1", :body "nice", :rating 5}
+   {:xt/id "c2", :post-id "p1", :body "meh", :rating 2}
+   {:xt/id "c3", :post-id "p2", :body "super", :rating 4}]
+
+  [:put-docs :people
+   {:xt/id "alice", :parent "zoe"}
+   {:xt/id "bob", :parent "zoe"}
+   {:xt/id "carol", :parent "yan"}
+   {:xt/id "dave", :parent "xu"}
+   {:xt/id "erin", :parent "yan"}]]
+
+ ;; Bitemporal history: the price of each product over valid time.
+ [[:put-docs {:into :prices, :valid-from #inst "2020-01-01", :valid-to #inst "2021-01-01"} {:xt/id "widget", :price 10}]
+  [:put-docs {:into :prices, :valid-from #inst "2020-06-01", :valid-to #inst "2022-01-01"} {:xt/id "gadget", :price 50}]]
+ [[:put-docs {:into :prices, :valid-from #inst "2021-01-01", :valid-to #inst "2023-01-01"} {:xt/id "widget", :price 12}]]
+ [[:put-docs {:into :prices, :valid-from #inst "2023-01-01"} {:xt/id "widget", :price 15}]
+  [:put-docs {:into :prices, :valid-from #inst "2022-01-01"} {:xt/id "gadget", :price 45}]]]

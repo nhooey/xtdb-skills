@@ -1,147 +1,107 @@
 {
-  "repo": "xtdb/xtdb",
-  "tag": "v2.1.0",
-  "commit": "ca78d5609dfa7393c465c1e1435a8f20fa3eb371",
-  "files": {
-    "docs/src/content/docs/reference/main/xtql/queries.md": "4021d44b47bf478bcfb661532d6cebf4b08327fa0eefe50debc8154db342d03c",
-    "api/src/main/clojure/xtdb/xtql.clj": "067e9a5d57fc01db9c04e735f4f15ddedbb7fe5ae1f2ff01311951636c88b580"
+  "repo" : "xtdb/xtdb",
+  "tag" : "v2.1.0",
+  "commit" : "ca78d5609dfa7393c465c1e1435a8f20fa3eb371",
+  "files" : {
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "4021d44b47bf478bcfb661532d6cebf4b08327fa0eefe50debc8154db342d03c",
+    "api/src/main/clojure/xtdb/xtql.clj" : "067e9a5d57fc01db9c04e735f4f15ddedbb7fe5ae1f2ff01311951636c88b580",
+    "api/src/main/clojure/xtdb/api.clj" : "dda3d526789280474d83c6db4debb33d6f2f386a8044957cd8c8df0b3ccc590d"
   },
-  "citations": {
-    "grammar": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        7,
-        36
-      ],
-      "sha256": "8ca008fff36718cc4f272ea7d708b5b6198232796894d04e102657754107370d"
+  "citations" : {
+    "temporal-filters" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 162, 190 ],
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
     },
-    "source-operators": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        38,
-        44
-      ],
-      "sha256": "c004c9e029d8133902f1209380c11377f3b7eeacae9945148104b390960f67b3"
+    "binding-specs" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 545, 588 ],
+      "sha256" : "662c26a50a8fa5a3ba7972382c64560bcd984a9cdb7d822080d04fba8463372b"
     },
-    "tail-operators": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        47,
-        59
-      ],
-      "sha256": "54a892818d73ee432ec45e1ec477d90320a8870c7f90d9c74a9dcda9bdfdcc48"
+    "grammar" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 7, 36 ],
+      "sha256" : "8ca008fff36718cc4f272ea7d708b5b6198232796894d04e102657754107370d"
     },
-    "unify-clauses": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        62,
-        78
-      ],
-      "sha256": "2105f0a8eb1ab52e4f54957950536341a190cd95e93cf58351705c547f07c0a1"
+    "unnest" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 363, 402 ],
+      "sha256" : "068a4aa468bce78a8f7a8d40999247c7fa1c538d210f77d8d49d6fa4ede63965"
     },
-    "binding-specs": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        545,
-        588
-      ],
-      "sha256": "662c26a50a8fa5a3ba7972382c64560bcd984a9cdb7d822080d04fba8463372b"
+    "unify-clauses" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 62, 78 ],
+      "sha256" : "2105f0a8eb1ab52e4f54957950536341a190cd95e93cf58351705c547f07c0a1"
     },
-    "from": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        105,
-        190
-      ],
-      "sha256": "8b61bdcd9a3354b25f65a5834f543a2b1421a90def12f97d072bd874cc752acb"
+    "query-options" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 650, 698 ],
+      "sha256" : "4a9b34e9a0dd24e5875080eac9e3cc2afc059a0eb1ea082a5d13f48c51cef856"
     },
-    "src-from-opt-keys": {
-      "path": "api/src/main/clojure/xtdb/xtql.clj",
-      "lines": [
-        338,
-        338
-      ],
-      "sha256": "ffee423b61e1e14388dde7231f1b0f96d349bbddecac45de0899fade34fe5a38"
+    "tail-operators" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 47, 59 ],
+      "sha256" : "54a892818d73ee432ec45e1ec477d90320a8870c7f90d9c74a9dcda9bdfdcc48"
     },
-    "unify": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        331,
-        361
-      ],
-      "sha256": "116dd9d06e2aed4090c7ce167df424fb3b1be05d2e6266637422c70f1542d00c"
+    "src-from-opt-keys" : {
+      "path" : "api/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 338, 338 ],
+      "sha256" : "ffee423b61e1e14388dde7231f1b0f96d349bbddecac45de0899fade34fe5a38"
     },
-    "expressions": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        480,
-        485
-      ],
-      "sha256": "1aaca5e2d0dd1d4f21726a8efaf6f6d72d26e3ecd056684693e5a2fbe95232be"
+    "subqueries" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 487, 543 ],
+      "sha256" : "ca5291c42f480fc867311395269ced1443e2b8ee17cbab6843d80df9193aff67"
     },
-    "with": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        430,
-        463
-      ],
-      "sha256": "56b1294282d1e4e834c6ec5ae374c3a73a75a0486a02204e6b2cb05b28da6102"
+    "joins" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 192, 213 ],
+      "sha256" : "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782"
     },
-    "unnest": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        363,
-        402
-      ],
-      "sha256": "068a4aa468bce78a8f7a8d40999247c7fa1c538d210f77d8d49d6fa4ede63965"
+    "from" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 105, 190 ],
+      "sha256" : "8b61bdcd9a3354b25f65a5834f543a2b1421a90def12f97d072bd874cc752acb"
     },
-    "joins": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        192,
-        213
-      ],
-      "sha256": "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782"
+    "arguments" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 590, 648 ],
+      "sha256" : "2259a799e25143e438cd244e4fb529abfd9dba28006e68fc7d2fa674120d56c9"
     },
-    "arguments": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        590,
-        648
-      ],
-      "sha256": "2259a799e25143e438cd244e4fb529abfd9dba28006e68fc7d2fa674120d56c9"
+    "with" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 430, 463 ],
+      "sha256" : "56b1294282d1e4e834c6ec5ae374c3a73a75a0486a02204e6b2cb05b28da6102"
     },
-    "subqueries": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        487,
-        543
-      ],
-      "sha256": "ca5291c42f480fc867311395269ced1443e2b8ee17cbab6843d80df9193aff67"
+    "src-parse-expr" : {
+      "path" : "api/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 97, 161 ],
+      "sha256" : "d21e1994b9ac82bf5190d750e3a6ae436dcfd00a199a3d24bae3bbda49838f89"
     },
-    "temporal-filters": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        162,
-        190
-      ],
-      "sha256": "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+    "src-parse-temporal-filter" : {
+      "path" : "api/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 229, 260 ],
+      "sha256" : "8f446a52c54053894a864dafc3551a8e3007ab5f253b62701034733c79dd791b"
     },
-    "src-parse-temporal-filter": {
-      "path": "api/src/main/clojure/xtdb/xtql.clj",
-      "lines": [
-        229,
-        260
-      ],
-      "sha256": "8f446a52c54053894a864dafc3551a8e3007ab5f253b62701034733c79dd791b"
+    "expressions" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 480, 485 ],
+      "sha256" : "1aaca5e2d0dd1d4f21726a8efaf6f6d72d26e3ecd056684693e5a2fbe95232be"
     },
-    "query-options": {
-      "path": "docs/src/content/docs/reference/main/xtql/queries.md",
-      "lines": [
-        650,
-        698
-      ],
-      "sha256": "4a9b34e9a0dd24e5875080eac9e3cc2afc059a0eb1ea082a5d13f48c51cef856"
+    "unify" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 331, 361 ],
+      "sha256" : "116dd9d06e2aed4090c7ce167df424fb3b1be05d2e6266637422c70f1542d00c"
+    },
+    "source-operators" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 38, 44 ],
+      "sha256" : "c004c9e029d8133902f1209380c11377f3b7eeacae9945148104b390960f67b3"
+    },
+    "src-xt-q" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 86, 126 ],
+      "sha256" : "2172af93d71294846237decec6e9bba47b646b922b84585297edab50e78aa8ab"
     }
   }
 }

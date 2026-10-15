@@ -1,26 +1,29 @@
 # Citation checking for skills that pin their claims to upstream spans
-# (see scripts/skill_citations.py). `tool` is the CLI for the dev shell;
+# (see scripts/skill-citations.clj). `tool` is the CLI for the dev shell;
 # `checks` holds one `citations-<skill>` check per skill with a
 # citations.lock.json.
 #
 # A check fetches each cited file by raw URL at the locked commit, as a
 # fixed-output derivation keyed by the lock's file hash, so it runs in the
 # sandbox without network and fails if the lock, the footnotes or the
-# anchors disagree.
-{ pkgs, skillsDir }:
+# anchors disagree. It runs against the whole repo, so a skill's observed
+# footnotes can be checked against the eval examples they name.
+{ pkgs, root }:
 let
   inherit (pkgs) lib;
 
-  script = ../scripts/skill_citations.py;
+  script = ../scripts/skill-citations.clj;
 
   tool = pkgs.writeShellApplication {
     name = "skill-citations";
     runtimeInputs = [
+      pkgs.babashka
       pkgs.git
-      pkgs.python3
     ];
-    text = ''exec python3 ${script} "$@"'';
+    text = ''exec bb ${script} "$@"'';
   };
+
+  skillsDir = root + "/skills";
 
   citedSkills = lib.filterAttrs (
     name: type: type == "directory" && builtins.pathExists (skillsDir + "/${name}/citations.lock.json")
@@ -29,8 +32,7 @@ let
   checkFor =
     name:
     let
-      skill = skillsDir + "/${name}";
-      lock = lib.importJSON (skill + "/citations.lock.json");
+      lock = lib.importJSON (skillsDir + "/${name}/citations.lock.json");
       upstream = pkgs.linkFarm "${name}-cited-upstream" (
         lib.mapAttrsToList (path: sha256: {
           name = path;
@@ -41,8 +43,8 @@ let
         }) lock.files
       );
     in
-    pkgs.runCommand "citations-${name}" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-      python3 ${script} verify ${skill} --source ${upstream}
+    pkgs.runCommand "citations-${name}" { nativeBuildInputs = [ pkgs.babashka ]; } ''
+      bb ${script} verify ${root}/skills/${name} --source ${upstream}
       touch $out
     '';
 in

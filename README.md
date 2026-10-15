@@ -59,21 +59,39 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 ## Citing XTDB sources
 
-A skill can pin each claim to a span of the upstream docs or source at a Git tag, so a new XTDB release can be checked against only the parts the skill relies on:
+Every claim in a skill carries a footnote, of one of two kinds, so a new XTDB release can be checked against only the parts the skill relies on:
 
-- `citations.toml` (written by hand) names the repo and tag, the paths to watch, and one `[[cite]]` per footnote id with a path and an anchor: a Markdown `heading`, or the start of a top-level Clojure `form`.
-- `citations.lock.json` (generated) records the commit the tag resolved to, the hash of each cited file, and the lines and hash of each span.
+- **A span of the upstream docs or source at a Git tag.** `citations.edn` (written by hand) names the repo and tag, the paths to watch, and one `:cite` per footnote id with a path and an anchor: a Markdown `:heading`, the start of a top-level Clojure `:form`, or a unique `:line`. `citations.lock.json` (generated; JSON so Nix can read it) records the commit the tag resolved to, the hash of each cited file, and the lines and hash of each span.
+- **An observed result**, for behaviour no source states, such as a form XTDB silently ignores. An `:observed` entry names an example in the eval's `examples.edn`, which the eval re-runs against a live node.
 
-The dev shell's `skill-citations` command (`scripts/skill_citations.py`) does the work:
+The dev shell's `skill-citations` command (`scripts/skill-citations.clj`, Babashka) does the work:
 
 ```sh
 skill-citations lock   skills/<skill>                # resolve anchors, write the lock, regenerate footnotes
 skill-citations verify skills/<skill>                # lock, footnotes and anchors agree at the pinned tag
 skill-citations drift  skills/<skill> --to latest    # each citation unchanged / changed / moved / missing, with diffs
 skill-citations bump   skills/<skill> --to <tag>     # move the pin after updating the passages drift named
+skill-citations pairs  skills/<skill>                # each citing passage beside what it cites, for a reviewer
 ```
 
 `nix flake check` runs `verify` for every skill with a lock, as `checks.<system>.citations-<skill>`, fetching only the cited files at the locked commit.
+
+## Measuring a skill
+
+A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/xtdb-xtql-queries/` measures the skill against a real XTDB instead. It is Clojure and talks to the node through the XTDB client: `seed.edn` holds the fixture as transactions, `tasks.edn` holds 35 tasks with their expected rows, and `examples.edn` holds the expected result of every example in the skill plus the observations its footnotes cite.
+
+```sh
+docker run -d --rm --name xtdb-eval -p 15432:5432 ghcr.io/xtdb/xtdb:2.1.0
+cd evals/xtdb-xtql-queries
+clojure -M:eval seed                                   # load seed.edn
+clojure -M:eval prompt > tasks.txt                     # the sheet an answerer gets
+clojure -M:eval score baseline.edn with-skill.edn      # answer files: {task-id query-string}
+clojure -M:eval examples                               # the skill's examples and the observations
+```
+
+Every ```` ```clojure ```` block in the skill is preceded by `<!-- xtql-example: id… -->`, one id per top-level form; `examples` fails on an unmarked block, so a new example can't go untested. `skill-citations pairs` feeds a reviewer who checks each claim against only what it cites. That catches misreadings, while running queries catches errors in the sources themselves, such as the docs' `exists`.
+
+On 2026-10-15, fresh answerers on Claude Opus 5.5 scored 27/35 from memory and 35/35 with the skill. All 8 misses were subqueries (`exists?`, argument passing, `q` in `return`) and nested-field access, and 4 of those tasks were held out from the skill's revision. A reviewer subagent then checked the skill's claims against only what they cite: 15 of 68 went beyond their citations, and after rewording and observed footnotes, 7 of 62 still did. Those 7 were fixed in turn, and haven't been reviewed a third time.
 
 ## Adding a new skill
 

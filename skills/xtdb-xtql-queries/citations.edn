@@ -1,0 +1,52 @@
+;; The spans of xtdb/xtdb this skill cites, one :cite per footnote id, and
+;; the eval examples it cites for behaviour no source states, one :observed
+;; per footnote id. `skill-citations lock` resolves each :cite anchor at
+;; :tag, records its lines and hash in citations.lock.json, and regenerates
+;; the footnote definitions in SKILL.md; `drift` resolves them again at a
+;; newer tag. :observed examples are re-run by the eval's `examples` command.
+;;
+;; Anchors: :heading (a Markdown heading's text; the span runs to the next
+;; heading at the same or a higher level, or with :intro true to the next
+;; heading of any level), :form (the start of a top-level form in column 0;
+;; the span runs to the next one) or :line (text on exactly one line).
+
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.1.0"
+          ;; Changes under these paths that no citation covers are reported as gaps.
+          :watch ["docs/src/content/docs/reference/main/xtql/"
+                  "api/src/main/clojure/xtdb/xtql.clj"
+                  "core/src/main/clojure/xtdb/xtql/"
+                  "core/src/main/clojure/xtdb/xtql.clj"]}
+
+ :observations "../../evals/xtdb-xtql-queries/examples.edn"
+
+ :cite
+ [{:id "grammar" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Operators" :intro true}
+  {:id "source-operators" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Source operators"}
+  {:id "tail-operators" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Tail operators"}
+  {:id "unify-clauses" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify clauses"}
+  {:id "binding-specs" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Binding specs"}
+  {:id "from" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "From"}
+  {:id "src-from-opt-keys" :path "api/src/main/clojure/xtdb/xtql.clj" :form "(def from-opt-keys"}
+  {:id "unify" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify"}
+  {:id "expressions" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Expressions" :intro true}
+  {:id "with" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "With"}
+  {:id "unnest" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unnest"}
+  {:id "joins" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Joins - join, left join"}
+  {:id "arguments" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Arguments"}
+  {:id "subqueries" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Subqueries"}
+  {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}
+  {:id "src-parse-temporal-filter" :path "api/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-temporal-filter"}
+  {:id "query-options" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Query options"}
+  {:id "src-parse-expr" :path "api/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-expr"}
+  {:id "src-xt-q" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}]
+
+ :observed
+ [{:id "obs-v1-map" :example "v1-query-map"}
+  {:id "obs-star-in-unify" :example "star-in-unify"}
+  {:id "obs-args-map-ignored" :example "args-map-ignored"}
+  {:id "obs-q-in-with" :example "q-in-with"}
+  {:id "obs-exists-in-where" :example "not-exists-vector"}
+  {:id "obs-exists-with-fn" :example "exists-bare"}
+  {:id "obs-q-in-return" :example "q-in-return"}
+  {:id "obs-row-count-zero" :example "row-count-zero"}]}

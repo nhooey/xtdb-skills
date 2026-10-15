@@ -1,22 +1,28 @@
 ---
 name: xtdb-xtql-queries
-description: Write, read and debug XTQL queries for XTDB 2.x — the Clojure/EDN query language built from `from`, `rel`, `unify` and `->` pipelines, with binding specs, temporal filters and subqueries. Use when writing or reviewing XTQL, translating SQL or XTDB 1.x Datalog into XTQL, or when code passes a list form to `xt/q`. Pinned to XTDB v2.1.0; every claim cites the docs or source at that tag.
+description: Write, read and debug XTQL queries for XTDB 2.x — the Clojure/EDN query language built from `from`, `rel`, `unify` and `->` pipelines, with binding specs, temporal filters and subqueries. Use when writing or reviewing XTQL, translating XTDB 1.x Datalog into XTQL, or when code passes a list form to `xt/q`. Pinned to XTDB v2.1.0; every claim cites the docs or source at that tag, or an example re-run against a live node.
 ---
 
 # XTQL queries (XTDB 2.x)
 
-Everything here is checked against `xtdb/xtdb` at tag `v2.1.0`. Each claim
-carries a footnote that points at the exact docs section or source form it
-comes from; `citations.toml` names those spans and `citations.lock.json`
-records their hashes, so a newer XTDB release can be diffed against just
-the parts this skill relies on (see [Keeping this skill current](#keeping-this-skill-current)).
+Written from `xtdb/xtdb` at tag `v2.1.0`. Each claim carries a footnote
+that points either at the docs section or source form it was read from,
+or, where no source says it, at an example in the xtdb-skills eval that
+shows it on a live XTDB node. `citations.edn` names those spans and
+examples and `citations.lock.json` records the spans' hashes, so a newer
+XTDB release can be diffed against just the parts this skill relies on
+(see [Keeping this skill current](#keeping-this-skill-current)). The
+citation check proves a cited span still exists unchanged, not that the
+claim reads it correctly — when a claim matters, read its footnote.
 
 ## Not XTDB 1.x Datalog
 
-XTDB 2.x XTQL is a list form, `(from …)`, `(unify …)` or `(-> source tail…)`;
-its grammar has no map form.[^grammar] Most XTDB examples online are 1.x,
-whose `{:find [...] :where [...]}` query maps a 2.x node rejects, so
-translate such an example rather than copying it.
+An XTDB 2.x XTQL query is a list: a source operator (`from`, `rel` or
+`unify`), optionally piped through tail operators with `->`, optionally
+wrapped in `(fn [params] …)`. The grammar has no map form.[^grammar]
+`xt/q` treats a map such as `{:find [...] :where [...]}` as an unknown
+query type and throws,[^src-xt-q][^obs-v1-map] so a map-shaped Datalog
+example has to be rewritten as XTQL, not copied.
 
 ## Query shape
 
@@ -33,23 +39,26 @@ symbol.[^grammar] A source operator is valid alone; a tail operator never
 starts a pipeline.[^source-operators][^tail-operators]
 
 Inside `unify`, the valid clauses are `from`, `join`, `left-join`, `rel`,
-`unnest`, `where` and `with` — `join` and `left-join` exist only
-there.[^unify-clauses]
+`unnest`, `where` and `with`.[^unify-clauses] `join` and `left-join`
+appear in neither the source nor the tail operators, so they exist only
+there.[^source-operators][^tail-operators]
 
 ## Binding specs
 
+<!-- xtql-example: bind-project bind-rename bind-literal bind-param -->
 ```clojure
-(from :users [username first-name])            ; project columns
-(from :users [{:username login} first-name])   ; rename: column -> var
-(from :users [{:username "james"} first-name]) ; constrain to a literal
-(fn [username]
-  (from :users [{:username username} first-name])) ; constrain to a param
+(from :customers [customer-name city])             ; project columns
+(from :customers [{:customer-name name} city])     ; rename: column -> var
+(from :customers [{:city "London"} customer-name]) ; constrain to a literal
+(fn [city]
+  (from :customers [{:city city} customer-name]))  ; constrain to a param
 ```
 
 Keys in a binding map are column keywords; values are symbols (new
 variables or params) or literal expressions.[^binding-specs] `[*]`
-projects every column, but `*` is rejected inside `unify`, because its
-columns would unify implicitly.[^from]
+projects every column, but the docs mark `*` invalid inside `unify`,
+because its columns would unify implicitly,[^from] and XTDB rejects it
+there with an error.[^obs-star-in-unify]
 
 `from` takes either a binding vector or an options map whose only keys
 are `:bind`, `:for-valid-time` and `:for-system-time`.[^from][^src-from-opt-keys]
@@ -60,14 +69,15 @@ Within one `unify`, a logic variable used in two clauses must take the
 same value in both — that is the join condition. A variable that appears
 once is just returned.[^unify]
 
+<!-- xtql-example: unify-join -->
 ```clojure
 (unify (from :customers [{:xt/id customer-id} customer-name])
        (from :orders [{:xt/id order-id} customer-id order-value]))
 ```
 
-Implicit joins happen only inside `unify`. Outside it, an operator sees
-the columns the previous step returned; it does not unify with
-them.[^unify][^expressions]
+Unification applies to logic variables within a single `unify`.[^unify]
+In a pipeline, each later operator refers to the columns the previous
+step returned.[^expressions]
 
 `with` and `unnest` change shape with context: as tail operators they bind
 a column **keyword**, `(with {:full-name …})`; inside `unify` they bind a
@@ -81,14 +91,16 @@ reused in the `unify`) and the list of columns brought out.[^joins]
 
 A sub-query sees only its own parameters, never the outer scope. Pass
 values in with an application vector, `[(fn [post-id] …) post-id]`, or
-omit the vector when the outer and inner names match.[^arguments][^subqueries]
+omit the vector when the outer and inner names match — see
+[Subqueries](#subqueries) for a form that silently drops
+arguments.[^arguments][^subqueries][^obs-exists-with-fn][^obs-args-map-ignored]
 
 ## Temporal filters
 
+<!-- xtql-example: valid-time-in -->
 ```clojure
-(from :users {:bind [username]
-              :for-valid-time (in #inst "2020-01-01" #inst "2021-01-01")
-              :for-system-time (at #inst "2023-01-01")})
+(from :prices {:bind [{:xt/id product} price]
+               :for-valid-time (in #inst "2021-01-01" #inst "2022-01-01")})
 ```
 
 The filters are `(at t)`, `(from t)`, `(to t)`, `(in t1 t2)` and the
@@ -99,10 +111,66 @@ keyword and checks the argument count of each form, so `(in t)` or
 
 ## Subqueries
 
-Expression-position subqueries are `(q …)` for a single value, `(exists …)`
+Expression-position subqueries are `(q …)` for a single value, `(exists? …)`
 for a boolean, `(pull …)` for one nested map and `(pull* …)` for a vector
-of maps. `q` and `pull` throw if the sub-query returns more than one row.
-The boolean form is `exists`, not `exists?`.[^subqueries]
+of maps.[^subqueries] The boolean form is `exists?` — the docs' grammar
+writes `exists`, but the v2.1.0 parser only knows `exists?`; anything else
+falls through to an ordinary function call.[^src-parse-expr]
+
+A subquery sees no variables from the outer scope, only its
+parameters.[^subqueries] Pass a value in through a `fn` with parameters,
+either wrapped in an application vector or, when the outer variable has
+the same name, bare:[^src-parse-expr][^arguments]
+
+<!-- xtql-example: not-exists-vector exists-bare -->
+```clojure
+(-> (from :customers [{:xt/id cid} customer-name])
+    (where (not (exists? [(fn [cid] (from :orders [{:customer-id cid}])) cid])))
+    (return customer-name))
+
+(-> (from :customers [{:xt/id customer-id} customer-name])
+    (where (exists? (fn [customer-id] (from :orders [{:customer-id customer-id}]))))
+    (return customer-name))
+```
+
+A trailing `{:args […]}` map, as in the docs' `pull` examples,[^subqueries]
+passes the parser, which then reads only the first
+argument,[^src-parse-expr] so the map is **ignored**. The same `exists?`
+filter over customers keeps only those with orders when written with a
+`fn`,[^obs-exists-with-fn] but keeps every customer, Dana with no orders
+included, when written with `{:args [cid]}`, with no
+error.[^obs-args-map-ignored]
+
+`q` must return a single row with a single column, so end it with
+`(return col)`.[^subqueries] A count through
+`(q … (aggregate {:n (row-count)}))` is 0, not null, when the subquery
+matches nothing.[^obs-row-count-zero] Subqueries work in `with`[^obs-q-in-with]
+and `where`;[^obs-exists-in-where] in `return`, XTDB v2.1.0 rejects them with
+"subquery not allowed in expr here", so compute the value in `with` and
+then `return` the column.[^obs-q-in-return]
+
+<!-- xtql-example: q-in-with -->
+```clojure
+(-> (from :orders [{:xt/id order-id} customer-id])
+    (with {:customer-name (q [(fn [cid]
+                                (-> (from :customers [{:xt/id cid} customer-name])
+                                    (return customer-name)))
+                              customer-id])})
+    (return order-id customer-name))
+```
+
+## Nested fields
+
+Read a key of a nested map with `(. expr field)`, where `field` is a
+**symbol**: `(. meta lang)`. A keyword, `(. meta :lang)`, is a parse error
+(`xtql/malformed-get`).[^src-parse-expr]
+
+<!-- xtql-example: nested-field -->
+```clojure
+(-> (from :posts [title meta])
+    (where (= (. meta lang) "en"))
+    (return title))
+```
 
 ## Query options
 
@@ -143,3 +211,13 @@ the report names, then `bump` to the new tag.
 [^src-parse-temporal-filter]: [xtql.clj `(defn parse-temporal-filter`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/api/src/main/clojure/xtdb/xtql.clj#L229-L260)
 [^query-options]: [queries.md § Query options, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L650-L698)
 [^expressions]: [queries.md § Expressions, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L480-L485)
+[^src-parse-expr]: [xtql.clj `(defn parse-expr`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/api/src/main/clojure/xtdb/xtql.clj#L97-L161)
+[^obs-args-map-ignored]: Observed on XTDB v2.1.0: example `args-map-ignored` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-q-in-return]: Observed on XTDB v2.1.0: example `q-in-return` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-q-in-with]: Observed on XTDB v2.1.0: example `q-in-with` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-row-count-zero]: Observed on XTDB v2.1.0: example `row-count-zero` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-star-in-unify]: Observed on XTDB v2.1.0: example `star-in-unify` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-v1-map]: Observed on XTDB v2.1.0: example `v1-query-map` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^src-xt-q]: [api.clj `(defn plan-q`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/api/src/main/clojure/xtdb/api.clj#L86-L126)
+[^obs-exists-in-where]: Observed on XTDB v2.1.0: example `not-exists-vector` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-exists-with-fn]: Observed on XTDB v2.1.0: example `exists-bare` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
