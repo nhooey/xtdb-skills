@@ -13,6 +13,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # The data and document-hygiene repos' "all" packs: every skill each
+    # repo outputs. Each follows only nixpkgs, keeping its own compatible
+    # agent-skill-flake; the combiner still runs from the one pinned above.
+    data-skills = {
+      url = "github:nhooey/data-skills";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    document-hygiene-skills = {
+      url = "github:nhooey/document-hygiene-skills";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # skillspkgs' curated `authoring-with-git` combination (nix + humanizer +
     # anthropic/daymade skill-creation + superpowers + the whole git/GitHub
     # pack), surfaced through its own subdir flake so it stays re-composable as
@@ -30,6 +43,8 @@
     {
       nixpkgs,
       agent-skill-flake,
+      data-skills,
+      document-hygiene-skills,
       skillspkgs-combinations,
       ...
     }@inputs:
@@ -39,6 +54,8 @@
       name = "xtdb-skills-devshell";
       envName = "agent-skills-xtdb-skills-devshell";
       sources = [
+        { source = data-skills; }
+        { source = document-hygiene-skills; }
         { source = skillspkgs-combinations.combinations.authoring-with-git; }
       ];
     };
