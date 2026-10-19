@@ -1,7 +1,5 @@
 # xtdb-skills
 
-[![built with garnix](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fnhooey%2Fxtdb-skills)](https://garnix.io/repo/nhooey/xtdb-skills)
-
 A collection of [Agent Skills](https://www.anthropic.com/engineering/agent-skills) for [XTDB](https://xtdb.com), compatible with Claude Code, Codex, Gemini CLI, Cursor, and the `npx skills` / `gh skill` CLIs.
 
 ## Install
