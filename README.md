@@ -77,7 +77,9 @@ skill-citations bump   skills/<skill> --to <tag>     # move the pin after updati
 skill-citations pairs  skills/<skill>                # each citing passage beside what it cites, for a reviewer
 ```
 
-`nix flake check` runs `verify` for every skill with a lock, as `checks.<system>.citations-<skill>`, fetching only the cited files at the locked commit.
+`nix flake check` runs `verify` for every skill with a lock, as `checks.<system>.citations-<skill>`, fetching only the cited files at the locked commit. GitHub Actions runs it on every push to `master` and every pull request (`.github/workflows/ci.yml`).
+
+Every Monday, `.github/workflows/citation-drift.yml` runs `drift --to latest` for each skill through the flake's `skill-citations` app, pre-release tags included. While any cited span differs, it keeps one open issue holding the latest report and the steps to bump. `drift` skips the observed footnotes, so a bump also moves the eval's XTDB image and client to the new version and re-runs `examples` and `storage`.
 
 ## Measuring a skill
 

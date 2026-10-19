@@ -78,7 +78,15 @@
         {
           packages = base.packages.${system};
 
-          apps = base.apps.${system};
+          # `skill-citations` is an app as well as a dev-shell command, so the
+          # scheduled drift workflow can run it without entering the shell.
+          apps = base.apps.${system} // {
+            skill-citations = {
+              type = "app";
+              program = pkgs.lib.getExe citations.tool;
+              meta.description = "Lock, verify or drift-check a skill's upstream citations";
+            };
+          };
 
           inherit (citations) checks;
 

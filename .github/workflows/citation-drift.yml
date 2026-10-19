@@ -1,0 +1,61 @@
+name: Citation drift
+# Each skill pins its citations to an XTDB tag. Weekly, compare every
+# cited span with the newest upstream tag, pre-releases included, and
+# keep one open issue holding the latest report while any span differs.
+# `drift` covers cited source and docs only: the observed footnotes are
+# re-checked by the evals, which need an XTDB node and run by hand.
+on:
+  schedule:
+    - cron: "23 5 * * 1" # Mondays 05:23 UTC
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_TITLE: "Upstream XTDB changed spans the skills cite"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Report drift per skill
+        id: drift
+        run: |
+          drifted=false
+          : > report.md
+          for cfg in skills/*/citations.edn; do
+            skill=$(dirname "$cfg")
+            status=0
+            out=$(nix run .#skill-citations -- drift "$skill" --to latest 2>&1) || status=$?
+            printf '%s\n' "$out"
+            case $status in
+              0) ;;
+              1)
+                drifted=true
+                printf '## %s\n\n```\n%s\n```\n\n' "$skill" "$out" >> report.md
+                ;;
+              *) exit "$status" ;;
+            esac
+          done
+          echo "drifted=$drifted" >> "$GITHUB_OUTPUT"
+      - name: Open or update the drift issue
+        if: steps.drift.outputs.drifted == 'true'
+        run: |
+          {
+            echo "A newer XTDB tag changes spans the skills cite. For each skill:"
+            echo
+            echo '1. Fix the claims whose spans changed, then `skill-citations bump <skill> --to <tag>`.'
+            echo '2. Move the eval to the same version: the `ghcr.io/xtdb/xtdb` image and the client in `evals/deps.edn`.'
+            echo '3. Re-run `examples` and `storage` from `evals/`, which re-check the observed footnotes.'
+            echo
+            cat report.md
+          } > body.md
+          existing=$(gh issue list --state open --search "$ISSUE_TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file body.md
+          else
+            gh issue create --title "$ISSUE_TITLE" --body-file body.md
+          fi

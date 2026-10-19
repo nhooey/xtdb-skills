@@ -1,0 +1,22 @@
+name: CI
+# `nix flake check` builds every skill package and runs one
+# `citations-<skill>` check per skill, which re-verifies each cited span
+# against the locked upstream commit.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  flake-check:
+    name: nix flake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: nix flake check
+        run: nix flake check -L
