@@ -184,7 +184,7 @@ salaries   :xt/id (-> employees), :salary (int); salaries change over VALID
    :expected [{:customer-name "Ada", :top 1200} {:customer-name "Brian", :top 610}
               {:customer-name "Chen", :top 400} {:customer-name "Dana", :top nil}]}
 
-  ;; Added to grow the eval to 60 tasks. The ten marked :holdout are kept
+  ;; Added to grow the eval to 60 tasks. The nine marked :holdout are kept
   ;; out of any revision of the skill.
 
   {:id "t36-not-exists-filtered"
@@ -205,8 +205,8 @@ salaries   :xt/id (-> employees), :salary (int); salaries change over VALID
    :prompt "List the id and value of every order worth more than the average order value."
    :expected [{:id 102, :order-value 1200} {:id 105, :order-value 610}]}
 
+  ;; No longer held out: its subquery name-clash trap is now in the skill.
   {:id "t40-argmax-per-group"
-   :holdout true
    :prompt "For each customer that has orders, return their name and the id of their most valuable order."
    :expected [{:customer-name "Ada", :order-id 102} {:customer-name "Brian", :order-id 105}
               {:customer-name "Chen", :order-id 104}]}
