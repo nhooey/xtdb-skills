@@ -33,14 +33,20 @@ let
     name:
     let
       lock = lib.importJSON (skillsDir + "/${name}/citations.lock.json");
-      upstream = pkgs.linkFarm "${name}-cited-upstream" (
+      # A source's files under `prefix`: the skill's own at the root, each
+      # second source a citation names under _sources/<repo>@<tag>/.
+      filesOf =
+        prefix: source:
         lib.mapAttrsToList (path: sha256: {
-          name = path;
+          name = prefix + path;
           path = pkgs.fetchurl {
-            url = "https://raw.githubusercontent.com/${lock.repo}/${lock.commit}/${path}";
+            url = "https://raw.githubusercontent.com/${source.repo}/${source.commit}/${path}";
             inherit sha256;
           };
-        }) lock.files
+        }) source.files;
+      upstream = pkgs.linkFarm "${name}-cited-upstream" (
+        filesOf "" lock
+        ++ lib.concatLists (lib.mapAttrsToList (key: filesOf "_sources/${key}/") (lock.sources or { }))
       );
     in
     pkgs.runCommand "citations-${name}" { nativeBuildInputs = [ pkgs.babashka ]; } ''

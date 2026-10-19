@@ -24,6 +24,11 @@
 ;; heading at the same or a higher level, or with :intro true to the next
 ;; heading of any level), :form (the start of a top-level form in column 0;
 ;; the span runs to the next one) or :line (text on exactly one line).
+;;
+;; A :cite may name its own :source {:repo … :tag …}, for a claim about a
+;; second upstream. The lock keeps such a source's commit and file hashes
+;; under "sources", keyed "repo@tag", and with --source reads its files from
+;; TREE/_sources/repo@tag/. drift and bump move only the skill's own source.
 
 (require '[babashka.fs :as fs]
          '[babashka.process :as p]
@@ -182,32 +187,59 @@
         plain (if (re-find #"\.mdx?$" path) "?plain=1" "")]
     (str "https://github.com/" repo "/blob/" tag "/" path plain "#L" a "-L" b)))
 
+(defn own-source [cfg] (select-keys (:source cfg) [:repo :tag]))
+
+(defn cite-source
+  "The {:repo :tag} a citation reads from: its own :source, or the skill's."
+  [cfg c]
+  (if (:source c) (select-keys (:source c) [:repo :tag]) (own-source cfg)))
+
+(defn foreign? [cfg c] (not= (cite-source cfg c) (own-source cfg)))
+
+(defn source-key [{:keys [repo tag]}] (str repo "@" tag))
+
+(defn lock-source
+  "The lock's record of the source citation `id` reads from, with \"commit\" and \"files\"."
+  [lock id]
+  (if-let [k (get-in lock ["citations" id "source"])]
+    (get-in lock ["sources" k])
+    lock))
+
 (defn expected-footnotes [cfg lock]
-  (let [{:keys [repo tag]} (:source cfg)]
+  (let [{:keys [tag]} (:source cfg)]
     (merge
      (into {} (for [{:keys [id path] :as c} (:cite cfg)
                     :let [entry (get-in lock ["citations" id])
+                          src (cite-source cfg c)
+                          at (if (foreign? cfg c) (str (:repo src) " " (:tag src)) (:tag src))
                           where (cond (:heading c) (str "§ " (:heading c))
                                       (:form c) (str "`" (:form c) "`")
                                       :else (str "line " (first (get entry "lines"))))]]
-                [id (str "[^" id "]: [" (fs/file-name path) " " where ", " tag "]("
-                         (permalink repo tag {:path path :lines (get entry "lines")}) ")")]))
+                [id (str "[^" id "]: [" (fs/file-name path) " " where ", " at "]("
+                         (permalink (:repo src) (:tag src) {:path path :lines (get entry "lines")}) ")")]))
      (into {} (for [{:keys [id example]} (:observed cfg)]
                 [id (str "[^" id "]: Observed on XTDB " (:xtdb (:source cfg) tag) ": example `" example
                          "` in [examples.edn](" (:observations cfg) "), re-run by the eval's `" (:observed-by cfg "examples") "` command.")])))))
 
 ;; --- commands --------------------------------------------------------------
 
-(defn build-lock [cfg up]
-  (let [tag (get-in cfg [:source :tag])
-        commit ((:commit up) tag)]
+(defn build-lock [cfg ups]
+  (let [own (own-source cfg)
+        commit-of (memoize (fn [src] ((:commit (ups src)) (:tag src))))]
     (reduce (fn [lock {:keys [id path] :as c}]
-              (let [text (or ((:read up) commit path) (fail! (str "[" id "] " path " does not exist at " tag)))
-                    span (resolve-span text c)]
-                (-> lock
-                    (assoc-in ["files" path] (sha256 text))
-                    (assoc-in ["citations" id] {"path" path "lines" span "sha256" (span-hash text span)}))))
-            {"repo" (get-in cfg [:source :repo]) "tag" tag "commit" commit "files" {} "citations" {}}
+              (let [src (cite-source cfg c)
+                    foreign (foreign? cfg c)
+                    commit (commit-of src)
+                    text (or ((:read (ups src)) commit path) (fail! (str "[" id "] " path " does not exist at " (:tag src))))
+                    span (resolve-span text c)
+                    at (if foreign ["sources" (source-key src)] [])]
+                (-> (if foreign
+                      (update-in lock at #(or % {"repo" (:repo src) "tag" (:tag src) "commit" commit "files" {}}))
+                      lock)
+                    (assoc-in (conj at "files" path) (sha256 text))
+                    (assoc-in ["citations" id] (cond-> {"path" path "lines" span "sha256" (span-hash text span)}
+                                                 foreign (assoc "source" (source-key src)))))))
+            {"repo" (:repo own) "tag" (:tag own) "commit" (commit-of own) "files" {} "citations" {}}
             (:cite cfg))))
 
 (defn read-lock [skill & {:keys [required] :or {required true}}]
@@ -215,11 +247,18 @@
     (cond (fs/exists? f) (json/parse-string (slurp f))
           required (fail! (str f " is missing; run `lock` first")))))
 
-(defn upstream-for [cfg {:keys [source]} lock]
-  (if source
-    (do (when-not lock (fail! "--source needs an existing lock to name its commit"))
-        (tree-upstream source (get lock "commit")))
-    (git-upstream (get-in cfg [:source :repo]))))
+(defn upstreams-for
+  "A function from a source {:repo :tag} to its upstream."
+  [cfg {:keys [source]} lock]
+  (memoize
+   (fn [src]
+     (let [foreign (not= src (own-source cfg))]
+       (if source
+         (let [commit (if foreign (get-in lock ["sources" (source-key src) "commit"]) (get lock "commit"))]
+           (when-not lock (fail! "--source needs an existing lock to name its commit"))
+           (when-not commit (fail! (str "the lock has no commit for " (source-key src) "; run `lock`")))
+           (tree-upstream (if foreign (str (fs/path source "_sources" (source-key src))) source) commit))
+         (git-upstream (:repo src)))))))
 
 (defn observation-ids [skill cfg]
   (when-let [f (:observations cfg)]
@@ -227,7 +266,7 @@
       (when (fs/exists? path)
         (set (map :id (:example (edn/read-string {:readers {'inst identity}} (slurp (str path))))))))))
 
-(defn verify [skill cfg lock up]
+(defn verify [skill cfg lock ups]
   (let [cite-ids (set (map :id (:cite cfg)))
         ids (into cite-ids (map :id (:observed cfg)))
         refs (references skill)
@@ -241,6 +280,12 @@
                           (get-in cfg [:source :repo]) "@" (get-in cfg [:source :tag]))])
                   (when (not= (set (keys (get lock "citations"))) cite-ids)
                     ["lock and citations.edn disagree on ids; run `lock`"])
+                  (for [c (:cite cfg)
+                        :let [want (when (foreign? cfg c) (source-key (cite-source cfg c)))
+                              have (get-in lock ["citations" (:id c) "source"])]
+                        :when (or (not= want have) (and want (not (get-in lock ["sources" want]))))]
+                    (str "[" (:id c) "] cites " (or want "the skill's source") ", the lock says "
+                         (or have "the skill's source") "; run `lock`"))
                   (for [id (sort (remove ids (keys refs)))
                         :let [[f n] (first (refs id))]]
                     (str f ":" n " cites [^" id "], which citations.edn does not define"))
@@ -254,13 +299,14 @@
       (concat
        (for [[id line] (expected-footnotes cfg lock) :when (not= (defs id) line)]
          (str "footnote [^" id "] is stale or missing; run `lock`"))
-       (when up
+       (when ups
          (for [{:keys [id path] :as c} (:cite cfg)
                :let [entry (get-in lock ["citations" id])
-                     text ((:read up) (get lock "commit") path)
+                     src (lock-source lock id)
+                     text ((:read (ups (cite-source cfg c))) (get src "commit") path)
                      problem (cond
                                (nil? text) (str "[" id "] " path " missing at the locked commit")
-                               (not= (sha256 text) (get-in lock ["files" path])) (str "[" id "] " path " does not match the locked file hash")
+                               (not= (sha256 text) (get-in src ["files" path])) (str "[" id "] " path " does not match the locked file hash")
                                :else (let [span (try (resolve-span text c) (catch Exception e (ex-message e)))]
                                        (cond (string? span) span
                                              (or (not= span (get entry "lines")) (not= (span-hash text span) (get entry "sha256")))
@@ -270,7 +316,7 @@
 
 (defn cmd-lock [skill opts]
   (let [cfg (load-config skill)
-        lock (build-lock cfg (upstream-for cfg opts (read-lock skill :required false)))
+        lock (build-lock cfg (upstreams-for cfg opts (read-lock skill :required false)))
         want (expected-footnotes cfg lock)
         refs (references skill)]
     (spit (str (fs/path skill lock-name)) (str (json/generate-string lock {:pretty true}) "\n"))
@@ -291,11 +337,14 @@
 (defn cmd-verify [skill opts]
   (let [cfg (load-config skill)
         lock (read-lock skill)
-        up (upstream-for cfg opts lock)
-        now ((:commit up) (get lock "tag"))]
-    (if (not= now (get lock "commit"))
-      [(str "tag " (get lock "tag") " now resolves to " now ", not the locked " (get lock "commit"))]
-      (verify skill cfg lock up))))
+        ups (upstreams-for cfg opts lock)
+        moved (for [{:strs [repo tag commit]} (cons lock (vals (get lock "sources")))
+                    :let [now ((:commit (ups {:repo repo :tag tag})) tag)]
+                    :when (not= now commit)]
+                (str "tag " tag " of " repo " now resolves to " now ", not the locked " commit))]
+    (if (seq moved)
+      moved
+      (verify skill cfg lock ups))))
 
 (defn tag-key [tag]
   (when-let [[_ ma mi pa pre pre-n pre-sub] (re-matches tag-re tag)]
@@ -325,7 +374,8 @@
         new ((:commit up) to)
         refs (references skill)
         watch (get-in cfg [:source :watch])
-        items (for [{:keys [id path] :as c} (:cite cfg)]
+        own-cites (remove #(foreign? cfg %) (:cite cfg))
+        items (for [{:keys [id path] :as c} own-cites]
                 (let [entry (get-in lock ["citations" id])
                       base {:id id :path path :cited-by (mapv (fn [[f n s]] (str f ":" n " (" s ")")) (refs id))}
                       text ((:read up) new path)
@@ -348,7 +398,7 @@
                         (assoc base :status "changed" :lines span
                                :diff (unified-diff (span-lines ((:read up) old path) (get entry "lines"))
                                                    (span-lines text span))))))))
-        cited (into (set (map :path (:cite cfg))) (keep :moved-to items))
+        cited (into (set (map :path own-cites)) (keep :moved-to items))
         report {:from (get lock "tag") :to to :citations (vec items)
                 :uncited-changes (if (seq watch) (vec (remove cited ((:changed up) old new watch))) [])}]
     (if json
@@ -390,7 +440,8 @@
 (defn cmd-pairs [skill _]
   (let [cfg (load-config skill)
         lock (read-lock skill)
-        up (git-upstream (get-in cfg [:source :repo]))
+        ups (upstreams-for cfg {} lock)
+        cites (into {} (map (juxt :id identity)) (:cite cfg))
         observed (into {} (map (juxt :id :example) (:observed cfg)))
         examples (when-let [f (:observations cfg)]
                    (into {} (map (juxt :id identity))
@@ -406,7 +457,7 @@
                         (binding [*print-namespace-maps* false] (pr-str ex)) "\n````\n"))
           (let [{:strs [path lines]} (get-in lock ["citations" id])]
             (println (str "### Source [^" id "]: " path " lines " (str/join "-" lines) "\n"))
-            (println (str "````text\n" (str/join "\n" (span-lines ((:read up) (get lock "commit") path) lines)) "\n````\n"))))))
+            (println (str "````text\n" (str/join "\n" (span-lines ((:read (ups (cite-source cfg (cites id)))) (get (lock-source lock id) "commit") path) lines)) "\n````\n"))))))
     []))
 
 (defn cmd-bump [skill {:keys [to] :as opts}]

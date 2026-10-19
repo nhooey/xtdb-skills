@@ -65,6 +65,7 @@ Each is pinned to XTDB v2.1.0.
 Every claim in a skill carries a footnote, of one of two kinds, so a new XTDB release can be checked against only the parts the skill relies on:
 
 - **A span of the upstream docs or source at a Git tag.** `citations.edn` (written by hand) names the repo and tag, the paths to watch, and one `:cite` per footnote id with a path and an anchor: a Markdown `:heading`, the start of a top-level Clojure `:form`, or a unique `:line`. `citations.lock.json` (generated; JSON so Nix can read it) records the commit the tag resolved to, the hash of each cited file, and the lines and hash of each span.
+- **A span of a second upstream**, for a claim about software XTDB depends on, such as Kafka's defaults. The `:cite` adds its own `:source`, a map like the top-level one (`{:repo "apache/kafka" :tag "4.0.0"}`). The lock records that source's commit and file hashes under `"sources"`, keyed `repo@tag`, and the footnote names the repo beside the tag. `drift` and `bump` move only the skill's own source; a second source stays at its tag until its `:source` is edited and the skill re-locked.
 - **An observed result**, for behaviour no source states, such as a form XTDB silently ignores. An `:observed` entry names an example in the eval's `examples.edn`, which the eval re-runs against a live node.
 
 The dev shell's `skill-citations` command (`scripts/skill-citations.clj`, Babashka) does the work:
@@ -77,7 +78,7 @@ skill-citations bump   skills/<skill> --to <tag>     # move the pin after updati
 skill-citations pairs  skills/<skill>                # each citing passage beside what it cites, for a reviewer
 ```
 
-`nix flake check` runs `verify` for every skill with a lock, as `checks.<system>.citations-<skill>`, fetching only the cited files at the locked commit. GitHub Actions runs it on every push to `master` and every pull request (`.github/workflows/ci.yml`).
+`nix flake check` runs `verify` for every skill with a lock, as `checks.<system>.citations-<skill>`, fetching only the cited files at the locked commits. GitHub Actions runs it on every push to `master` and every pull request (`.github/workflows/ci.yml`).
 
 Every Monday, `.github/workflows/citation-drift.yml` runs `drift --to latest` for each skill through the flake's `skill-citations` app, pre-release tags included. While any cited span differs, it keeps one open issue holding the latest report and the steps to bump. `drift` skips the observed footnotes, so a bump also moves the eval's XTDB image and client to the new version and re-runs `examples` and `storage`.
 
