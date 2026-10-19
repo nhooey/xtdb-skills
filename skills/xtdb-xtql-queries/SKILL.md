@@ -194,6 +194,24 @@ then `return` the column.[^obs-q-in-return]
     (return order-id customer-name))
 ```
 
+Inside a subquery that takes a parameter, never bind a column under a
+name the outer query also binds. XTDB v2.1.0 then returns wrong rows with
+no error: counting each order's customer's orders, with the inner `from`
+binding `order-value` as the outer one does, gives every order once per
+order of its customer, its `order-value` replaced by the inner rows', and
+a count of 1 on each.[^obs-subquery-name-clash] Rename the inner binding,
+as with `{:order-value v}`, and the same query is
+right:[^obs-subquery-name-renamed]
+
+<!-- xtql-example: subquery-renamed -->
+```clojure
+(-> (from :orders [{:xt/id order-id} customer-id order-value])
+    (where (= order-value (q [(fn [cid] (-> (from :orders [{:customer-id cid} {:order-value v}])
+                                            (aggregate {:m (max v)})))
+                              customer-id])))
+    (return customer-id order-id))
+```
+
 `pull` nests the subquery's one row as a map, and `pull*` nests its rows
 as a vector, in the subquery's own order.[^subqueries][^obs-pull][^obs-pull-star]
 Like `q`, both go in `with`:
@@ -290,3 +308,5 @@ the report names, then `bump` to the new tag.
 [^obs-pull-cardinality]: Observed on XTDB v2.1.0: example `pull-cardinality` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-pull-no-match]: Observed on XTDB v2.1.0: example `pull-no-match` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-pull-star]: Observed on XTDB v2.1.0: example `pull-many` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-subquery-name-clash]: Observed on XTDB v2.1.0: example `subquery-name-clash` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-subquery-name-renamed]: Observed on XTDB v2.1.0: example `subquery-renamed` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.

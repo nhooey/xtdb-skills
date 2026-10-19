@@ -55,6 +55,8 @@
   {:id "obs-current-system-to" :example "current-system-to-absent"}
   {:id "obs-q-in-return" :example "q-in-return"}
   {:id "obs-row-count-zero" :example "row-count-zero"}
+  {:id "obs-subquery-name-clash" :example "subquery-name-clash"}
+  {:id "obs-subquery-name-renamed" :example "subquery-renamed"}
   {:id "obs-pull" :example "pull-one"}
   {:id "obs-pull-star" :example "pull-many"}
   {:id "obs-pull-no-match" :example "pull-no-match"}

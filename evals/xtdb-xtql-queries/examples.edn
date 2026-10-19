@@ -37,6 +37,10 @@
    :args [[{:id 1} {:id 3}]]
    :expected [{:id 1, :customer-name "Ada"} {:id 3, :customer-name "Chen"}]}
 
+  {:id "subquery-renamed"
+   ;; Each customer's most valuable order.
+   :expected [{:customer-id 1, :order-id 102} {:customer-id 2, :order-id 105} {:customer-id 3, :order-id 104}]}
+
   {:id "pull-one"
    :expected [{:title "Hello", :author {:customer-name "Ada", :city "London"}}
               {:title "Bonjour", :author {:customer-name "Brian", :city "Paris"}}
@@ -124,6 +128,21 @@
                             pid])})
               (return title n))
    :expected [{:title "Hello", :n 2} {:title "Bonjour", :n 1} {:title "Quiet", :n 0}]}
+
+  {:id "subquery-name-clash"
+   ;; Wrong on XTDB v2.1.0: the inner `from` binds order-value, as the outer
+   ;; one does. Right would be 5 rows, one per order, with n 2, 2, 2, 1, 2.
+   ;; When a release fixes this, this example fails: update the skill.
+   :query (-> (from :orders [{:xt/id order-id} customer-id order-value])
+              (with {:n (q [(fn [cid] (-> (from :orders [{:customer-id cid} order-value])
+                                          (aggregate {:n (row-count)})))
+                            customer-id])})
+              (return order-id order-value n))
+   :expected [{:order-id 101, :order-value 250, :n 1} {:order-id 101, :order-value 1200, :n 1}
+              {:order-id 102, :order-value 250, :n 1} {:order-id 102, :order-value 1200, :n 1}
+              {:order-id 103, :order-value 80, :n 1} {:order-id 103, :order-value 610, :n 1}
+              {:order-id 104, :order-value 400, :n 1}
+              {:order-id 105, :order-value 80, :n 1} {:order-id 105, :order-value 610, :n 1}]}
 
   {:id "pull-no-match"
    ;; Chen wrote no post, so Chen's row has no :post key.
