@@ -100,7 +100,17 @@ clojure -M:eval storage xtdb-storage-gc                # about 2 minutes; needs 
 
 Every ```` ```clojure ```` block in the skill is preceded by `<!-- xtql-example: id… -->`, one id per top-level form; `examples` fails on an unmarked block, so a new example can't go untested. `skill-citations pairs` feeds a reviewer who checks each claim against only what it cites. That catches misreadings, while running queries catches errors in the sources themselves, such as the docs' `exists`.
 
-On 2026-10-15, fresh answerers on Claude Opus 5.5 scored 27/35 from memory and 35/35 with the skill. All 8 misses were subqueries (`exists?`, argument passing, `q` in `return`) and nested-field access, and 4 of those tasks were held out from the skill's revision. A reviewer subagent then checked the skill's claims against only what they cite: 15 of 68 went beyond their citations, and after rewording and observed footnotes, 7 of 62 still did. Those 7 were fixed in turn, and haven't been reviewed a third time.
+On 2026-10-19, fresh answerers took all 60 tasks, three runs per model, each run either from memory or with the skill. None could read other files or run queries:
+
+| Model | From memory, per run | With the skill, per run | Held-out tasks, from memory | Held-out tasks, with the skill |
+|---|---|---|---|---|
+| Claude Opus 5.5 | 42, 42, 42 | 60, 60, 60 | 6, 5, 6 of 9 | 9, 9, 9 of 9 |
+| Claude Sonnet 5.5 | 40, 41, 40 | 59, 59, 59 | 5, 5, 6 of 9 | 9, 9, 9 of 9 |
+| Claude Haiku 5.5 | 17, 18, 34 | 59, 59, 60 | 1, 1, 3 of 9 | 9, 9, 9 of 9 |
+
+The 5 misses with the skill were 3 extra returned columns, a `||` concatenation of 4 strings, and a malformed `left-join`. From memory, all 9 runs failed both `pull` tasks, all 5 nested-field tasks and the subquery tasks t09, t10, t31–t37 and t40, while Haiku also missed joins, aggregates and time travel.
+
+Earlier, on 2026-10-15, fresh answerers on Claude Opus 5.5 scored 27/35 from memory and 35/35 with the skill. All 8 misses were subqueries (`exists?`, argument passing, `q` in `return`) and nested-field access, and 4 of those tasks were held out from the skill's revision. A reviewer subagent then checked the skill's claims against only what they cite: 15 of 68 went beyond their citations, and after rewording and observed footnotes, 7 of 62 still did. Those 7 were fixed in turn, and haven't been reviewed a third time.
 
 ## Adding a new skill
 
