@@ -1,7 +1,9 @@
 ;; XTQL eval tasks. Each task is answered with one XTQL query, run with
 ;; `xt/q` against the fixture in seed.edn, and scored against :expected.
 ;; :ordered? true compares rows in order; otherwise as a multiset. Column
-;; names compare with `-` and `_` treated alike.
+;; names compare with `-` and `_` treated alike. :args fill a `fn` query's
+;; parameters. :holdout true marks a task that no revision of the skill may
+;; be tuned against; the scorer ignores the key.
 {:schema "Tables and their columns, as XTQL sees them (every table's key is :xt/id):
 
 customers  :xt/id (int), :customer-name, :city, :vip (boolean)
@@ -12,7 +14,13 @@ posts      :xt/id (string), :title, :author-id (-> customers),
 comments   :xt/id (string), :post-id (-> posts), :body, :rating (int)
 people     :xt/id (string, the person's name), :parent (string)
 prices     :xt/id (string, the product name), :price (int); prices change over
-           VALID TIME, so each product has several versions in history"
+           VALID TIME, so each product has several versions in history
+employees  :xt/id (string), :name, :manager-id (-> employees; absent for the
+           top of the chain), :dept, :address (a nested map with keys :city
+           and :country), :skills (vector of strings)
+salaries   :xt/id (-> employees), :salary (int); salaries change over VALID
+           TIME, and one past salary was later corrected, so the table also
+           has SYSTEM-TIME history"
 
  :tasks
  [{:id "t01-project"
@@ -174,4 +182,133 @@ prices     :xt/id (string, the product name), :price (int); prices change over
   {:id "t35-subquery-max"
    :prompt "For every customer return their name and the value of their most valuable order (null for customers without orders), using a subquery."
    :expected [{:customer-name "Ada", :top 1200} {:customer-name "Brian", :top 610}
-              {:customer-name "Chen", :top 400} {:customer-name "Dana", :top nil}]}]}
+              {:customer-name "Chen", :top 400} {:customer-name "Dana", :top nil}]}
+
+  ;; Added to grow the eval to 60 tasks. The ten marked :holdout are kept
+  ;; out of any revision of the skill.
+
+  {:id "t36-not-exists-filtered"
+   :prompt "List the names of customers who have no pending order, including customers with no orders at all."
+   :expected [{:customer-name "Brian"} {:customer-name "Chen"} {:customer-name "Dana"}]}
+
+  {:id "t37-exists-two-args"
+   :holdout true
+   :prompt "List the names of customers for whom some other customer in the same city is a VIP."
+   :expected [{:customer-name "Chen"}]}
+
+  {:id "t38-count-zero"
+   :prompt "For every customer return their name and their number of shipped orders, 0 for customers with none."
+   :expected [{:customer-name "Ada", :n 1} {:customer-name "Brian", :n 2}
+              {:customer-name "Chen", :n 0} {:customer-name "Dana", :n 0}]}
+
+  {:id "t39-above-average"
+   :prompt "List the id and value of every order worth more than the average order value."
+   :expected [{:id 102, :order-value 1200} {:id 105, :order-value 610}]}
+
+  {:id "t40-argmax-per-group"
+   :holdout true
+   :prompt "For each customer that has orders, return their name and the id of their most valuable order."
+   :expected [{:customer-name "Ada", :order-id 102} {:customer-name "Brian", :order-id 105}
+              {:customer-name "Chen", :order-id 104}]}
+
+  {:id "t41-with-without-nested"
+   :prompt "Return every column of every post except meta, plus a column lang holding the post's meta language."
+   :expected [{:xt/id "p1", :title "Hello", :author-id 1, :lang "en"}
+              {:xt/id "p2", :title "Bonjour", :author-id 2, :lang "fr"}
+              {:xt/id "p3", :title "Quiet", :author-id 4, :lang "en"}]}
+
+  {:id "t42-nested-group"
+   :prompt "For each post language (from meta), return the language and the total meta word count of its posts."
+   :expected [{:lang "en", :total 160} {:lang "fr", :total 300}]}
+
+  {:id "t43-nested-employee"
+   :holdout true
+   :prompt "List the names of employees whose address country is UK."
+   :expected [{:name "Grace"} {:name "Hal"} {:name "Jon"}]}
+
+  {:id "t44-vector-first"
+   :prompt "For each order return its id and its first tag, null for an order without tags."
+   :expected [{:order-id 101, :first-tag "gift"} {:order-id 102, :first-tag "bulk"} {:order-id 103, :first-tag nil}
+              {:order-id 104, :first-tag "express"} {:order-id 105, :first-tag "gift"}]}
+
+  {:id "t45-vector-length"
+   :holdout true
+   :prompt "For each order return its id and how many tags it has."
+   :expected [{:order-id 101, :n 2} {:order-id 102, :n 1} {:order-id 103, :n 0}
+              {:order-id 104, :n 1} {:order-id 105, :n 1}]}
+
+  {:id "t46-unnest-count"
+   :prompt "For each tag, return the tag and the number of orders that carry it."
+   :expected [{:tag "gift", :n 2} {:tag "express", :n 2} {:tag "bulk", :n 1}]}
+
+  {:id "t47-unnest-employees"
+   :holdout true
+   :prompt "For each skill, return the skill and the number of employees who list it."
+   :expected [{:skill "clojure", :n 3} {:skill "rust", :n 2} {:skill "go", :n 3}]}
+
+  {:id "t48-rel-literal-join"
+   :prompt "Written into the query is a fixed list of (city, country) pairs: London is in UK, Paris is in France. Return each customer's name and country, leaving out customers whose city isn't in the list."
+   :expected [{:customer-name "Ada", :country "UK"} {:customer-name "Brian", :country "France"}
+              {:customer-name "Chen", :country "UK"}]}
+
+  {:id "t49-parameter"
+   :prompt "Write the query to take one parameter, a minimum order value (the eval passes 500), and list the ids of orders worth at least that much."
+   :args [500]
+   :expected [{:order-id 102} {:order-id 105}]}
+
+  {:id "t50-valid-time-from"
+   :prompt "Return the product name and price of every price version that is valid at any time from 2022-06-01T00:00:00Z onward."
+   :expected [{:product "widget", :price 12} {:product "widget", :price 15} {:product "gadget", :price 45}]}
+
+  {:id "t51-current-since"
+   :prompt "Return each product's name and the valid time from which its current price applies, in a column named since."
+   :expected [{:product "widget", :since #inst "2023-01-01"} {:product "gadget", :since #inst "2022-01-01"}]}
+
+  {:id "t52-min-ever"
+   :holdout true
+   :prompt "For each product, return its name and the lowest price it has had at any point in valid time."
+   :expected [{:product "widget", :lowest 10} {:product "gadget", :lowest 45}]}
+
+  {:id "t53-salary-at"
+   :prompt "Return the name and salary of each employee who had a salary as of valid time 2022-06-01T00:00:00Z, as the database knows it now."
+   :expected [{:name "Grace", :salary 90000} {:name "Hal", :salary 50000} {:name "Iris", :salary 62000}]}
+
+  {:id "t54-system-time-all"
+   :holdout true
+   :prompt "List every salary the database has ever recorded for employee e3 for valid time 2022-06-01T00:00:00Z, including records later corrected, each value once."
+   :expected [{:salary 60000} {:salary 62000}]}
+
+  {:id "t55-top-salaries"
+   :prompt "Return the name and current salary of the two highest-paid employees, highest first."
+   :ordered? true
+   :expected [{:name "Grace", :salary 90000} {:name "Iris", :salary 60000}]}
+
+  {:id "t56-left-join-manager"
+   :prompt "List every employee's name with their manager's name, null for an employee without a manager."
+   :expected [{:name "Grace", :manager-name nil} {:name "Hal", :manager-name "Grace"} {:name "Iris", :manager-name "Hal"}
+              {:name "Jon", :manager-name "Grace"} {:name "Kim", :manager-name "Jon"} {:name "Lee", :manager-name "Iris"}]}
+
+  {:id "t57-grand-manager"
+   :holdout true
+   :prompt "For each employee whose manager also has a manager, return the employee's name and the name of that manager's manager, in a column named grand-manager."
+   :expected [{:name "Iris", :grand-manager "Grace"} {:name "Kim", :grand-manager "Grace"} {:name "Lee", :grand-manager "Hal"}]}
+
+  {:id "t58-all-reports"
+   :holdout true
+   :prompt "List the names of everyone who reports to the employee with id e1, directly or through a chain of managers. No chain is more than three managers long."
+   :expected [{:name "Hal"} {:name "Iris"} {:name "Jon"} {:name "Kim"} {:name "Lee"}]}
+
+  {:id "t59-pull-many"
+   :prompt "For each post return its title and a column comments holding a list of its comments, each a map of body and rating, highest rating first; null for a post without comments."
+   :expected [{:title "Hello", :comments [{:body "nice", :rating 5} {:body "meh", :rating 2}]}
+              {:title "Bonjour", :comments [{:body "super", :rating 4}]}
+              {:title "Quiet", :comments nil}]}
+
+  {:id "t60-pull-one"
+   :holdout true
+   :prompt "For each order return its id and a column customer holding its customer as a map of customer-name and city."
+   :expected [{:order-id 101, :customer {:customer-name "Ada", :city "London"}}
+              {:order-id 102, :customer {:customer-name "Ada", :city "London"}}
+              {:order-id 103, :customer {:customer-name "Brian", :city "Paris"}}
+              {:order-id 104, :customer {:customer-name "Chen", :city "London"}}
+              {:order-id 105, :customer {:customer-name "Brian", :city "Paris"}}]}]}

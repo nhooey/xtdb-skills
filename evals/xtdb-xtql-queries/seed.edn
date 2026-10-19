@@ -1,5 +1,7 @@
 ;; Fixture for the XTQL eval: XTDB transactions, submitted in order by
 ;; `clojure -M:eval seed`. Each table's columns are listed in tasks.edn.
+;; Seeding twice leaves every current and valid-time answer unchanged; it
+;; only adds system-time versions, so no task counts those.
 [[[:put-docs :customers
    {:xt/id 1, :customer-name "Ada", :city "London", :vip true}
    {:xt/id 2, :customer-name "Brian", :city "Paris", :vip false}
@@ -35,4 +37,23 @@
   [:put-docs {:into :prices, :valid-from #inst "2020-06-01", :valid-to #inst "2022-01-01"} {:xt/id "gadget", :price 50}]]
  [[:put-docs {:into :prices, :valid-from #inst "2021-01-01", :valid-to #inst "2023-01-01"} {:xt/id "widget", :price 12}]]
  [[:put-docs {:into :prices, :valid-from #inst "2023-01-01"} {:xt/id "widget", :price 15}]
-  [:put-docs {:into :prices, :valid-from #inst "2022-01-01"} {:xt/id "gadget", :price 45}]]]
+  [:put-docs {:into :prices, :valid-from #inst "2022-01-01"} {:xt/id "gadget", :price 45}]]
+
+ ;; A reporting chain four levels deep (Grace > Hal > Iris > Lee), with a
+ ;; nested address map and a skills vector. Grace has no manager-id.
+ [[:put-docs :employees
+   {:xt/id "e1", :name "Grace", :dept "eng", :address {:city "London", :country "UK"}, :skills ["clojure" "rust"]}
+   {:xt/id "e2", :name "Hal", :manager-id "e1", :dept "eng", :address {:city "Leeds", :country "UK"}, :skills ["clojure"]}
+   {:xt/id "e3", :name "Iris", :manager-id "e2", :dept "eng", :address {:city "Paris", :country "FR"}, :skills ["rust" "go"]}
+   {:xt/id "e4", :name "Jon", :manager-id "e1", :dept "ops", :address {:city "London", :country "UK"}, :skills []}
+   {:xt/id "e5", :name "Kim", :manager-id "e4", :dept "ops", :address {:city "Berlin", :country "DE"}, :skills ["go"]}
+   {:xt/id "e6", :name "Lee", :manager-id "e3", :dept "eng", :address {:city "Paris", :country "FR"}, :skills ["clojure" "go"]}]
+
+  ;; Salaries over valid time, keyed by employee id.
+  [:put-docs {:into :salaries, :valid-from #inst "2021-01-01"} {:xt/id "e1", :salary 90000}]
+  [:put-docs {:into :salaries, :valid-from #inst "2022-01-01"} {:xt/id "e2", :salary 50000} {:xt/id "e3", :salary 60000}]]
+ [[:put-docs {:into :salaries, :valid-from #inst "2023-01-01"} {:xt/id "e2", :salary 55000}]]
+ ;; A retroactive correction, recorded later in system time: Iris's 2022
+ ;; salary was really 62000. The 60000 record for 2022 stays in system-time
+ ;; history.
+ [[:put-docs {:into :salaries, :valid-from #inst "2022-01-01", :valid-to #inst "2023-01-01"} {:xt/id "e3", :salary 62000}]]]
