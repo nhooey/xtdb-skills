@@ -5,20 +5,24 @@
   "files" : {
     "modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt" : "5ac92dfbba53faa0d63dc45fdd31e16a3dcb1824f4382edb86dca9bd7720cd73",
     "core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt" : "adaca7a5ddd5eec0b212b38045d6606a0c17e2ebd31ecb049c5a4520bf77ae45",
+    "core/src/main/clojure/xtdb/db_catalog.clj" : "b68b6ca1014c6413b47996a27810a23fba0dc29b6b72e88c005a57db055654f1",
     "docs/src/content/docs/ops/config/log.md" : "9a8e7ed4dfd4bb80b124250334fff06ae4e11df29eea9c39503548964ec27585",
     "core/src/main/kotlin/xtdb/api/CompactorConfig.kt" : "8ba90fe0229904c1542e26353a96757235b3fd26a68abd24c51a777d7180c9a6",
     "core/src/main/clojure/xtdb/trie_catalog.clj" : "9ec6aaf6bc276636df021a4d954f091233d2a6ef92328ecff4dcc5612c44cf5f",
     "core/src/main/kotlin/xtdb/garbage_collector/GarbageCollector.kt" : "cfc0d3fca8fa3023d9635640ef48e6e3caa7fbf50dd1ab46807a1ba03acfa7fa",
     "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt" : "8ddcddf281fc14eb824a3249eef7562a4632c24823e95b88173fc923f091c3cc",
+    "core/src/main/kotlin/xtdb/database/Database.kt" : "7db07b01cd1ec3682206a26e88174d55c7dd1658e8b9cbb2b7f446cf18430c35",
     "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" : "6b9782b81ecb5112987f59076d85d6eb8b3ce14222674b54ddbb506e83fa9c67",
     "core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt" : "f24642624c053cd6589fa79816fd1ae5fd33b1d1be6a4e8a394823da20eed378",
     "core/src/main/kotlin/xtdb/trie/EventRowPointer.kt" : "21d91b6d933defc157d4b262c8a9e2b9ba7d846e076ac2e6dfc8d32c2673e67a",
     "api/src/main/kotlin/xtdb/Serde.kt" : "9e346113d1200c7c2f4989b8246c78951ba7e1495908a5ff9d6abb3511e05f3e",
     "core/src/main/kotlin/xtdb/api/Xtdb.kt" : "1558d1df333527b0cdd5b272a5fcf65fc9b5505d25b2b30f6028b83b944b4b21",
+    "docs/src/content/docs/about/dbs-in-xtdb.md" : "b8c99b50a59c22ac687cf46ee75ff20e1c95d445177f93739f192fdb38361441",
     "core/src/main/kotlin/xtdb/api/YamlSerde.kt" : "c646497f575a7be035d5f86a684b048be5df85c65d544146584882f9ffccf455",
     "docs/src/content/docs/reference/main/xtql/txs.md" : "68c444c3aff1c1edfa66077a786588a49a814ad4e09ff6374b778bb60cdfe12a",
     "core/src/main/clojure/xtdb/compactor.clj" : "92a8a65c3da92694ad4835e1b77a9142276db3c2400b846f7a9c08ff04a3ad95",
     "core/src/main/clojure/xtdb/node.clj" : "4a005ba0cc6c89a9a53ee0df7510ecff89f2c694596aad9daac54a08592fdfce",
+    "modules/kafka/build.gradle.kts" : "cb4036985ed0cf175817f00bf244eddf14bcdc22e828de5d5f3ead6cbcccccad",
     "docs/src/content/docs/quickstart/sql-overview.mdx" : "2c3ad8277cb0fea04ebcf48a0212b959fc6db153e4e6a15f30f4a1cf263750dc",
     "docs/src/content/docs/ops/config/log/kafka.md" : "9f905e6f990e1f79ee30195f27f9f23e34f9a52e5367fd0fa3f247264ae6720c",
     "core/src/main/clojure/xtdb/garbage_collector.clj" : "91500f8e854080345b2c325e9fa4822187ba6d99f82c03875f14aed444a9050f",
@@ -35,6 +39,12 @@
       "path" : "core/src/main/kotlin/xtdb/api/log/LocalLog.kt",
       "lines" : [ 41, 321 ],
       "sha256" : "c9581359746c7231db5c3172d9a0f9ab14acd17a760b06e4af8817545c627308"
+    },
+    "kafka-ms-doc" : {
+      "path" : "server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java",
+      "lines" : [ 58, 58 ],
+      "sha256" : "d6b6871622ade160699a3c7d965b31ef8fe4f0a66016968bbcb7eebf79195f9a",
+      "source" : "apache/kafka@4.0.0"
     },
     "epoch" : {
       "path" : "docs/src/content/docs/ops/config/log.md",
@@ -91,25 +101,73 @@
       "lines" : [ 76, 77 ],
       "sha256" : "d0e441fada6c70486a8d6e20bfab71e22ff4ba2340b16ae935eb0865dee6a94c"
     },
+    "kafka-clients" : {
+      "path" : "modules/kafka/build.gradle.kts",
+      "lines" : [ 30, 30 ],
+      "sha256" : "25b76075b94d3cccccd495d51e7e6b00deba4af29868df8d268c73ab7cc42fcf"
+    },
     "compactor-threads" : {
       "path" : "core/src/main/kotlin/xtdb/api/CompactorConfig.kt",
       "lines" : [ 14, 14 ],
       "sha256" : "beaf6c88d2882552e30851ed70a6ccac7caf063d9549b6dd26094ba86e7543bf"
+    },
+    "dbs-shared" : {
+      "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
+      "lines" : [ 39, 39 ],
+      "sha256" : "cee3a2dae1ab3fb97714dfcc5245eb67f8b70f65efeb1a0ecb67c01739118e03"
+    },
+    "kafka-synonyms" : {
+      "path" : "server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java",
+      "lines" : [ 67, 67 ],
+      "sha256" : "28eac7455c4386f6ea9484584732a287224ffc6e3b1c82d001ffc652c1226c56",
+      "source" : "apache/kafka@4.0.0"
     },
     "polygon-erase" : {
       "path" : "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt",
       "lines" : [ 7, 49 ],
       "sha256" : "e2306084eae0812ca8ba5e662962667770218f37dd1eb868ce5ba9f0e57a8dea"
     },
+    "kafka-hours" : {
+      "path" : "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java",
+      "lines" : [ 170, 170 ],
+      "sha256" : "3de6d9018bb4646549a9dce25ce51fcf92c870dcf0c54c1a01d973d69293910a",
+      "source" : "apache/kafka@4.0.0"
+    },
+    "db-config-storage" : {
+      "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
+      "lines" : [ 89, 89 ],
+      "sha256" : "7383bd144e2eee2fa3cc5e139bff231fcd14a2fe4c683d08a4a67debe4c3f990"
+    },
+    "db-config-log" : {
+      "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
+      "lines" : [ 88, 88 ],
+      "sha256" : "80b9585b7188715d5a8deb095f461627e1a1c6118019a88730b05f6d62378677"
+    },
     "erase-disk" : {
       "path" : "docs/src/content/docs/quickstart/sql-overview.mdx",
       "lines" : [ 421, 445 ],
       "sha256" : "734887a8bafc3b9648060fa205d52195f90fa178c020165f3973e57bbb5b7c73"
     },
+    "dbs-attach" : {
+      "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
+      "lines" : [ 151, 189 ],
+      "sha256" : "1d407955504754220b2bf31fac6a5c37641fe79894f7e3f61e628198ef701c5f"
+    },
     "compactor-add" : {
       "path" : "core/src/main/kotlin/xtdb/compactor/Compactor.kt",
       "lines" : [ 214, 214 ],
       "sha256" : "845fe612e7885d3d1131e091cbc98ac1300f89d690bff4e10adc8063008b84f3"
+    },
+    "compactor-for-db" : {
+      "path" : "core/src/main/clojure/xtdb/compactor.clj",
+      "lines" : [ 131, 132 ],
+      "sha256" : "51bd9f53e03c06c5fece53980294a44006f3e19c3b4680f9ef130e82c745a2de"
+    },
+    "kafka-topic-ms" : {
+      "path" : "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java",
+      "lines" : [ 212, 212 ],
+      "sha256" : "77da6a462837c21fd324169c020ee755b1af7ced8e458379a085fa7bb13e0f50",
+      "source" : "apache/kafka@4.0.0"
     },
     "supersede" : {
       "path" : "core/src/main/clojure/xtdb/trie_catalog.clj",
@@ -136,6 +194,22 @@
       "lines" : [ 77, 77 ],
       "sha256" : "55df46a114986928fef4de2f0d061ee442eaf915fa1b3075e51df69a91285c95"
     },
+    "kafka-default-ms" : {
+      "path" : "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java",
+      "lines" : [ 132, 132 ],
+      "sha256" : "8efa0f06a0086a754b7accec7d3f8b8f11bf2bbcc852405f70bb59248bb5af52",
+      "source" : "apache/kafka@4.0.0"
+    },
+    "db-catalog" : {
+      "path" : "core/src/main/clojure/xtdb/db_catalog.clj",
+      "lines" : [ 98, 154 ],
+      "sha256" : "22d2da491866b5a95265ded99c12d367ce7498ad3c6f075dd1fc52355d8446ab"
+    },
+    "db-system" : {
+      "path" : "core/src/main/clojure/xtdb/db_catalog.clj",
+      "lines" : [ 49, 68 ],
+      "sha256" : "811dd281c81e78b1587f49f8d857f6fd6b88e44c8adb1f1975722c803a849877"
+    },
     "gc-init" : {
       "path" : "core/src/main/clojure/xtdb/garbage_collector.clj",
       "lines" : [ 25, 29 ],
@@ -160,6 +234,24 @@
       "path" : "docs/src/content/docs/ops/config/log.md",
       "lines" : [ 37, 55 ],
       "sha256" : "882608b67d9eb0bbe2a98f76818089e75a0043d33d244a811cf4a9915ae7f504"
+    },
+    "kafka-minutes-doc" : {
+      "path" : "server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java",
+      "lines" : [ 59, 59 ],
+      "sha256" : "ea4a9b4af541046f9ea6a0e8927733a30759f560814506d039cc65e8e7126df8",
+      "source" : "apache/kafka@4.0.0"
+    }
+  },
+  "sources" : {
+    "apache/kafka@4.0.0" : {
+      "repo" : "apache/kafka",
+      "tag" : "4.0.0",
+      "commit" : "985bc99521dd22bbf620591b8db8613c54f596b2",
+      "files" : {
+        "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java" : "7d869e4f25a8e96753d26c03fac8d8fc165093466502e1cfb1ce0c1c125e5fd6",
+        "server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java" : "2048449f2cdf341d90591e8d2cdb3c8f5c1001a1635049a2ef15411944f2ba61",
+        "server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java" : "ceb92e6442d7de8be0909eb1eb2087a5748790ec7f1addc62d916dfa836f9b7c"
+      }
     }
   }
 }

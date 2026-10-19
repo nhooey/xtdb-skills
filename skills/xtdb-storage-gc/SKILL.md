@@ -1,6 +1,6 @@
 ---
 name: xtdb-storage-gc
-description: Turn on and tune XTDB 2.x's storage garbage collector, which is off by default, so files that compaction has superseded get deleted; and know what it never deletes — level-0 files and the transaction log. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, or when asking whether erased data has left disk. Pinned to XTDB v2.1.0; every claim cites the source or docs, or an observation re-run against a live node.
+description: Turn on and tune XTDB 2.x's storage garbage collector, which is off by default, so files that compaction has superseded get deleted; and know what it never deletes — level-0 files, the transaction log and every attached secondary database's files. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, or when asking whether erased data has left disk. Pinned to XTDB v2.1.0; every claim cites the source or docs, or an observation re-run against a live node.
 ---
 
 # Storage garbage collection (XTDB 2.x)
@@ -9,7 +9,8 @@ Written from `xtdb/xtdb` at tag `v2.1.0`. The docs at that tag don't
 mention the garbage collector, so most footnotes cite the source; the
 rest cite the xtdb-skills eval's `storage` command, which runs the same
 writes on two nodes, with the collector on and off, and compares their
-storage directories. `citations.edn` lists them. For what erase does to
+storage directories. Kafka's retention defaults cite `apache/kafka` at
+`4.0.0`. `citations.edn` lists them. For what erase does to
 query results, see the `xtdb-erase-and-history` skill.
 
 ## It is off by default
@@ -83,10 +84,43 @@ docs leave `retention.ms` to the operator, deleting old messages after
 it.[^kafka-setup] Bumping the log's epoch makes nodes ignore the old log
 but doesn't delete it.[^epoch]
 
+A topic with no `retention.ms` takes the broker's: `log.retention.ms`,
+else `log.retention.minutes`, else
+`log.retention.hours`.[^kafka-synonyms][^kafka-ms-doc][^kafka-minutes-doc]
+In Kafka 4.0.0, the kafka-clients version XTDB v2.1.0's Kafka module
+uses,[^kafka-clients] `log.retention.hours` defaults to 168 and a topic's
+`retention.ms` to 604800000, both seven
+days.[^kafka-default-ms][^kafka-hours][^kafka-topic-ms] The XTDB docs call
+the default one day; it is seven.[^kafka-setup][^kafka-default-ms]
+
 Compaction is on by default, with half the processors as
 threads,[^compactor-threads][^compactor-config] and a `threads` of 0 or
 less turns it off,[^compactor-init] so on a default node compaction keeps
 marking files as garbage and nothing deletes them.
+
+## Secondary databases
+
+A node opens its primary database, `xtdb`, from its own `log` and
+`storage`, then opens each attached secondary database the primary's
+block catalog lists.[^db-catalog] The collector is built once per node,
+on the primary alone, under a `TODO multi-db`.[^gc-init][^gc-class] Each
+secondary database gets its own trie catalog, buffer pool and
+compactor, and no collector.[^db-system][^compactor-for-db] Its
+compactor marks superseded files as garbage there too,[^compactor-for-db][^compactor-add]
+and nothing deletes them.
+
+Nothing turns collection on per database. `garbageCollector` is a field
+of the node config only,[^node-config] and a database's own config
+holds a log and a storage, nothing
+else.[^db-config-log][^db-config-storage][^dbs-attach] Calling
+`.collectGarbage` on the node's collector reaches the primary
+only.[^gc-accessor][^gc-init]
+
+To collect a secondary database's storage, run a node whose own `log`
+and `storage` point at that database's. Databases are shared by
+pointing log and storage config at the same resources,[^dbs-shared] and
+that node opens the database as its primary, so its collector runs
+there.[^db-catalog][^gc-init]
 
 ## Erased data on disk
 
@@ -117,8 +151,15 @@ which exists even when disabled,[^gc-accessor][^gc-init] and
 [^clj-config]: [garbage_collector.clj `(defmethod xtn/apply-config! :xtdb/garbage-collector`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/garbage_collector.clj#L9-L16)
 [^compactor-add]: [Compactor.kt line 214, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/compactor/Compactor.kt#L214-L214)
 [^compactor-config]: [CompactorConfig.kt line 10, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L10-L10)
+[^compactor-for-db]: [compactor.clj `(defmethod ig/init-key ::for-db`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/compactor.clj#L131-L132)
 [^compactor-init]: [compactor.clj `(defmethod ig/init-key :xtdb/compactor`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/compactor.clj#L119-L122)
 [^compactor-threads]: [CompactorConfig.kt line 14, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L14-L14)
+[^db-catalog]: [db_catalog.clj `(defmethod ig/init-key :xtdb/db-catalog`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/db_catalog.clj#L98-L154)
+[^db-config-log]: [Database.kt line 88, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/database/Database.kt#L88-L88)
+[^db-config-storage]: [Database.kt line 89, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/database/Database.kt#L89-L89)
+[^db-system]: [db_catalog.clj `(defn- db-system`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/db_catalog.clj#L49-L68)
+[^dbs-attach]: [dbs-in-xtdb.md § Attaching/Detaching secondary databases (v2.1+), v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L151-L189)
+[^dbs-shared]: [dbs-in-xtdb.md line 39, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L39-L39)
 [^duration-serde]: [Serde.kt `object DurationSerde`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/api/src/main/kotlin/xtdb/Serde.kt#L31-L64)
 [^epoch]: [log.md § Bumping an Epoch, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/ops/config/log.md?plain=1#L88-L103)
 [^erase-disk]: [sql-overview.mdx § ERASE as 'hard' delete, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/quickstart/sql-overview.mdx?plain=1#L421-L445)
@@ -130,7 +171,14 @@ which exists even when disabled,[^gc-accessor][^gc-init] and
 [^gc-class]: [GarbageCollector.kt `class GarbageCollector @JvmOverloads constructor(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/garbage_collector/GarbageCollector.kt#L19-L92)
 [^gc-config]: [GarbageCollectorConfig.kt `data class GarbageCollectorConfig(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt#L9-L19)
 [^gc-init]: [garbage_collector.clj `(defmethod ig/init-key :xtdb/garbage-collector`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/garbage_collector.clj#L25-L29)
+[^kafka-clients]: [build.gradle.kts line 30, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/modules/kafka/build.gradle.kts#L30-L30)
+[^kafka-default-ms]: [LogConfig.java line 132, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L132-L132)
+[^kafka-hours]: [LogConfig.java line 170, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L170-L170)
+[^kafka-minutes-doc]: [ServerLogConfigs.java line 59, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L59-L59)
+[^kafka-ms-doc]: [ServerLogConfigs.java line 58, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L58-L58)
 [^kafka-setup]: [kafka.md § Setup, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L42-L78)
+[^kafka-synonyms]: [ServerTopicConfigSynonyms.java line 67, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java#L67-L67)
+[^kafka-topic-ms]: [LogConfig.java line 212, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L212-L212)
 [^kafka-topic]: [KafkaCluster.kt `private fun AdminClient.ensureTopicExists(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L81-L297)
 [^local-log]: [LocalLog.kt `class LocalLog(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L41-L321)
 [^log-local-disk]: [log.md § Local disk, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/ops/config/log.md?plain=1#L37-L55)
