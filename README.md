@@ -83,7 +83,7 @@ Every Monday, `.github/workflows/citation-drift.yml` runs `drift --to latest` fo
 
 ## Measuring a skill
 
-A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 35 tasks with their expected rows.
+A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 60 tasks with their expected rows, 10 of the newest marked `:holdout` so no revision of the skill is tuned to them.
 
 ```sh
 docker run -d --rm --name xtdb-eval -p 15432:5432 ghcr.io/xtdb/xtdb:2.1.0
