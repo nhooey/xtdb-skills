@@ -37,6 +37,18 @@
    :args [[{:id 1} {:id 3}]]
    :expected [{:id 1, :customer-name "Ada"} {:id 3, :customer-name "Chen"}]}
 
+  {:id "pull-one"
+   :expected [{:title "Hello", :author {:customer-name "Ada", :city "London"}}
+              {:title "Bonjour", :author {:customer-name "Brian", :city "Paris"}}
+              {:title "Quiet", :author {:customer-name "Dana", :city "Berlin"}}]}
+
+  {:id "pull-many"
+   ;; Quiet has no comments, so no :comments key at all.
+   :exact-keys? true
+   :expected [{:title "Hello", :comments [{:body "meh", :rating 2} {:body "nice", :rating 5}]}
+              {:title "Bonjour", :comments [{:body "super", :rating 4}]}
+              {:title "Quiet"}]}
+
   {:id "temporal-columns"
    ;; The current price has no :to, its valid time being open.
    :exact-keys? true
@@ -111,4 +123,21 @@
                                           (aggregate {:n (row-count)})))
                             pid])})
               (return title n))
-   :expected [{:title "Hello", :n 2} {:title "Bonjour", :n 1} {:title "Quiet", :n 0}]}]}
+   :expected [{:title "Hello", :n 2} {:title "Bonjour", :n 1} {:title "Quiet", :n 0}]}
+
+  {:id "pull-no-match"
+   ;; Chen wrote no post, so Chen's row has no :post key.
+   :query (-> (from :customers [{:xt/id cid} customer-name])
+              (with {:post (pull [(fn [cid] (from :posts [{:author-id cid} title])) cid])})
+              (return customer-name post))
+   :exact-keys? true
+   :expected [{:customer-name "Ada", :post {:title "Hello"}} {:customer-name "Brian", :post {:title "Bonjour"}}
+              {:customer-name "Chen"} {:customer-name "Dana", :post {:title "Quiet"}}]}
+
+  {:id "pull-cardinality"
+   ;; Ada has two orders.
+   :query (-> (from :customers [{:xt/id cid} customer-name])
+              (where (= cid 1))
+              (with {:order (pull [(fn [cid] (from :orders [{:customer-id cid} order-value])) cid])})
+              (return customer-name order))
+   :expect-error "cardinality violation"}]}

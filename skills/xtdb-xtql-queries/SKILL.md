@@ -194,6 +194,31 @@ then `return` the column.[^obs-q-in-return]
     (return order-id customer-name))
 ```
 
+`pull` nests the subquery's one row as a map, and `pull*` nests its rows
+as a vector, in the subquery's own order.[^subqueries][^obs-pull][^obs-pull-star]
+Like `q`, both go in `with`:
+
+<!-- xtql-example: pull-one pull-many -->
+```clojure
+(-> (from :posts [title author-id])
+    (with {:author (pull [(fn [aid] (from :customers [{:xt/id aid} customer-name city]))
+                          author-id])})
+    (return title author))
+
+(-> (from :posts [{:xt/id pid} title])
+    (with {:comments (pull* [(fn [pid] (-> (from :comments [{:post-id pid} body rating])
+                                           (order-by rating)))
+                             pid])})
+    (return title comments))
+```
+
+When the subquery matches nothing, either form leaves the key out of the
+row: a post with no comments has no `:comments`, not an empty
+vector.[^obs-pull-star][^obs-pull-no-match] A `pull` whose subquery
+matches more than one row fails the whole query with "cardinality
+violation", so use `pull*` wherever more than one row can
+match.[^obs-pull-cardinality]
+
 ## Nested fields
 
 Read a key of a nested map with `(. expr field)`, where `field` is a
@@ -261,3 +286,7 @@ the report names, then `bump` to the new tag.
 [^rel]: [queries.md § Rel(ation), v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L298-L329)
 [^obs-current-system-to]: Observed on XTDB v2.1.0: example `current-system-to-absent` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-system-columns]: Observed on XTDB v2.1.0: example `system-columns` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-pull]: Observed on XTDB v2.1.0: example `pull-one` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-pull-cardinality]: Observed on XTDB v2.1.0: example `pull-cardinality` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-pull-no-match]: Observed on XTDB v2.1.0: example `pull-no-match` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-pull-star]: Observed on XTDB v2.1.0: example `pull-many` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
