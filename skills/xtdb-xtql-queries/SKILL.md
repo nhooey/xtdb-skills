@@ -235,7 +235,26 @@ row: a post with no comments has no `:comments`, not an empty
 vector.[^obs-pull-star][^obs-pull-no-match] A `pull` whose subquery
 matches more than one row fails the whole query with "cardinality
 violation", so use `pull*` wherever more than one row can
-match.[^obs-pull-cardinality]
+match.[^obs-pull-cardinality] Both are subqueries, so in `return` they
+fail like `q`, with "subquery not allowed in expr here"; pull in `with`,
+then `return` the column.[^obs-pull-in-return]
+
+## Lengths and list elements
+
+A string's length in characters is `(character-length s)` or
+`(length s)`.[^src-character-length][^src-length-utf8][^obs-character-length]
+The docs also name it `CHAR_LENGTH`,[^string-length] but
+`(char-length s)` fails with "char_length not applicable to types
+utf8".[^obs-char-length-fails]
+
+A list's element count is `(cardinality xs)`, `(length xs)` or
+`(array-length xs 1)`.[^src-cardinality][^src-length-list][^src-array-length][^obs-list-lengths]
+`array-length` throws for any dimension but 1.[^array-length-dimension][^src-array-length]
+For a set, use `length`: `cardinality` rejects a
+set.[^src-length-set][^obs-set-length][^obs-set-cardinality-fails]
+
+`(nth xs i)` counts from 0. An index past either end gives null, so the
+key is missing from the row.[^src-nth][^obs-nth-from-zero]
 
 ## Nested fields
 
@@ -310,3 +329,19 @@ the report names, then `bump` to the new tag.
 [^obs-pull-star]: Observed on XTDB v2.2.0: example `pull-many` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-subquery-name-clash]: Observed on XTDB v2.2.0: example `subquery-name-clash` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-subquery-name-renamed]: Observed on XTDB v2.2.0: example `subquery-renamed` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^array-length-dimension]: [other.md line 34, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/other.md?plain=1#L34-L34)
+[^obs-char-length-fails]: Observed on XTDB v2.2.0: example `char-length-fails` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-character-length]: Observed on XTDB v2.2.0: example `character-length` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-list-lengths]: Observed on XTDB v2.2.0: example `list-lengths` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-nth-from-zero]: Observed on XTDB v2.2.0: example `nth-from-zero` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-pull-in-return]: Observed on XTDB v2.2.0: example `pull-in-return` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-set-cardinality-fails]: Observed on XTDB v2.2.0: example `set-cardinality-fails` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-set-length]: Observed on XTDB v2.2.0: example `set-length` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^src-array-length]: [expression.clj `(defmethod codegen-call [:array_length :list :i64]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2292-L2300)
+[^src-cardinality]: [expression.clj `(defmethod codegen-call [:cardinality :list]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2242-L2244)
+[^src-character-length]: [expression.clj `(defmethod codegen-call [:character_length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L1568-L1570)
+[^src-length-list]: [expression.clj `(defmethod codegen-call [:length :list]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2252-L2253)
+[^src-length-set]: [expression.clj `(defmethod codegen-call [:length :set]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2255-L2257)
+[^src-length-utf8]: [expression.clj `(defmethod codegen-call [:length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2246-L2247)
+[^src-nth]: [expression.clj `(defmethod codegen-call [:nth :list :int]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2225-L2237)
+[^string-length]: [string.md line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/string.md?plain=1#L10-L10)

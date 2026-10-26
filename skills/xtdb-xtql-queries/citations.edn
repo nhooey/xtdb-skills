@@ -39,7 +39,16 @@
   {:id "src-parse-temporal-filter" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-temporal-filter"}
   {:id "query-options" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Query options"}
   {:id "src-parse-expr" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-expr"}
-  {:id "src-xt-q" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}]
+  {:id "string-length" :path "docs/src/content/docs/reference/main/stdlib/string.md" :line "`CHARACTER_LENGTH(s)` | `CHAR_LENGTH(s)`"}
+  {:id "array-length-dimension" :path "docs/src/content/docs/reference/main/stdlib/other.md" :line "XTDB arrays are 1-dimensional, so `dimension` must be `1`; any other value throws."}
+  {:id "src-character-length" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:character_length :utf8]"}
+  {:id "src-nth" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:nth :list :int]"}
+  {:id "src-cardinality" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:cardinality :list]"}
+  {:id "src-length-utf8" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:length :utf8]"}
+  {:id "src-length-list" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:length :list]"}
+  {:id "src-length-set" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:length :set]"}
+  {:id "src-array-length" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:array_length :list :i64]"}
+  {:id "src-xt-q":path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}]
 
  :observed
  [{:id "obs-v1-map" :example "v1-query-map"}
@@ -59,4 +68,11 @@
   {:id "obs-pull" :example "pull-one"}
   {:id "obs-pull-star" :example "pull-many"}
   {:id "obs-pull-no-match" :example "pull-no-match"}
-  {:id "obs-pull-cardinality" :example "pull-cardinality"}]}
+  {:id "obs-pull-cardinality" :example "pull-cardinality"}
+  {:id "obs-pull-in-return" :example "pull-in-return"}
+  {:id "obs-character-length" :example "character-length"}
+  {:id "obs-char-length-fails" :example "char-length-fails"}
+  {:id "obs-list-lengths" :example "list-lengths"}
+  {:id "obs-set-length" :example "set-length"}
+  {:id "obs-set-cardinality-fails" :example "set-cardinality-fails"}
+  {:id "obs-nth-from-zero" :example "nth-from-zero"}]}

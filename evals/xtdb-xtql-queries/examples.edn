@@ -159,4 +159,48 @@
               (where (= cid 1))
               (with {:order (pull [(fn [cid] (from :orders [{:customer-id cid} order-value])) cid])})
               (return customer-name order))
-   :expect-error "cardinality violation"}]}
+   :expect-error "cardinality violation"}
+
+  {:id "pull-in-return"
+   :query (-> (from :customers [{:xt/id cid} customer-name])
+              (where (= cid 1))
+              (return {:post (pull [(fn [cid] (from :posts [{:author-id cid} title])) cid])}))
+   :expect-error "subquery not allowed in expr here"}
+
+  {:id "character-length"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :s "héllo"}]]]
+   :query (-> (from :run/docs [s])
+              (return {:a (character-length s), :b (length s)}))
+   :expected [{:a 5, :b 5}]}
+
+  {:id "char-length-fails"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :s "héllo"}]]]
+   :query (-> (from :run/docs [s])
+              (return {:n (char-length s)}))
+   :expect-error "char_length not applicable to types utf8"}
+
+  {:id "list-lengths"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :xs [10 20 30]}]]]
+   :query (-> (from :run/docs [xs])
+              (return {:a (cardinality xs), :b (length xs), :c (array-length xs 1)}))
+   :expected [{:a 3, :b 3, :c 3}]}
+
+  {:id "set-length"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :ys #{1 2}}]]]
+   :query (-> (from :run/docs [ys])
+              (return {:n (length ys)}))
+   :expected [{:n 2}]}
+
+  {:id "set-cardinality-fails"
+   :setup [[[:put-docs :run/docs {:xt/id 1, :ys #{1 2}}]]]
+   :query (-> (from :run/docs [ys])
+              (return {:n (cardinality ys)}))
+   :expect-error "cardinality not applicable to types set"}
+
+  {:id "nth-from-zero"
+   ;; Past either end, :b and :c are null, so the row has no such keys.
+   :setup [[[:put-docs :run/docs {:xt/id 1, :xs [10 20 30]}]]]
+   :query (-> (from :run/docs [xs])
+              (return {:a (nth xs 0), :b (nth xs 3), :c (nth xs -1)}))
+   :exact-keys? true
+   :expected [{:a 10}]}]}
