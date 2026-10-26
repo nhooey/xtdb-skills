@@ -35,7 +35,10 @@ jobs:
               0) ;;
               1)
                 drifted=true
-                printf '## %s\n\n```\n%s\n```\n\n' "$skill" "$out" >> report.md
+                # The diffs stay in the run log: a large one pushes the
+                # issue body past GitHub's 65,536-character limit.
+                summary=$(printf '%s\n' "$out" | grep -vE '^ {12}[-+]')
+                printf '## %s\n\n```\n%s\n```\n\n' "$skill" "$summary" >> report.md
                 ;;
               *) exit "$status" ;;
             esac
@@ -51,8 +54,10 @@ jobs:
             echo '2. Move the eval to the same version: the `ghcr.io/xtdb/xtdb` image and the client in `evals/deps.edn`.'
             echo '3. Re-run `examples` and `storage` from `evals/`, which re-check the observed footnotes.'
             echo
+            echo "The diffs of each changed span are in [the run's log]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID), or from \`skill-citations drift <skill> --to latest\`."
+            echo
             cat report.md
-          } > body.md
+          } | head -c 65000 > body.md
           existing=$(gh issue list --state open --search "$ISSUE_TITLE in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             gh issue edit "$existing" --body-file body.md
