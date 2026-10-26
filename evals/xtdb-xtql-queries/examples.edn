@@ -130,7 +130,7 @@
    :expected [{:title "Hello", :n 2} {:title "Bonjour", :n 1} {:title "Quiet", :n 0}]}
 
   {:id "subquery-name-clash"
-   ;; Wrong on XTDB v2.1.0: the inner `from` binds order-value, as the outer
+   ;; Wrong on XTDB v2.2.0: the inner `from` binds order-value, as the outer
    ;; one does. Right would be 5 rows, one per order, with n 2, 2, 2, 1, 2.
    ;; When a release fixes this, this example fails: update the skill.
    :query (-> (from :orders [{:xt/id order-id} customer-id order-value])

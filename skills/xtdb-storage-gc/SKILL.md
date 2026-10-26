@@ -1,30 +1,36 @@
 ---
 name: xtdb-storage-gc
-description: Turn on and tune XTDB 2.x's storage garbage collector, which is off by default, so files that compaction has superseded get deleted; and know what it never deletes — level-0 files, the transaction log and every attached secondary database's files. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, or when asking whether erased data has left disk. Pinned to XTDB v2.1.0; every claim cites the source or docs, or an observation re-run against a live node.
+description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and runs on each database's indexing leader at every block boundary, deleting files that compaction has superseded; and know what it never deletes — level-0 files and the source and replica logs. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, when a v2.1 config with approxRunInterval stops starting, or when asking whether erased data has left disk. Pinned to XTDB v2.2.0; every claim cites the source or docs, or an observation re-run against a live node.
 ---
 
 # Storage garbage collection (XTDB 2.x)
 
-Written from `xtdb/xtdb` at tag `v2.1.0`. The docs at that tag don't
+Written from `xtdb/xtdb` at tag `v2.2.0`. The docs at that tag don't
 mention the garbage collector, so most footnotes cite the source; the
 rest cite the xtdb-skills eval's `storage` command, which runs the same
 writes on two nodes, with the collector on and off, and compares their
 storage directories. Kafka's retention defaults cite `apache/kafka` at
-`4.0.0`. `citations.edn` lists them. For what erase does to
+`4.3.1`. `citations.edn` lists them. For what erase does to
 query results, see the `xtdb-erase-and-history` skill.
 
-## It is off by default
+## It is on by default
 
-`GarbageCollectorConfig` defaults to `enabled = false`, `blocksToKeep =
-10`, `garbageLifetime = 24h` and `approxRunInterval = 10m`.[^gc-config]
-The node always builds the collector, but starts its loop only when
-enabled, and only for the primary database.[^gc-init] Compaction only
-marks the files it supersedes as garbage,[^compactor-add][^supersede] so
-with the collector off they stay: of two nodes given the same writes, the
-one with the collector off kept 76 level-1+ files to the other's
+`GarbageCollectorConfig` defaults to `enabled = true`, `blocksToKeep =
+10` and `garbageLifetime = 24h`.[^gc-config] Each database's indexing
+leader builds two collectors from the node's config, one for block
+files and one for trie files,[^leader-gc][^db-gc] runs them for as long
+as it leads,[^leader-gc-run] and signals both at every block
+boundary;[^block-signal] `enabled` gates only that signal.[^gc-config][^trie-gc][^block-gc]
+Compaction marks the files it supersedes as garbage,[^compactor-publish][^leader-add-tries][^supersede]
+and with the collector on they go: of two nodes given the same writes,
+the one with the collector off kept 76 level-1+ files to the other's
 24.[^obs-superseded]
 
-## Turning it on
+There is no `approxRunInterval` any more: nothing runs on a timer, only
+at block boundaries.[^gc-config][^block-signal] YAML that still sets it
+stops the node from starting.[^yaml-config][^obs-legacy-refused]
+
+## Configuring it
 
 In node YAML, the key is `garbageCollector`, a field of the node
 config,[^node-config][^yaml-config] with durations in ISO-8601
@@ -35,92 +41,95 @@ garbageCollector:
   enabled: true
   blocksToKeep: 10
   garbageLifetime: PT24H
-  approxRunInterval: PT10M
 ```
 
 In a Clojure node map, the key is `:garbage-collector`,[^node-clj-key]
-with `:enabled?`, `:blocks-to-keep`, `:garbage-lifetime` and
-`:approx-run-interval`.[^clj-config] The durations go to the config's
-setters as they are, and those take `java.time.Duration`:[^clj-config][^gc-config]
+with `:enabled?`, `:blocks-to-keep` and `:garbage-lifetime`.[^clj-config]
+The duration goes to the config's setter as it is, and that takes a
+`java.time.Duration`:[^clj-config][^gc-config]
 
 <!-- xtql-example: skip -->
 ```clojure
 {:garbage-collector {:enabled? true
                      :blocks-to-keep 10
-                     :garbage-lifetime (java.time.Duration/ofHours 24)
-                     :approx-run-interval (java.time.Duration/ofMinutes 10)}}
+                     :garbage-lifetime (java.time.Duration/ofHours 24)}}
 ```
+
+To turn it off, set `enabled: false` (`:enabled? false`).[^gc-config][^clj-config]
 
 ## What each setting trades
 
-- **`blocksToKeep`.** Each run deletes all but the newest
-  `blocksToKeep` block files, the global ones and those of up to 100
-  tables,[^block-gc][^obs-keeps-blocks] and the cutoff for data files is
-  taken from the block that many back from the latest.[^gc-class] More
-  blocks kept moves the cutoff back, so superseded files wait longer.
-- **`garbageLifetime`.** A superseded data file is deleted only if it
+- **`blocksToKeep`.** Each cycle deletes every block file more than
+  `blocksToKeep` blocks behind the latest, the global ones and each
+  table's, along with log payloads offloaded to storage for those
+  blocks;[^block-gc][^obs-keeps-blocks] it must be at least 1.[^block-gc]
+  The cutoff for trie files is taken from the block that many back from
+  the latest.[^trie-gc] More blocks kept moves the cutoff back, so
+  superseded files wait longer.
+- **`garbageLifetime`.** A superseded trie file is deleted only if it
   became garbage at or before that block's last transaction time minus
-  `garbageLifetime`.[^gc-class][^garbage-tries][^garbage-fn] With zero,
-  the cutoff is that block's own time.[^gc-class]
-- **`approxRunInterval`.** The first run waits a random part of the
-  interval, then the collector runs once per interval.[^gc-class] Each
-  run looks at up to 100 tables, chosen at random, so a node with more
-  tables than that takes several runs to cover them.[^gc-class][^block-gc]
+  `garbageLifetime`.[^trie-gc][^garbage-tries][^garbage-fn] With zero,
+  the cutoff is that block's own time.[^trie-gc]
+- **When it runs.** A cycle starts at each block boundary, and
+  boundaries that arrive during a cycle coalesce into one more.[^block-signal][^trie-gc]
+  Each cycle covers every table in the catalog,[^trie-gc][^block-gc]
+  and garbage marked after a boundary waits for the next one.[^block-signal]
 
 ## What it deletes, and what it never does
 
-The collector deletes the data and meta files of tries the catalog
-marks as garbage,[^gc-class][^garbage-tries] but never at level 0: the
-catalog's garbage test is false for every level-0 file,[^garbage-fn] and
-both nodes kept as many level-0 files, 48 each.[^obs-keeps-l0]
+The trie collector deletes the data and meta files of tries the catalog
+marks as garbage, then removes them from the catalog,[^trie-gc][^garbage-tries][^db-gc]
+but never at level 0: the catalog drops superseded level-0 tries
+instead of marking them,[^drop-l0] its garbage test is false at level
+0,[^garbage-fn] and the collector refuses a level-0 key outright, since
+those files are what `reset-compactor!` rebuilds from.[^trie-gc] Both
+nodes kept as many level-0 files, 48 each.[^obs-keeps-l0]
 
-It never touches the transaction log: it deletes only block files and
-trie files through the buffer pool.[^gc-class][^block-gc] A local log is
-one append-only `LOG` file, truncated only to roll back a write that
-failed,[^local-log][^log-local-disk] and it didn't shrink while the
-collector ran.[^obs-log-untouched] For Kafka, XTDB creates the topic with
-only `message.timestamp.type` set, no retention,[^kafka-topic] and the
-docs leave `retention.ms` to the operator, deleting old messages after
-it.[^kafka-setup] Bumping the log's epoch makes nodes ignore the old log
-but doesn't delete it.[^epoch]
+It never touches the logs: it deletes only block files, offloaded
+payloads and trie files through the buffer pool.[^block-gc][^trie-gc]
+Each database now has two logs, a source log for client writes and a
+replica log for the leader's output.[^log-split][^dbs-leader] A local
+log keeps them as `LOG` and `REPLICA_LOG` files in its
+directory,[^local-log][^local-replica-log][^log-local-disk] append-only
+but for a rollback of a write that failed,[^local-log] and they didn't
+shrink while the collector ran.[^obs-log-untouched] For Kafka, XTDB
+creates both topics with only `message.timestamp.type` set, no
+retention,[^kafka-topic][^kafka-replica-topic] and the docs leave
+`retention.ms` to the operator, for both topics.[^kafka-setup][^kafka-settings]
+Bumping the log's epoch makes nodes ignore the old log but doesn't
+delete it.[^epoch]
 
 A topic with no `retention.ms` takes the broker's: `log.retention.ms`,
 else `log.retention.minutes`, else
 `log.retention.hours`.[^kafka-synonyms][^kafka-ms-doc][^kafka-minutes-doc]
-In Kafka 4.0.0, the kafka-clients version XTDB v2.1.0's Kafka module
-uses,[^kafka-clients] `log.retention.hours` defaults to 168 and a topic's
-`retention.ms` to 604800000, both seven
+In Kafka 4.3.1, the kafka-clients version XTDB v2.2.0's Kafka module
+uses,[^kafka-module-clients][^kafka-version] `log.retention.hours`
+defaults to 168 and a topic's `retention.ms` to 604800000, both seven
 days.[^kafka-default-ms][^kafka-hours][^kafka-topic-ms] The XTDB docs call
-the default one day; it is seven.[^kafka-setup][^kafka-default-ms]
+the default one day; it is seven.[^kafka-settings][^kafka-default-ms]
 
-Compaction is on by default, with half the processors as
-threads,[^compactor-threads][^compactor-config] and a `threads` of 0 or
-less turns it off,[^compactor-init] so on a default node compaction keeps
-marking files as garbage and nothing deletes them.
+Compaction is on by default, with half the processors as threads, at
+least one,[^compactor-threads][^compactor-config] and a `threads` of 0
+or less turns it off.[^compactor-factory] A node with compaction off
+marks nothing as garbage, so the trie collector finds nothing to
+delete.[^compactor-publish][^garbage-tries]
 
 ## Secondary databases
 
-A node opens its primary database, `xtdb`, from its own `log` and
-`storage`, then opens each attached secondary database the primary's
-block catalog lists.[^db-catalog] The collector is built once per node,
-on the primary alone, under a `TODO multi-db`.[^gc-init][^gc-class] Each
-secondary database gets its own trie catalog, buffer pool and
-compactor, and no collector.[^db-system][^compactor-for-db] Its
-compactor marks superseded files as garbage there too,[^compactor-for-db][^compactor-add]
-and nothing deletes them.
+A node opens its primary database, `xtdb`, then each attached secondary
+database the primary's catalog lists, each through the same
+path.[^db-catalog][^db-open] Every database elects its own leader, and
+that leader runs the collectors with the node's `garbageCollector`
+settings,[^dbs-leader][^leader-gc][^db-gc] so secondary databases are
+collected too.
 
-Nothing turns collection on per database. `garbageCollector` is a field
-of the node config only,[^node-config] and a database's own config
-holds a log and a storage, nothing
-else.[^db-config-log][^db-config-storage][^dbs-attach] Calling
-`.collectGarbage` on the node's collector reaches the primary
-only.[^gc-accessor][^gc-init]
-
-To collect a secondary database's storage, run a node whose own `log`
-and `storage` point at that database's. Databases are shared by
-pointing log and storage config at the same resources,[^dbs-shared] and
-that node opens the database as its primary, so its collector runs
-there.[^db-catalog][^gc-init]
+Nothing sets collection per database. `garbageCollector` is a field of
+the node config only,[^node-config] and a database's own config holds
+its log, storage and mode, no collector
+settings.[^db-config-log][^db-config-storage][^db-config-mode][^dbs-attach]
+A database attached read-only never claims leadership, so its node
+neither compacts nor collects there; a read-write cluster sharing the
+database does.[^read-only-follows][^read-only-compactor][^dbs-attach][^dbs-shared]
 
 ## Erased data on disk
 
@@ -129,68 +138,93 @@ for all valid time,[^erase-docs] but the docs say erased data is
 "guaranteed to be fully erased only once all background index processing
 has completed and the changes have been written to the remote object
 storage."[^erase-disk] Compaction merges an id's events newest
-first,[^event-order] and once it meets an erase, it copies none of that
-id's older events into the new file.[^polygon-erase][^segment-merge] The
-files it supersedes still hold them until the collector deletes
-them,[^gc-class] which with the collector off never
-happens.[^gc-init][^obs-superseded] Nothing deletes level-0
-files[^garbage-fn][^obs-keeps-l0] or a local log.[^local-log][^obs-log-untouched]
+first,[^event-order][^segment-merge] and once it meets an erase, it
+copies none of that id's older events into the new
+file.[^polygon-erase][^segment-merge] The files it supersedes still
+hold them until the collector deletes them,[^trie-gc] which with the
+collector off never happens.[^gc-config][^obs-superseded] Nothing
+deletes level-0 files[^garbage-fn][^obs-keeps-l0] or the
+logs.[^local-log][^obs-log-untouched]
 
 ## Checking it's running
 
-Set the logger `xtdb.garbage_collector` to DEBUG, as the eval's
-`logback.xml` does. A node with the collector on logs `Starting
-GarbageCollector with approxRunInterval: …` at start, then each run's
-block and trie collection;[^gc-class][^obs-yaml-starts] a node with it
-off logs neither.[^gc-init][^obs-off-silent]
+Set the logger `xtdb.garbage_collector` to DEBUG. The collectors log
+through `System.Logger`,[^system-logger] which the Docker image hands to
+log4j, not logback, so the level goes in a log4j configuration, as the
+eval's `log4j2.xml` does.[^obs-yaml-starts] The leader logs `Starting TrieGarbageCollector
+(enabled=…, blocksToKeep=…, garbageLifetime=…)` and the same for
+`BlockGarbageCollector` whether or not it is enabled, then, when
+enabled, `Garbage collecting tries older than …` and `Garbage collecting
+blocks, keeping …` each cycle.[^trie-gc][^block-gc][^obs-yaml-starts] A
+node with it off logs the start with `enabled=false` and no
+cycles.[^obs-off-idle]
 
-`xtdb.garbage-collector/garbage-collector` returns a node's collector,
-which exists even when disabled,[^gc-accessor][^gc-init] and
-`(.collectGarbage gc)` runs one collection at once.[^gc-class]
-[^block-gc]: [BlockGarbageCollector.kt `class BlockGarbageCollector(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt#L11-L54)
-[^clj-config]: [garbage_collector.clj `(defmethod xtn/apply-config! :xtdb/garbage-collector`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/garbage_collector.clj#L9-L16)
-[^compactor-add]: [Compactor.kt line 214, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/compactor/Compactor.kt#L214-L214)
-[^compactor-config]: [CompactorConfig.kt line 10, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L10-L10)
-[^compactor-for-db]: [compactor.clj `(defmethod ig/init-key ::for-db`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/compactor.clj#L131-L132)
-[^compactor-init]: [compactor.clj `(defmethod ig/init-key :xtdb/compactor`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/compactor.clj#L119-L122)
-[^compactor-threads]: [CompactorConfig.kt line 14, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L14-L14)
-[^db-catalog]: [db_catalog.clj `(defmethod ig/init-key :xtdb/db-catalog`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/db_catalog.clj#L98-L154)
-[^db-config-log]: [Database.kt line 88, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/database/Database.kt#L88-L88)
-[^db-config-storage]: [Database.kt line 89, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/database/Database.kt#L89-L89)
-[^db-system]: [db_catalog.clj `(defn- db-system`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/db_catalog.clj#L49-L68)
-[^dbs-attach]: [dbs-in-xtdb.md § Attaching/Detaching secondary databases (v2.1+), v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L151-L189)
-[^dbs-shared]: [dbs-in-xtdb.md line 39, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L39-L39)
-[^duration-serde]: [Serde.kt `object DurationSerde`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/api/src/main/kotlin/xtdb/Serde.kt#L31-L64)
-[^epoch]: [log.md § Bumping an Epoch, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/ops/config/log.md?plain=1#L88-L103)
-[^erase-disk]: [sql-overview.mdx § ERASE as 'hard' delete, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/quickstart/sql-overview.mdx?plain=1#L421-L445)
-[^erase-docs]: [txs.md § `erase-docs`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208)
-[^event-order]: [EventRowPointer.kt line 65, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/trie/EventRowPointer.kt#L65-L65)
-[^garbage-fn]: [trie_catalog.clj `(defn garbage-fn`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/trie_catalog.clj#L240-L243)
-[^garbage-tries]: [trie_catalog.clj `(defn garbage-tries`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/trie_catalog.clj#L245-L247)
-[^gc-accessor]: [garbage_collector.clj `(defn garbage-collector`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/garbage_collector.clj#L35-L36)
-[^gc-class]: [GarbageCollector.kt `class GarbageCollector @JvmOverloads constructor(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/garbage_collector/GarbageCollector.kt#L19-L92)
-[^gc-config]: [GarbageCollectorConfig.kt `data class GarbageCollectorConfig(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt#L9-L19)
-[^gc-init]: [garbage_collector.clj `(defmethod ig/init-key :xtdb/garbage-collector`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/garbage_collector.clj#L25-L29)
-[^kafka-clients]: [build.gradle.kts line 30, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/modules/kafka/build.gradle.kts#L30-L30)
-[^kafka-default-ms]: [LogConfig.java line 132, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L132-L132)
-[^kafka-hours]: [LogConfig.java line 170, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L170-L170)
-[^kafka-minutes-doc]: [ServerLogConfigs.java line 59, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L59-L59)
-[^kafka-ms-doc]: [ServerLogConfigs.java line 58, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L58-L58)
-[^kafka-setup]: [kafka.md § Setup, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L42-L78)
-[^kafka-synonyms]: [ServerTopicConfigSynonyms.java line 67, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java#L67-L67)
-[^kafka-topic-ms]: [LogConfig.java line 212, apache/kafka 4.0.0](https://github.com/apache/kafka/blob/4.0.0/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L212-L212)
-[^kafka-topic]: [KafkaCluster.kt `private fun AdminClient.ensureTopicExists(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L81-L297)
-[^local-log]: [LocalLog.kt `class LocalLog(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L41-L321)
-[^log-local-disk]: [log.md § Local disk, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/docs/src/content/docs/ops/config/log.md?plain=1#L37-L55)
-[^node-clj-key]: [node.clj `(defmethod apply-config! :garbage-collector`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/node.clj#L76-L77)
-[^node-config]: [Xtdb.kt line 77, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/Xtdb.kt#L77-L77)
-[^obs-keeps-blocks]: Observed on XTDB v2.1.0: example `gc-keeps-recent-blocks` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-keeps-l0]: Observed on XTDB v2.1.0: example `gc-keeps-l0` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-log-untouched]: Observed on XTDB v2.1.0: example `gc-log-untouched` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-off-silent]: Observed on XTDB v2.1.0: example `gc-off-silent` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-superseded]: Observed on XTDB v2.1.0: example `gc-deletes-superseded` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-yaml-starts]: Observed on XTDB v2.1.0: example `gc-yaml-starts` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^polygon-erase]: [PolygonCalculator.kt `class PolygonCalculator(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt#L7-L49)
-[^segment-merge]: [SegmentMerge.kt `internal class SegmentMerge(`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt#L113-L300)
-[^supersede]: [trie_catalog.clj `(defn- supersede-by-block-idx`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/clojure/xtdb/trie_catalog.clj#L118-L128)
-[^yaml-config]: [YamlSerde.kt `fun nodeConfig(yamlString: String)`, v2.1.0](https://github.com/xtdb/xtdb/blob/v2.1.0/core/src/main/kotlin/xtdb/api/YamlSerde.kt#L157-L158)
+To run one cycle by hand, call `.gcAll` on a database:
+`(.gcAll (xtdb.db-catalog/primary-db node))` for the primary. It runs
+the block and trie collectors once, `enabled` or not, and waits for
+both; on a node that isn't the database's leader it does
+nothing.[^gc-all][^gc-await][^primary-db]
+[^block-gc]: [BlockGarbageCollector.kt `class BlockGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt#L39-L218)
+[^block-signal]: [LeaderLogProcessor.kt line 162, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L162-L162)
+[^clj-config]: [garbage_collector.clj `(defmethod xtn/apply-config! :xtdb/garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/garbage_collector.clj#L5-L11)
+[^compactor-config]: [CompactorConfig.kt line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L10-L10)
+[^compactor-factory]: [compactor.clj `(defn ->factory`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/compactor.clj#L11-L19)
+[^compactor-publish]: [Compactor.kt line 151, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/compactor/Compactor.kt#L151-L151)
+[^compactor-threads]: [CompactorConfig.kt line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L14-L14)
+[^db-catalog]: [DatabaseCatalog.kt line 214, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt#L214-L214)
+[^db-config-log]: [Database.kt line 440, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L440-L440)
+[^db-config-mode]: [Database.kt line 442, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L442-L442)
+[^db-config-storage]: [Database.kt line 441, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L441-L441)
+[^db-gc]: [GarbageCollector.kt `internal class GarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/GarbageCollector.kt#L22-L139)
+[^db-open]: [DatabaseCatalog.kt line 121, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt#L121-L121)
+[^dbs-attach]: [dbs-in-xtdb.md § Attaching/Detaching secondary databases (v2.1+), v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L246-L289)
+[^dbs-leader]: [dbs-in-xtdb.md § Node processing, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L210-L244)
+[^dbs-shared]: [dbs-in-xtdb.md line 57, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L57-L57)
+[^drop-l0]: [trie_catalog.clj `(defn- drop-superseded-l0`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L183-L191)
+[^duration-serde]: [Serde.kt `object DurationSerde`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/kotlin/xtdb/Serde.kt#L31-L64)
+[^epoch]: [log.md § Bumping an Epoch, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L103-L118)
+[^erase-disk]: [sql-overview.mdx § ERASE as 'hard' delete, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/quickstart/sql-overview.mdx?plain=1#L437-L461)
+[^erase-docs]: [txs.md § `erase-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208)
+[^event-order]: [EventRowPointer.kt `class EventRowPointer(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/EventRowPointer.kt#L10-L125)
+[^garbage-fn]: [trie_catalog.clj `(defn garbage-fn`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L324-L327)
+[^garbage-tries]: [trie_catalog.clj `(defn garbage-tries`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L329-L331)
+[^gc-all]: [Database.kt line 193, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L193-L193)
+[^gc-await]: [LogProcessor.kt line 514, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L514-L514)
+[^gc-config]: [GarbageCollectorConfig.kt `data class GarbageCollectorConfig(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt#L9-L21)
+[^kafka-default-ms]: [LogConfig.java line 128, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L128-L128)
+[^kafka-hours]: [LogConfig.java line 160, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L160-L160)
+[^kafka-minutes-doc]: [ServerLogConfigs.java line 77, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L77-L77)
+[^kafka-module-clients]: [build.gradle.kts line 30, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/build.gradle.kts#L30-L30)
+[^kafka-ms-doc]: [ServerLogConfigs.java line 76, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L76-L76)
+[^kafka-replica-topic]: [KafkaCluster.kt line 426, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L426-L426)
+[^kafka-settings]: [kafka.md § Settings, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L111-L134)
+[^kafka-setup]: [kafka.md § Setup, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L95-L109)
+[^kafka-synonyms]: [ServerTopicConfigSynonyms.java line 64, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java#L64-L64)
+[^kafka-topic]: [KafkaCluster.kt `private fun AdminClient.ensureTopicExists(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L122-L474)
+[^kafka-topic-ms]: [LogConfig.java line 202, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L202-L202)
+[^kafka-version]: [libs.versions.toml line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/gradle/libs.versions.toml#L14-L14)
+[^leader-add-tries]: [LeaderLogProcessor.kt line 198, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L198-L198)
+[^leader-gc]: [LeaderLogProcessor.kt line 79, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L79-L79)
+[^leader-gc-run]: [LeaderLogProcessor.kt line 241, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L241-L241)
+[^local-log]: [LocalLog.kt `class LocalLog<M> @JvmOverloads constructor(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L45-L362)
+[^local-replica-log]: [LocalLog.kt line 350, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L350-L350)
+[^log-local-disk]: [log.md § Local disk, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L54-L67)
+[^log-split]: [log.md line 21, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L21-L21)
+[^node-clj-key]: [node.clj `(defmethod apply-config! :garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/node.clj#L84-L85)
+[^node-config]: [Xtdb.kt line 1642, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/Xtdb.kt#L1642-L1642)
+[^obs-keeps-blocks]: Observed on XTDB v2.2.0: example `gc-keeps-recent-blocks` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-keeps-l0]: Observed on XTDB v2.2.0: example `gc-keeps-l0` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-legacy-refused]: Observed on XTDB v2.2.0: example `gc-legacy-interval-refused` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-log-untouched]: Observed on XTDB v2.2.0: example `gc-log-untouched` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-off-idle]: Observed on XTDB v2.2.0: example `gc-off-idle` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-superseded]: Observed on XTDB v2.2.0: example `gc-deletes-superseded` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-yaml-starts]: Observed on XTDB v2.2.0: example `gc-yaml-starts` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^polygon-erase]: [PolygonCalculator.kt `class PolygonCalculator(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt#L7-L48)
+[^primary-db]: [db_catalog.clj `(defn primary-db`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/db_catalog.clj#L20-L23)
+[^read-only-compactor]: [Database.kt line 328, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L328-L328)
+[^read-only-follows]: [LogProcessor.kt line 280, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L280-L280)
+[^segment-merge]: [SegmentMerge.kt `internal class SegmentMerge(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt#L115-L316)
+[^supersede]: [trie_catalog.clj `(defn- supersede-by-block-idx`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L169-L181)
+[^trie-gc]: [TrieGarbageCollector.kt `class TrieGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/TrieGarbageCollector.kt#L52-L216)
+[^yaml-config]: [YamlSerde.kt `fun nodeConfig(yamlString: String)`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/YamlSerde.kt#L90-L101)
+[^system-logger]: [SystemLogger.kt line 8, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/util/SystemLogger.kt#L8-L8)

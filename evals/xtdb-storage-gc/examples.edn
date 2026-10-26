@@ -2,10 +2,11 @@
 ;; `clojure -M:eval storage xtdb-storage-gc` from evals/. That command starts
 ;; :image twice on a fresh data directory, once with gc-on.yaml and once
 ;; with gc-off.yaml, writes the same rows to each, waits, and compares the
-;; two storage directories. Each example names one fact it checks.
+;; two storage directories; then it starts :image with gc-legacy.yaml, which
+;; it should refuse. Each example names one fact it checks.
 {:skill "../../skills/xtdb-storage-gc/SKILL.md"
 
- :storage {:image "ghcr.io/xtdb/xtdb:2.1.0"
+ :storage {:image "ghcr.io/xtdb/xtdb:2.2.0"
            :port 15433
            :blocks-to-keep 2
            ;; 12 transactions rewriting the same 60 ids, with 50 rows per block
@@ -15,7 +16,8 @@
 
  :example
  [{:id "gc-yaml-starts" :check :gc-starts}
-  {:id "gc-off-silent" :check :gc-off-silent}
+  {:id "gc-off-idle" :check :gc-off-idle}
+  {:id "gc-legacy-interval-refused" :check :legacy-refused}
   {:id "gc-keeps-recent-blocks" :check :keeps-recent-blocks}
   {:id "gc-deletes-superseded" :check :deletes-superseded}
   {:id "gc-keeps-l0" :check :keeps-l0}

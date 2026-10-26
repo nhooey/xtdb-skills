@@ -1,11 +1,11 @@
 {
   "repo" : "xtdb/xtdb",
-  "tag" : "v2.1.0",
-  "commit" : "ca78d5609dfa7393c465c1e1435a8f20fa3eb371",
+  "tag" : "v2.2.0",
+  "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
   "files" : {
     "docs/src/content/docs/about/time-in-xtdb.md" : "2502c541c3f698128057c71242561ea6a695c6a795dafe01a356bbf7d89b5985",
     "docs/src/content/docs/reference/main/xtql/txs.md" : "68c444c3aff1c1edfa66077a786588a49a814ad4e09ff6374b778bb60cdfe12a",
-    "docs/src/content/docs/reference/main/xtql/queries.md" : "4021d44b47bf478bcfb661532d6cebf4b08327fa0eefe50debc8154db342d03c"
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701"
   },
   "citations" : {
     "system-time" : {

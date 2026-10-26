@@ -2,7 +2,7 @@
 ;; for behaviour no source states (:observed). See the README's "Citing
 ;; XTDB sources" for the anchor kinds and the `skill-citations` commands.
 {:source {:repo "xtdb/xtdb"
-          :tag "v2.1.0"
+          :tag "v2.2.0"
           :watch ["docs/src/content/docs/reference/main/xtql/txs.md"
                   "docs/src/content/docs/about/time-in-xtdb.md"]}
 

@@ -11,10 +11,9 @@
 ;; the span runs to the next one) or :line (text on exactly one line).
 
 {:source {:repo "xtdb/xtdb"
-          :tag "v2.1.0"
+          :tag "v2.2.0"
           ;; Changes under these paths that no citation covers are reported as gaps.
           :watch ["docs/src/content/docs/reference/main/xtql/"
-                  "api/src/main/clojure/xtdb/xtql.clj"
                   "core/src/main/clojure/xtdb/xtql/"
                   "core/src/main/clojure/xtdb/xtql.clj"]}
 
@@ -28,7 +27,7 @@
   {:id "unify-clauses" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify clauses"}
   {:id "binding-specs" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Binding specs"}
   {:id "from" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "From"}
-  {:id "src-from-opt-keys" :path "api/src/main/clojure/xtdb/xtql.clj" :form "(def from-opt-keys"}
+  {:id "src-from-opt-keys" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(def from-opt-keys"}
   {:id "unify" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify"}
   {:id "expressions" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Expressions" :intro true}
   {:id "with" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "With"}
@@ -37,9 +36,9 @@
   {:id "arguments" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Arguments"}
   {:id "subqueries" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Subqueries"}
   {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}
-  {:id "src-parse-temporal-filter" :path "api/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-temporal-filter"}
+  {:id "src-parse-temporal-filter" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-temporal-filter"}
   {:id "query-options" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Query options"}
-  {:id "src-parse-expr" :path "api/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-expr"}
+  {:id "src-parse-expr" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defn parse-expr"}
   {:id "src-xt-q" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}]
 
  :observed

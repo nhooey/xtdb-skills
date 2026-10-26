@@ -219,7 +219,8 @@
     (sh! "docker" "run" "-d" "--rm" "--name" container "-p" (str port ":5432")
          "-v" (str (.getCanonicalPath (io/file suite)) ":/cfg")
          "-v" (str (.getCanonicalPath data) ":/var/lib/xtdb")
-         "-e" "JAVA_TOOL_OPTIONS=-Dlogback.configurationFile=/cfg/logback.xml"
+         "-e" (str "JAVA_TOOL_OPTIONS=-Dlogback.configurationFile=/cfg/logback.xml"
+                   " -Dlog4j2.configurationFile=/cfg/log4j2.xml")
          image "-f" (str "/cfg/" config))
     (try
       (let [c (xt/client {:host "localhost" :port port :user "xtdb"})]
@@ -232,27 +233,51 @@
           (xt/execute-tx c [(into [:put-docs :docs]
                                   (for [i (range rows)]
                                     {:xt/id i, :round round, :pad (apply str (repeat 200 "x"))}))]))
-        (let [log-after-writes (.length (io/file data "log" "LOG"))]
+        (let [log-bytes #(+ (.length (io/file data "log" "LOG")) (.length (io/file data "log" "REPLICA_LOG")))
+              log-after-writes (log-bytes)]
           (Thread/sleep settle-ms)
           {:log-after-writes log-after-writes
            :files (set (for [^File f (file-seq data) :when (.isFile f)]
                          (str (.relativize (.toPath data) (.toPath f)))))
-           :log-bytes (.length (io/file data "log" "LOG"))
+           :log-bytes (log-bytes)
            :node-log (sh! "docker" "logs" container)}))
       (finally (sh! "docker" "stop" container)))))
 
+(defn- storage-refused
+  "Start `image` with SUITE/`config` and return its log once it exits, or
+  nil if it is still running after a minute."
+  [suite config {:keys [image]}]
+  (let [container (str "xtdb-eval-refused-" run-id)]
+    (sh! "docker" "run" "-d" "--name" container
+         "-v" (str (.getCanonicalPath (io/file suite)) ":/cfg")
+         image "-f" (str "/cfg/" config))
+    (try
+      (loop [tries 60]
+        (cond
+          (= "false\n" (sh! "docker" "inspect" "-f" "{{.State.Running}}" container))
+          (sh! "docker" "logs" container)
+          (zero? tries) nil
+          :else (do (Thread/sleep 1000) (recur (dec tries)))))
+      (finally (shell/sh "docker" "rm" "-f" container)))))
+
 (defn- storage-facts
   "Each check's [passed? detail], from the runs with the GC on and off."
-  [on off keep]
+  [on off legacy keep]
   (let [count-of (fn [run re] (count (filter #(re-find re %) (:files run))))
         global-blocks #"^buffers/v\d+/blocks/"
         l0 #"/(data|meta)/l00-"
         l1+ #"/(data|meta)/l0[1-9]-"
-        both (fn [re] (str "on " (count-of on re) ", off " (count-of off re)))]
-    {:gc-starts [(str/includes? (:node-log on) "Starting GarbageCollector")
-                 "gc-on.yaml's node logs the collector starting"]
-     :gc-off-silent [(not (str/includes? (:node-log off) "GarbageCollector"))
-                     "gc-off.yaml's node logs no collector"]
+        both (fn [re] (str "on " (count-of on re) ", off " (count-of off re)))
+        cycles #(count (re-seq #"Garbage collecting tries" (:node-log %)))]
+    {:gc-starts [(and (str/includes? (:node-log on) "Starting TrieGarbageCollector (enabled=true")
+                      (pos? (cycles on)))
+                 (str "gc-on.yaml's node logs the collector starting, then " (cycles on) " trie cycles")]
+     :gc-off-idle [(and (str/includes? (:node-log off) "Starting TrieGarbageCollector (enabled=false")
+                        (zero? (cycles off)))
+                   (str "gc-off.yaml's node logs the collector starting disabled, then " (cycles off) " trie cycles")]
+     :legacy-refused [(boolean (some-> legacy (str/includes? "approxRunInterval")))
+                      (str "gc-legacy.yaml's node "
+                           (if legacy "exited, naming approxRunInterval" "was still running after a minute"))]
      :keeps-recent-blocks [(and (= keep (count-of on global-blocks)) (> (count-of off global-blocks) keep))
                            (str "global block files: " (both global-blocks))]
      :deletes-superseded [(< (count-of on l1+) (count-of off l1+))
@@ -260,7 +285,7 @@
      :keeps-l0 [(and (pos? (count-of on l0)) (= (count-of on l0) (count-of off l0)))
                 (str "level-0 files: " (both l0))]
      :log-untouched [(and (pos? (:log-after-writes on)) (>= (:log-bytes on) (:log-after-writes on)))
-                     (str "GC on, LOG bytes after the writes " (:log-after-writes on)
+                     (str "GC on, LOG + REPLICA_LOG bytes after the writes " (:log-after-writes on)
                           ", after the collector ran " (:log-bytes on) "; GC off, " (:log-bytes off))]}))
 
 (defn- storage!
@@ -269,7 +294,8 @@
   (let [{:keys [storage example]} (read-edn (io/file suite "examples.edn"))
         on (storage-run suite "gc-on.yaml" storage)
         off (storage-run suite "gc-off.yaml" storage)
-        facts (storage-facts on off (:blocks-to-keep storage))
+        legacy (storage-refused suite "gc-legacy.yaml" storage)
+        facts (storage-facts on off legacy (:blocks-to-keep storage))
         results (for [{:keys [id check]} example :when check]
                   (let [[ok detail] (get facts check [false (str "unknown check " check)])]
                     [id ok detail]))]

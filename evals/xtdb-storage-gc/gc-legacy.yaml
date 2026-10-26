@@ -1,0 +1,16 @@
+# gc-on.yaml with v2.1's approxRunInterval, which v2.2 removed: the node
+# should refuse this config rather than start.
+server:
+  host: '*'
+  port: 5432
+log: !Local
+  path: "/var/lib/xtdb/log"
+storage: !Local
+  path: "/var/lib/xtdb/buffers"
+indexer:
+  rowsPerBlock: 50
+garbageCollector:
+  enabled: true
+  blocksToKeep: 2
+  garbageLifetime: PT0S
+  approxRunInterval: PT3S

@@ -1,11 +1,11 @@
 {
   "repo" : "xtdb/xtdb",
-  "tag" : "v2.1.0",
-  "commit" : "ca78d5609dfa7393c465c1e1435a8f20fa3eb371",
+  "tag" : "v2.2.0",
+  "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
   "files" : {
-    "docs/src/content/docs/about/txs-in-xtdb.md" : "8be6a9f0f8065ba6b7e631adece00dc9d0a6fb15b44132714661fe01ebeeb239",
+    "docs/src/content/docs/about/txs-in-xtdb.md" : "0b6454114048ecba211fb9895bf042877acc6e9999bf1281d0fc5d0a39b70424",
     "docs/src/content/docs/about/time-in-xtdb.md" : "2502c541c3f698128057c71242561ea6a695c6a795dafe01a356bbf7d89b5985",
-    "docs/src/content/docs/reference/main/xtql/queries.md" : "4021d44b47bf478bcfb661532d6cebf4b08327fa0eefe50debc8154db342d03c"
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701"
   },
   "citations" : {
     "atomic-txs" : {

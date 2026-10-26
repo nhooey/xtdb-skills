@@ -55,10 +55,10 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 | --- | --- | --- |
 | xtdb-erase-and-history | What put, patch, delete and erase keep in XTDB 2.x history, and how to drop a row's history but keep the row. | [skills/xtdb-erase-and-history](skills/xtdb-erase-and-history) |
 | xtdb-history-cost-design | Split a document's volatile fields into their own table so history doesn't store the whole document per change. | [skills/xtdb-history-cost-design](skills/xtdb-history-cost-design) |
-| xtdb-storage-gc | Turn on XTDB 2.x's storage garbage collector, off by default, and what it never deletes. | [skills/xtdb-storage-gc](skills/xtdb-storage-gc) |
+| xtdb-storage-gc | Tune XTDB 2.x's storage garbage collector, on by default since v2.2.0, and what it never deletes. | [skills/xtdb-storage-gc](skills/xtdb-storage-gc) |
 | xtdb-xtql-queries | Write, read and debug XTQL queries for XTDB 2.x. | [skills/xtdb-xtql-queries](skills/xtdb-xtql-queries) |
 
-Each is pinned to XTDB v2.1.0.
+Each is pinned to XTDB v2.2.0.
 
 ## Citing XTDB sources
 
@@ -87,7 +87,7 @@ Every Monday, `.github/workflows/citation-drift.yml` runs `drift --to latest` fo
 A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 60 tasks with their expected rows, 9 of the newest marked `:holdout` so no revision of the skill is tuned to them.
 
 ```sh
-docker run -d --rm --name xtdb-eval -p 15432:5432 ghcr.io/xtdb/xtdb:2.1.0
+docker run -d --rm --name xtdb-eval -p 15432:5432 ghcr.io/xtdb/xtdb:2.2.0
 cd evals
 clojure -M:eval seed xtdb-xtql-queries                 # load seed.edn
 clojure -M:eval prompt xtdb-xtql-queries > tasks.txt   # the sheet an answerer gets

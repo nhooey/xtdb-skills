@@ -1,0 +1,11 @@
+<!-- The garbage collectors' DEBUG lines. From v2.2 they log through
+     System.Logger, which the image hands to log4j rather than logback. -->
+<Configuration>
+  <Appenders>
+    <Console name="STDOUT"><PatternLayout pattern="%d{HH:mm:ss} | %-5level %logger{36} | %msg%n"/></Console>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO"><AppenderRef ref="STDOUT"/></Root>
+    <Logger name="xtdb.garbage_collector" level="DEBUG"/>
+  </Loggers>
+</Configuration>

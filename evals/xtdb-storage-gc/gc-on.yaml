@@ -14,4 +14,3 @@ garbageCollector:
   enabled: true
   blocksToKeep: 2
   garbageLifetime: PT0S
-  approxRunInterval: PT3S
