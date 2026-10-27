@@ -7,7 +7,7 @@
     clojure -M:eval prompt SUITE                 print SUITE/tasks.edn as a task sheet
     clojure -M:eval score SUITE ANSWERS.edn ...  score answer files ({task-id query-string})
     clojure -M:eval examples SUITE ...           run each suite's examples.edn
-    clojure -M:eval storage SUITE                compare storage with the GC on and off
+    clojure -M:eval storage SUITE                run SUITE's storage checks on nodes of its own
 
   Connects with the XTDB client to localhost:15432 (XTDB_HOST and XTDB_PORT
   override it). Column names compare with `-` and `_` alike and :xt/ keys as
@@ -209,11 +209,11 @@
       (throw (ex-info (str (str/join " " args) " failed: " err) {})))
     (str out err)))
 
-(defn- storage-run
-  "Start `image` with SUITE/`config` on an empty data directory, write the
-  same rows `rounds` times, wait `settle-ms`, and return the files it left
-  and the node's log."
-  [suite config {:keys [image port rounds rows settle-ms]}]
+(defn- with-storage-node
+  "Start `image` with SUITE/`config` on an empty data directory, call `f`
+  with a client and the data directory once the node answers, and stop the
+  node afterwards."
+  [suite config {:keys [image port]} f]
   (let [data (.toFile (Files/createTempDirectory "xtdb-storage" (make-array FileAttribute 0)))
         container (str "xtdb-eval-storage-" run-id)]
     (sh! "docker" "run" "-d" "--rm" "--name" container "-p" (str port ":5432")
@@ -229,19 +229,33 @@
             (when (zero? tries) (throw (ex-info "node did not start" {})))
             (Thread/sleep 1000)
             (recur (dec tries))))
-        (dotimes [round rounds]
-          (xt/execute-tx c [(into [:put-docs :docs]
-                                  (for [i (range rows)]
-                                    {:xt/id i, :round round, :pad (apply str (repeat 200 "x"))}))]))
-        (let [log-bytes #(+ (.length (io/file data "log" "LOG")) (.length (io/file data "log" "REPLICA_LOG")))
-              log-after-writes (log-bytes)]
-          (Thread/sleep settle-ms)
-          {:log-after-writes log-after-writes
-           :files (set (for [^File f (file-seq data) :when (.isFile f)]
-                         (str (.relativize (.toPath data) (.toPath f)))))
-           :log-bytes (log-bytes)
-           :node-log (sh! "docker" "logs" container)}))
+        (f c data container))
       (finally (sh! "docker" "stop" container)))))
+
+(defn- data-files
+  "Every file under `data`, as a path relative to it."
+  [^File data]
+  (set (for [^File f (file-seq data) :when (.isFile f)]
+         (str (.relativize (.toPath data) (.toPath f))))))
+
+(defn- storage-run
+  "Start `image` with SUITE/`config` on an empty data directory, write the
+  same rows `rounds` times, wait `settle-ms`, and return the files it left
+  and the node's log."
+  [suite config {:keys [rounds rows settle-ms] :as opts}]
+  (with-storage-node suite config opts
+    (fn [c data container]
+      (dotimes [round rounds]
+        (xt/execute-tx c [(into [:put-docs :docs]
+                                (for [i (range rows)]
+                                  {:xt/id i, :round round, :pad (apply str (repeat 200 "x"))}))]))
+      (let [log-bytes #(+ (.length (io/file data "log" "LOG")) (.length (io/file data "log" "REPLICA_LOG")))
+            log-after-writes (log-bytes)]
+        (Thread/sleep settle-ms)
+        {:log-after-writes log-after-writes
+         :files (data-files data)
+         :log-bytes (log-bytes)
+         :node-log (sh! "docker" "logs" container)}))))
 
 (defn- storage-refused
   "Start `image` with SUITE/`config` and return its log once it exits, or
@@ -288,14 +302,67 @@
                      (str "GC on, LOG + REPLICA_LOG bytes after the writes " (:log-after-writes on)
                           ", after the collector ran " (:log-bytes on) "; GC off, " (:log-bytes off))]}))
 
+(defn- docs-rows [table from n]
+  (into [:put-docs table] (for [i (range from (+ from n))] {:xt/id i, :pad (apply str (repeat 200 "x"))})))
+
+(defn- write-path-run
+  "Start `image` with SUITE/node.yaml (50 rows per block, no compactor, no
+  collector), write in three steps and return what each left: 10 rows, too
+  few for a block; 50 more, reaching it; then one transaction of 120 rows to
+  :docs and 5 to :orders."
+  [suite {:keys [settle-ms] :as opts}]
+  (with-storage-node suite "node.yaml" opts
+    (fn [c data _]
+      (let [after (fn []
+                    (Thread/sleep settle-ms)
+                    {:files (data-files data)
+                     :log-bytes (.length (io/file data "log" "LOG"))
+                     :docs (-> (xt/q c '(-> (from :docs [xt/id]) (aggregate {:n (row-count)})))
+                               first :n)})]
+        (xt/execute-tx c [(docs-rows :docs 0 10)])
+        (let [below (after)]
+          (xt/execute-tx c [(docs-rows :docs 10 50)])
+          (let [reached (after)]
+            (xt/execute-tx c [(docs-rows :docs 100 120) (docs-rows :orders 0 5)])
+            {:below below, :reached reached, :big (after)}))))))
+
+(defn- write-path-facts
+  "Each check's [passed? detail], from the three steps of `write-path-run`."
+  [{:keys [below reached big]}]
+  (let [matching (fn [step re] (sort (filter #(re-find re %) (:files step))))
+        blocks #"^buffers/v\d+/blocks/b"
+        l0-data (fn [table] (re-pattern (str "tables/[^/]*" table "/data/l00-rc-b[0-9a-f]+\\.arrow$")))
+        l0-meta (fn [table] (re-pattern (str "tables/[^/]*" table "/meta/l00-rc-b[0-9a-f]+\\.arrow$")))
+        names #(str/join ", " (map (fn [p] (last (str/split p #"/"))) %))]
+    {:below-block [(and (empty? (matching below blocks)) (empty? (matching below (l0-data "docs")))
+                        (= 10 (:docs below)) (pos? (:log-bytes below)))
+                   (str "after 10 rows: " (count (matching below blocks)) " block files, "
+                        (count (matching below (l0-data "docs"))) " level-0 files, LOG "
+                        (:log-bytes below) " bytes, and a query counts " (:docs below) " rows")]
+     :block-at-rows [(= 1 (count (matching reached blocks)))
+                     (str "after 60 rows: block files " (names (matching reached blocks)))]
+     :l0-pair [(and (= 1 (count (matching reached (l0-data "docs"))))
+                    (= 1 (count (matching reached (l0-meta "docs")))))
+               (str "after the first block, :docs holds data " (names (matching reached (l0-data "docs")))
+                    " and meta " (names (matching reached (l0-meta "docs"))))]
+     :tx-not-split [(= 2 (count (matching big blocks)))
+                    (str "after one 125-row transaction: block files " (names (matching big blocks)))]
+     :l0-per-table [(and (= 2 (count (matching big (l0-data "docs"))))
+                         (= 1 (count (matching big (l0-data "orders")))))
+                    (str "after the second block, :docs level-0 data files "
+                         (names (matching big (l0-data "docs")))
+                         "; :orders " (names (matching big (l0-data "orders"))))]}))
+
 (defn- storage!
   "Run one suite's storage checks; returns the number that failed."
   [suite]
-  (let [{:keys [storage example]} (read-edn (io/file suite "examples.edn"))
-        on (storage-run suite "gc-on.yaml" storage)
-        off (storage-run suite "gc-off.yaml" storage)
-        legacy (storage-refused suite "gc-legacy.yaml" storage)
-        facts (storage-facts on off legacy (:blocks-to-keep storage))
+  (let [{:keys [storage write-path example]} (read-edn (io/file suite "examples.edn"))
+        facts (if write-path
+                (write-path-facts (write-path-run suite write-path))
+                (storage-facts (storage-run suite "gc-on.yaml" storage)
+                               (storage-run suite "gc-off.yaml" storage)
+                               (storage-refused suite "gc-legacy.yaml" storage)
+                               (:blocks-to-keep storage)))
         results (for [{:keys [id check]} example :when check]
                   (let [[ok detail] (get facts check [false (str "unknown check " check)])]
                     [id ok detail]))]

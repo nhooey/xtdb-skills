@@ -1,0 +1,19 @@
+;; Observations for the xtdb-write-path skill, made by
+;; `clojure -M:eval storage xtdb-write-path` from evals/. That command starts
+;; :image on a fresh data directory with node.yaml, which cuts a block every
+;; 50 rows and runs no compactor or collector, then writes in three steps,
+;; waiting :settle-ms after each: 10 rows to :docs, 50 more, and one
+;; transaction of 120 rows to :docs and 5 to :orders. Each example names one
+;; fact it checks.
+{:skill "../../skills/xtdb-write-path/SKILL.md"
+
+ :write-path {:image "ghcr.io/xtdb/xtdb:2.2.0"
+              :port 15434
+              :settle-ms 5000}
+
+ :example
+ [{:id "wp-below-block" :check :below-block}
+  {:id "wp-block-at-rows" :check :block-at-rows}
+  {:id "wp-l0-pair" :check :l0-pair}
+  {:id "wp-tx-not-split" :check :tx-not-split}
+  {:id "wp-l0-per-table" :check :l0-per-table}]}

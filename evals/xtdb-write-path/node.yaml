@@ -1,0 +1,16 @@
+# The node for the write-path observations: the Docker image's own local
+# config, small blocks so a few writes cut one, and nothing that rewrites or
+# deletes the files a block leaves: no compactor and no collector.
+server:
+  host: '*'
+  port: 5432
+log: !Local
+  path: "/var/lib/xtdb/log"
+storage: !Local
+  path: "/var/lib/xtdb/buffers"
+indexer:
+  rowsPerBlock: 50
+compactor:
+  threads: 0
+garbageCollector:
+  enabled: false

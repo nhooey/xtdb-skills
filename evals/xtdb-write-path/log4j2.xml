@@ -1,0 +1,9 @@
+<!-- The log4j half of the image's logging, at INFO. -->
+<Configuration>
+  <Appenders>
+    <Console name="STDOUT"><PatternLayout pattern="%d{HH:mm:ss} | %-5level %logger{36} | %msg%n"/></Console>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO"><AppenderRef ref="STDOUT"/></Root>
+  </Loggers>
+</Configuration>

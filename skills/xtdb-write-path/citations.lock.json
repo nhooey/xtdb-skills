@@ -1,0 +1,161 @@
+{
+  "repo" : "xtdb/xtdb",
+  "tag" : "v2.2.0",
+  "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
+  "files" : {
+    "core/src/main/kotlin/xtdb/catalog/TableCatalog.kt" : "beb7717ee35f80a49377651a5a3ad69997764ea0e4043af4ad6923a6a33f6a54",
+    "core/src/main/kotlin/xtdb/trie/Trie.kt" : "9807a438cdd7780a7dda0c081ba831129e6fdc1dfbc0d9d9bafb34af584eaf06",
+    "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" : "5d85297ae6aa79d28e165dce2829b71ed1ded60a750c10b0834b0cd3ca501aee",
+    "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt" : "202228b0efa298257e167081a09a2a52c900c28fdbf130c20853c2559ac7d461",
+    "docs/src/content/docs/ops/config.md" : "98c110eb1ccda6a27c91d0a5f66edfb9d3ece474f61f31f731daee323c48a9ee",
+    "docs/src/content/docs/about/dbs-in-xtdb.md" : "e16d4906a819c11e582dfd6b490a7caf12ba19085a405e64e38c68819bdd1786",
+    "docs/src/content/docs/about/txs-in-xtdb.md" : "0b6454114048ecba211fb9895bf042877acc6e9999bf1281d0fc5d0a39b70424",
+    "core/src/main/kotlin/xtdb/api/IndexerConfig.kt" : "044f354ba3717826ca8501ec2a152be417b1528fca918b87c55152a185094e18",
+    "core/src/main/kotlin/xtdb/table/TableSlug.kt" : "c150ad9602aff55046157338811844703bbfcd433511728c702ebdf27ef9ad9e",
+    "core/src/main/clojure/xtdb/node.clj" : "2b4fff0beb7cf8d1c5cf82c80d7152568e25f2d6fbce4b707b02b598df434f93",
+    "core/src/main/kotlin/xtdb/indexer/LiveTable.kt" : "6193ab693970b560f7c6896f5772704951de244d6c1bb164d8ee539264078df9",
+    "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt" : "64e1a02bf5fecfbb4208ef09d6f7d8d1de2630a0c5fcb31a4262b921bb9c574e"
+  },
+  "citations" : {
+    "block-path" : {
+      "path" : "core/src/main/kotlin/xtdb/catalog/TableCatalog.kt",
+      "lines" : [ 346, 346 ],
+      "sha256" : "71ac7463459928959ddabb669e175490269e03a08df51d4d73cc59ff5d4c70ea"
+    },
+    "finish-block" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
+      "lines" : [ 183, 183 ],
+      "sha256" : "b79fb527852f2995cd0e11c6dda45c0075c80134271bae6ee54ce4fd7a916bda"
+    },
+    "flush-changelog" : {
+      "path" : "docs/src/content/docs/ops/config.md",
+      "lines" : [ 12, 12 ],
+      "sha256" : "3e46b2acbd7f826dc10b7092c67fd80ea15122d63624ddd7ff15fee086685289"
+    },
+    "block-flusher" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt",
+      "lines" : [ 18, 50 ],
+      "sha256" : "691b56f89c0ba20a92d89882e4c307007cd2b6735726b53c95803e94df15d007"
+    },
+    "no-rows" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/LiveTable.kt",
+      "lines" : [ 193, 193 ],
+      "sha256" : "47b2ae0d7df05db5bc4d731a6360432aba092f27f95ef4f17ef60f2e5143bd0d"
+    },
+    "trie-writer-data" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt",
+      "lines" : [ 14, 14 ],
+      "sha256" : "393baeb2e8efba08af8e8a8bee69af48949b207b048d201a7c6d0a80d8cbf7fd"
+    },
+    "quiet-flush" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt",
+      "lines" : [ 11, 11 ],
+      "sha256" : "56cdd0c69e724203aea2a2a1a9c7ceb1b17db81d068eac3a52421b0d98a4ec41"
+    },
+    "signal-compactor" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
+      "lines" : [ 295, 295 ],
+      "sha256" : "2f4f54c0a16615b79c086ebfa3bd097b0c012118b2b95eae5285183335830db7"
+    },
+    "empty-block" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt",
+      "lines" : [ 15, 15 ],
+      "sha256" : "9c4ffbc30bc722de4f81cd5c083e48cfcb534469a3c76d66453bd52c2c4fbfbc"
+    },
+    "live-table-l0" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/LiveTable.kt",
+      "lines" : [ 195, 195 ],
+      "sha256" : "94af1080ec3f789a038b531b9c6367b14a52413f1cf42f3830edd340cabfe102"
+    },
+    "key-format" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
+      "lines" : [ 44, 44 ],
+      "sha256" : "b027309d38cf6bc380dbe3709345a3e04a69990eaab486c3dc0e0142873021d0"
+    },
+    "txs-atomic" : {
+      "path" : "docs/src/content/docs/about/txs-in-xtdb.md",
+      "lines" : [ 11, 11 ],
+      "sha256" : "86076283879945b5c078ec90eb98772186110d683b8dc565d14fbe2d832d3115"
+    },
+    "l0-key" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
+      "lines" : [ 54, 54 ],
+      "sha256" : "bc1fede868acb0a83fc35bc1fe908d08fbf8ae23cba4d2328700e1d02ac80efb"
+    },
+    "indexer-config" : {
+      "path" : "core/src/main/kotlin/xtdb/api/IndexerConfig.kt",
+      "lines" : [ 12, 31 ],
+      "sha256" : "3b0c8ce6e5413714c891dc75bd73481cbf956f2418af97f4c43b426e128ff0d7"
+    },
+    "key-block" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
+      "lines" : [ 47, 47 ],
+      "sha256" : "288f023aa3ec30cad99b22b6c92297b58a4797464030e1eb3b01ddef091f936d"
+    },
+    "tx-rows" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
+      "lines" : [ 141, 141 ],
+      "sha256" : "ea1613d3ab8473d3e3044bc76fc322da1903aa6c84272078575d1619dc307263"
+    },
+    "block-full" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
+      "lines" : [ 124, 124 ],
+      "sha256" : "946d42ff99bccc412adbbefcd4c1cd95b55a5ca8851dbdb58babd849b98b0bcc"
+    },
+    "key-recency" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
+      "lines" : [ 45, 45 ],
+      "sha256" : "768a0ccb9e437f591e2cac5c1b8b3373f1fa59752b06c2b595513fa9260be457"
+    },
+    "boundary-order" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
+      "lines" : [ 150, 150 ],
+      "sha256" : "9034311164825575faaf30b6ccccf2cd43d73f89b4cabf89d866024eda404e2f"
+    },
+    "block-file" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
+      "lines" : [ 242, 242 ],
+      "sha256" : "399f1c5d5ed6e68aeddeaa231488130bdca76a381eaa1ed2847a4b220ee0c3e6"
+    },
+    "external-stores" : {
+      "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
+      "lines" : [ 185, 208 ],
+      "sha256" : "07b1913aa67a496b4db62d4da1d479c94e84aae3d5c8f84c62fc5eebbb83ec23"
+    },
+    "indexer-docs" : {
+      "path" : "docs/src/content/docs/ops/config.md",
+      "lines" : [ 244, 283 ],
+      "sha256" : "f5d883b4fe4e0b7af3b5003101c4f908012bd185c650ddf23fc8e6385d3342de"
+    },
+    "data-path" : {
+      "path" : "core/src/main/kotlin/xtdb/table/TableSlug.kt",
+      "lines" : [ 21, 21 ],
+      "sha256" : "55df34b3a458225bfc80d50abeb9ac6d90fc9011f2d064cc6ad1cae2099ee7e3"
+    },
+    "clj-indexer" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 52, 59 ],
+      "sha256" : "a6488c255ba5d462198f804ebbdfc520dacbdacc6314b5e40981ca3deff2e1b7"
+    },
+    "meta-path" : {
+      "path" : "core/src/main/kotlin/xtdb/table/TableSlug.kt",
+      "lines" : [ 25, 25 ],
+      "sha256" : "a3dad0e4c0e4c6c8a7cf2648e491ea322465ce724f09ab453203c86a7c45ad58"
+    },
+    "node-processing" : {
+      "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
+      "lines" : [ 210, 244 ],
+      "sha256" : "197586c5a7b40413f0b82f0084fcdb62455483eb993560a4809a17a6ab6466b4"
+    },
+    "leader-block" : {
+      "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
+      "lines" : [ 223, 223 ],
+      "sha256" : "f3d30257570d4c448a58e55d0eecc6b17a22c156a827fc1579532a986ecbcc81"
+    },
+    "trie-writer-meta" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt",
+      "lines" : [ 15, 15 ],
+      "sha256" : "ec5c09d70023e2e8b505c201f6edd6d12854d2caa04752365dfd8e78074743ff"
+    }
+  }
+}

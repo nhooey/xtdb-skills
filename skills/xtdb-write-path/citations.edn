@@ -1,0 +1,55 @@
+;; Spans of xtdb/xtdb this skill cites (:cite) and eval checks it cites for
+;; behaviour no source states (:observed), made by the eval's `storage`
+;; command. See the README's "Citing XTDB sources" for the anchor kinds.
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.2.0"
+          :watch ["core/src/main/kotlin/xtdb/indexer/BlockCutter.kt"
+                  "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt"
+                  "core/src/main/kotlin/xtdb/indexer/LiveIndex.kt"
+                  "core/src/main/kotlin/xtdb/indexer/LiveTable.kt"
+                  "core/src/main/kotlin/xtdb/api/IndexerConfig.kt"
+                  "core/src/main/kotlin/xtdb/trie/Trie.kt"
+                  "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt"
+                  "core/src/main/kotlin/xtdb/table/TableSlug.kt"
+                  "docs/src/content/docs/about/dbs-in-xtdb.md"
+                  "docs/src/content/docs/about/txs-in-xtdb.md"]}
+
+ :observations "../../evals/xtdb-write-path/examples.edn"
+ :observed-by "storage"
+
+ :cite
+ [{:id "txs-atomic" :path "docs/src/content/docs/about/txs-in-xtdb.md" :line "it wraps up the transaction operations and sends them as an atomic message on a shared log."}
+  {:id "external-stores" :path "docs/src/content/docs/about/dbs-in-xtdb.md" :heading "External stores"}
+  {:id "node-processing" :path "docs/src/content/docs/about/dbs-in-xtdb.md" :heading "Node processing"}
+  {:id "leader-block" :path "docs/src/content/docs/about/dbs-in-xtdb.md" :line "at the end of each block (~100k rows/15 minutes), writes the block to the object store."}
+  {:id "boundary-order" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "it lands in resolution order: after this block's txs and before the next block's."}
+  {:id "tx-rows" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "txResolved(resolvedTx.allTables.sumOf { it.rowCount.toLong() })"}
+  {:id "block-full" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "val isFull get() = (blockState as? Filling)?.let { it.rows > 0 && it.rows >= rowsPerBlock } == true"}
+  {:id "quiet-flush" :path "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt" :line "cuts a block every [flushTimeout] regardless"}
+  {:id "block-flusher" :path "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt" :form "data class BlockFlusher("}
+  {:id "empty-block" :path "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt" :line "no transactions in it writes no tries — only the block file and its table blocks"}
+  {:id "indexer-config" :path "core/src/main/kotlin/xtdb/api/IndexerConfig.kt" :form "data class IndexerConfig("}
+  {:id "indexer-docs" :path "docs/src/content/docs/ops/config.md" :heading "Indexer"}
+  {:id "flush-changelog" :path "docs/src/content/docs/ops/config.md" :line "Previously `indexer.flushDuration` defaulted to `PT4H`."}
+  {:id "clj-indexer" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :indexer"}
+  {:id "finish-block" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "val finishedBlocks = liveIndex.finishBlock(bufferPool, blockIdx)"}
+  {:id "live-table-l0" :path "core/src/main/kotlin/xtdb/indexer/LiveTable.kt" :line "val trieKey = Trie.l0Key(blockIdx).toString()"}
+  {:id "no-rows" :path "core/src/main/kotlin/xtdb/indexer/LiveTable.kt" :line "if (rowCount == 0) return FinishedBlock(vecTypes, rowCount, hllDeltas, writtenTrie = null)"}
+  {:id "l0-key" :path "core/src/main/kotlin/xtdb/trie/Trie.kt" :line "fun l0Key(blockIndex: BlockIndex) = Key(0, null, null, blockIndex)"}
+  {:id "key-format" :path "core/src/main/kotlin/xtdb/trie/Trie.kt" :line "append(\"l\"); append(level.asLexHex)"}
+  {:id "key-recency" :path "core/src/main/kotlin/xtdb/trie/Trie.kt" :line "append(\"-r\"); append(recency?.let { RECENCY_FMT.format(it) } ?: \"c\")"}
+  {:id "key-block" :path "core/src/main/kotlin/xtdb/trie/Trie.kt" :line "append(\"-b\"); append(blockIndex.asLexHex)"}
+  {:id "trie-writer-data" :path "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt" :line "DataFileWriter(al, bp, table, trieKey, dataRel.schema).use { dataFileWriter ->"}
+  {:id "trie-writer-meta" :path "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt" :line "MetadataFileWriter(al, bp, table, trieKey, dataFileWriter.dataRel, calculateBlooms)"}
+  {:id "data-path" :path "core/src/main/kotlin/xtdb/table/TableSlug.kt" :line "fun dataFilePath(trieKey: TrieKey): Path = dataFileDir().resolve(\"$trieKey.arrow\")"}
+  {:id "meta-path" :path "core/src/main/kotlin/xtdb/table/TableSlug.kt" :line "fun metaFilePath(trieKey: TrieKey): Path = metaFileDir().resolve(\"$trieKey.arrow\")"}
+  {:id "block-file" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "bufferPool.putObject(TableCatalog.blockFilePath(blockIdx), ByteBuffer.wrap(block.toByteArray()))"}
+  {:id "block-path" :path "core/src/main/kotlin/xtdb/catalog/TableCatalog.kt" :line "blocksPath.resolve(\"b${blockIndex.asLexHex}.binpb\")"}
+  {:id "signal-compactor" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "compactor.signalBlock()"}]
+
+ :observed
+ [{:id "obs-below-block" :example "wp-below-block"}
+  {:id "obs-block-at-rows" :example "wp-block-at-rows"}
+  {:id "obs-l0-pair" :example "wp-l0-pair"}
+  {:id "obs-tx-not-split" :example "wp-tx-not-split"}
+  {:id "obs-l0-per-table" :example "wp-l0-per-table"}]}
