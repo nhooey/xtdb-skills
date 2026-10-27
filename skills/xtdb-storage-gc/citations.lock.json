@@ -14,6 +14,7 @@
     "gradle/libs.versions.toml" : "5821ded748c3a3415dfcba2995871de80c962e0b3a5351645089087f4656749d",
     "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt" : "88cf8f595a3594dccc6bd9e51c06e8eb9511b242595c18c6d0a940adfae318f7",
     "core/src/main/kotlin/xtdb/database/Database.kt" : "8455da9db9cca14d33952a061154466d8c5972e4385020b437c95e5d6bf0a087",
+    "docs/src/content/docs/ops/config.md" : "98c110eb1ccda6a27c91d0a5f66edfb9d3ece474f61f31f731daee323c48a9ee",
     "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" : "39f86a5215d46e8c294386b0c508ca21c5dfd808cd7a8b285dac6450b94d2763",
     "core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt" : "f04e77365de3ab836d2da6b9814a73537bb6eb6da9f5415364239649794d6635",
     "core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt" : "7488cc3e1a1ce1750261f9f2c9a2633fbf50c2dc9a761ef204d5eae550519550",
@@ -28,9 +29,11 @@
     "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt" : "f07451f7b672b170a07a9b584e504762af1577a8626e8d74ad398d9ff09d101f",
     "core/src/main/kotlin/xtdb/indexer/GarbageCollector.kt" : "686fa80ff8902bd6b1cda961f0b6719c8142322e51111d6c1e69da5b8c31c15b",
     "core/src/main/clojure/xtdb/node.clj" : "2b4fff0beb7cf8d1c5cf82c80d7152568e25f2d6fbce4b707b02b598df434f93",
+    "core/src/main/kotlin/xtdb/trie/TrieCatalog.kt" : "4b47a9bd9c536a01aa73b6662840ab921ad43ae3f94706c399e0bbcae5dd14de",
     "modules/kafka/build.gradle.kts" : "e9ed9f7422b17fd63483b944dfca739e533251b7b7762f2d0a51c6c7a72bbbe1",
     "docs/src/content/docs/quickstart/sql-overview.mdx" : "ab1f914585b4bc1149437cd38879591234094a8c7d5cff7ca1315fa2aacde5c9",
     "docs/src/content/docs/ops/config/log/kafka.md" : "b4f7e14501e3dd54e1bf1c67175764a7197166919696c6691bc17c3dc673134e",
+    "dev/doc/gc.allium" : "c7abbec538572e4bd23bdb313cb8864e12d219b7c8a3c76289734278235a193e",
     "core/src/main/clojure/xtdb/garbage_collector.clj" : "8855f253e224bcf11ac444d900f2713306332df460f01e852d2fcd3da73c7806",
     "core/src/main/kotlin/xtdb/compactor/Compactor.kt" : "dd8ce9f92898e9b7c4bb10a59a0aeb7c573b01ad9a25d366db9a065f7ec387e7",
     "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt" : "1336cfc627fcc45c293691197c0b78d68ce977724ae2fe73631ff74b5f21f3f5"
@@ -87,6 +90,11 @@
       "lines" : [ 514, 514 ],
       "sha256" : "1fe93b632f769c6e48a1c602fd1cba43d7691b0a8d511a8ef94a1920bf010ec8"
     },
+    "gc-docs" : {
+      "path" : "docs/src/content/docs/ops/config.md",
+      "lines" : [ 285, 301 ],
+      "sha256" : "8bf7423c93c21d4fda8736d4c54f636a0d9c747103e11d8069e35dfc36f8f608"
+    },
     "garbage-tries" : {
       "path" : "core/src/main/clojure/xtdb/trie_catalog.clj",
       "lines" : [ 329, 331 ],
@@ -137,6 +145,11 @@
       "lines" : [ 10, 125 ],
       "sha256" : "917f12222412d6fe2fdae2717a79feef85ae88e010e2146f5d7b0288fb07fbf6"
     },
+    "snapshot-lifetime" : {
+      "path" : "core/src/main/kotlin/xtdb/trie/TrieCatalog.kt",
+      "lines" : [ 40, 40 ],
+      "sha256" : "da48ee7f6604df98a2fc18126b9d80d4535ca145c0c66796766b89438bab013e"
+    },
     "node-clj-key" : {
       "path" : "core/src/main/clojure/xtdb/node.clj",
       "lines" : [ 84, 85 ],
@@ -166,6 +179,11 @@
       "path" : "core/src/main/kotlin/xtdb/api/CompactorConfig.kt",
       "lines" : [ 14, 14 ],
       "sha256" : "beaf6c88d2882552e30851ed70a6ccac7caf063d9549b6dd26094ba86e7543bf"
+    },
+    "gc-grace" : {
+      "path" : "dev/doc/gc.allium",
+      "lines" : [ 278, 278 ],
+      "sha256" : "abc931db660b5cce1444140c11317aed4f3f6acd863a268470ad0f5ed554f3e4"
     },
     "dbs-shared" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",

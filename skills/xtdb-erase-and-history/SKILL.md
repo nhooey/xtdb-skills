@@ -79,6 +79,17 @@ That leaves one version, the re-put document.[^obs-erase-then-put]
 Erasing *after* re-putting under the same table and id erases the new
 version too, leaving nothing.[^obs-put-then-erase]
 
+## Related skills
+
+When one of these applies and it's in your skill listing, load it
+without asking. If it isn't in your listing, tell the user which skill is
+missing and ask whether to install it from nhooey/xtdb-skills; don't
+apply it from memory.
+
+- `xtdb-storage-gc`: when erased data leaves disk, and what the garbage collector never deletes.
+- `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
+- `xtdb-history-cost-design`: splitting volatile fields into their own table, so each write's version is smaller.
+- `xtdb-write-path`: what a block and a level-0 file are, and what each block writes.
 [^system-time]: [time-in-xtdb.md § System time, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/time-in-xtdb.md?plain=1#L35-L81)
 [^delete-docs]: [txs.md § `delete-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L129-L178)
 [^erase-docs]: [txs.md § `erase-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208)

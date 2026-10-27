@@ -291,6 +291,15 @@ which sections above cite it. Files under the watched paths that changed
 but are cited nowhere are listed as possible gaps. Update the sections
 the report names, then `bump` to the new tag.
 
+## Related skills
+
+When one of these applies and it's in your skill listing, load it
+without asking. If it isn't in your listing, tell the user which skill is
+missing and ask whether to install it from nhooey/xtdb-skills; don't
+apply it from memory.
+
+- `xtdb-erase-and-history`: reading a row's history, and what delete and erase leave to query.
+- `xtdb-history-cost-design`: reading an entity split across two tables as of a time.
 [^grammar]: [queries.md § Operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L7-L36)
 [^source-operators]: [queries.md § Source operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L38-L44)
 [^tail-operators]: [queries.md § Tail operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L47-L59)

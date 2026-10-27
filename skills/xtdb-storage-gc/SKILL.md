@@ -5,9 +5,9 @@ description: Tune or turn off XTDB 2.x's storage garbage collector, which is on 
 
 # Storage garbage collection (XTDB 2.x)
 
-Written from `xtdb/xtdb` at tag `v2.2.0`. The docs at that tag don't
-mention the garbage collector, so most footnotes cite the source; the
-rest cite the xtdb-skills eval's `storage` command, which runs the same
+Written from `xtdb/xtdb` at tag `v2.2.0`. The docs at that tag give the
+collector one short section,[^gc-docs] so most footnotes cite the
+source; the rest cite the xtdb-skills eval's `storage` command, which runs the same
 writes on two nodes, with the collector on and off, and compares their
 storage directories. Kafka's retention defaults cite `apache/kafka` at
 `4.3.1`. `citations.edn` lists them. For what erase does to
@@ -69,7 +69,12 @@ To turn it off, set `enabled: false` (`:enabled? false`).[^gc-config][^clj-confi
 - **`garbageLifetime`.** A superseded trie file is deleted only if it
   became garbage at or before that block's last transaction time minus
   `garbageLifetime`.[^trie-gc][^garbage-tries][^garbage-fn] With zero,
-  the cutoff is that block's own time.[^trie-gc]
+  the cutoff is that block's own time.[^trie-gc] The window is there for
+  queries: XTDB's design notes call it the grace period in which an
+  in-flight query may still reference a superseded trie,[^gc-grace] and a
+  snapshot held open past it may find the collector has deleted trie
+  files it still references.[^snapshot-lifetime] So keep it longer than
+  your longest query.
 - **When it runs.** A cycle starts at each block boundary, and
   boundaries that arrive during a cycle coalesce into one more.[^block-signal][^trie-gc]
   Each cycle covers every table in the catalog,[^trie-gc][^block-gc]
@@ -146,6 +151,14 @@ collector off never happens.[^gc-config][^obs-superseded] Nothing
 deletes level-0 files[^garbage-fn][^obs-keeps-l0] or the
 logs.[^local-log][^obs-log-untouched]
 
+So erase controls what queries see, not disk space. It frees space only
+in compacted files, once the collector deletes the ones compaction
+superseded,[^polygon-erase][^trie-gc] and none in level-0 files or the
+logs, which keep the erased data for good.[^garbage-fn][^obs-keeps-l0][^local-log][^obs-log-untouched]
+The docs' "fully erased" waits on that background processing.[^erase-disk]
+For what erase removes from query results, see the
+`xtdb-erase-and-history` skill.
+
 ## Checking it's running
 
 Set the logger `xtdb.garbage_collector` to DEBUG. The collectors log
@@ -164,6 +177,18 @@ To run one cycle by hand, call `.gcAll` on a database:
 the block and trie collectors once, `enabled` or not, and waits for
 both; on a node that isn't the database's leader it does
 nothing.[^gc-all][^gc-await][^primary-db]
+
+## Related skills
+
+When one of these applies and it's in your skill listing, load it
+without asking. If it isn't in your listing, tell the user which skill is
+missing and ask whether to install it from nhooey/xtdb-skills; don't
+apply it from memory.
+
+- `xtdb-write-path`: what a block and a level-0 file are, and what each block writes.
+- `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
+- `xtdb-erase-and-history`: what erase removes from query results, and what each write adds to history.
+- `xtdb-history-cost-design`: splitting volatile fields into their own table, so history grows more slowly.
 [^block-gc]: [BlockGarbageCollector.kt `class BlockGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt#L39-L218)
 [^block-signal]: [LeaderLogProcessor.kt line 162, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L162-L162)
 [^clj-config]: [garbage_collector.clj `(defmethod xtn/apply-config! :xtdb/garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/garbage_collector.clj#L5-L11)
@@ -228,3 +253,6 @@ nothing.[^gc-all][^gc-await][^primary-db]
 [^trie-gc]: [TrieGarbageCollector.kt `class TrieGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/TrieGarbageCollector.kt#L52-L216)
 [^yaml-config]: [YamlSerde.kt `fun nodeConfig(yamlString: String)`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/YamlSerde.kt#L90-L101)
 [^system-logger]: [SystemLogger.kt line 8, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/util/SystemLogger.kt#L8-L8)
+[^gc-docs]: [config.md § Garbage Collector, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L285-L301)
+[^gc-grace]: [gc.allium line 278, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/dev/doc/gc.allium#L278-L278)
+[^snapshot-lifetime]: [TrieCatalog.kt line 40, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/TrieCatalog.kt#L40-L40)

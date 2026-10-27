@@ -61,6 +61,17 @@ map:[^joins][^obs-split-left-join]
        (left-join (from :product-prices [{:xt/id id} price]) [id price]))
 ```
 
+## Related skills
+
+When one of these applies and it's in your skill listing, load it
+without asking. If it isn't in your listing, tell the user which skill is
+missing and ask whether to install it from nhooey/xtdb-skills; don't
+apply it from memory.
+
+- `xtdb-erase-and-history`: what each put, patch, delete and erase keeps in history.
+- `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
+- `xtdb-storage-gc`: what the garbage collector deletes, and what it never does.
+- `xtdb-write-path`: what a block and a level-0 file are, and what each block writes.
 [^atomic-txs]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11)
 [^joins]: [queries.md § Joins - join, left join, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L192-L213)
 [^obs-identical-put]: Observed on XTDB v2.2.0: example `identical-put-adds-version` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
