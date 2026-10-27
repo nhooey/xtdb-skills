@@ -1,6 +1,6 @@
 ---
 name: xtdb-xtql-queries
-description: Write, read and debug XTQL queries for XTDB 2.x — the Clojure/EDN query language built from `from`, `rel`, `unify` and `->` pipelines, with binding specs, temporal filters and subqueries. Use when writing or reviewing XTQL, translating XTDB 1.x Datalog into XTQL, or when code passes a list form to `xt/q`. Pinned to XTDB v2.2.0; every claim cites the docs or source at that tag, or an example re-run against a live node.
+description: Write, read and debug XTQL queries for XTDB 2.x — the Clojure/EDN query language built from `from`, `rel`, `unify` and `->` pipelines, with binding specs, temporal filters and subqueries. Use when writing or reviewing XTQL, translating XTDB 1.x Datalog into XTQL, traversing a graph or asked for a recursive or transitive query (XTQL has no recursion), or when code passes a list form to `xt/q`. Pinned to XTDB v2.2.0; every claim cites the docs or source at that tag, or an example re-run against a live node.
 ---
 
 # XTQL queries (XTDB 2.x)
@@ -239,6 +239,77 @@ match.[^obs-pull-cardinality] Both are subqueries, so in `return` they
 fail like `q`, with "subquery not allowed in expr here"; pull in `with`,
 then `return` the column.[^obs-pull-in-return]
 
+## Graphs and recursion
+
+XTQL has no recursion. Its operators are the grammar's source, tail and
+unify operators,[^grammar][^source-operators][^tail-operators][^unify-clauses]
+plus `union-all`, which the parser accepts though the docs leave it
+out,[^src-union-all] but which fails when the query runs, with "No
+implementation of method: :plan-query";[^obs-union-all-unplanned] any
+other operator fails with "Unknown query op".[^src-unknown-op] None of them is a rule, a fixpoint or a transitive
+closure, and a `fn` query has parameters but no name to call itself
+by.[^grammar] XTDB 1.x's recursive `:rules` come in a map query, which
+`xt/q` rejects,[^obs-v1-map] and XTDB's SQL rejects `WITH RECURSIVE`
+too.[^src-recursive-cte] So a traversal of any depth has to be one of
+these.
+
+**A fixed number of hops.** Each hop is another `from` in `unify`,
+sharing a logic variable with the one before:[^unify][^obs-two-hop]
+
+<!-- xtql-example: two-hop -->
+```clojure
+(fn [me]
+  (-> (unify (from :follows [{:src me :dst mid}])
+             (from :follows [{:src mid :dst fof}]))
+      (return mid fof)))
+```
+
+**Up to N hops.** Chain each hop after the first as a `left-join`, so a
+path that ends early keeps its row with the later hops absent; each row
+is then one path, a hop per column.[^joins][^obs-up-to-three-hops] It
+doesn't stop at a cycle: from 1, with an edge back to 1 three hops out,
+one path ends at 1 itself.[^obs-up-to-three-hops]
+
+<!-- xtql-example: up-to-three-hops -->
+```clojure
+(fn [me]
+  (unify (from :follows [{:src me :dst a}])
+         (left-join (from :follows [{:src a :dst b}]) [a b])
+         (left-join (from :follows [{:src b :dst c}]) [b c])))
+```
+
+**Any depth, from the client.** Query one level at a time, passing the
+frontier in as a vector and unnesting it in `unify`;[^unnest][^arguments][^obs-frontier-step]
+the client keeps the visited set, which stops it at cycles, and loops
+until the frontier is empty:
+
+<!-- xtql-example: frontier-step -->
+```clojure
+(fn [frontier]
+  (-> (unify (unnest {src frontier})
+             (from :follows [{:src src :dst dst}]))
+      (return dst)))
+```
+
+<!-- xtql-example: skip -->
+```clojure
+(loop [seen #{start}, frontier [start]]
+  (if (empty? frontier)
+    seen
+    (let [next (->> (xt/q node [frontier-query frontier])
+                    (map :dst) (remove seen) distinct vec)]
+      (recur (into seen next) next))))
+```
+
+Every level is a separate query, so give each `from` the same
+`:for-system-time` to read one state of the graph
+throughout.[^temporal-filters]
+
+**Precomputed.** For deep or frequent traversals, keep a closure table,
+one row per reachable pair, and update it in the same transaction as the
+edge it follows from, which reaches the log as one atomic
+message;[^atomic-txs] a reachability query is then one `from`.
+
 ## Lengths and list elements
 
 A string's length in characters is `(character-length s)` or
@@ -354,3 +425,11 @@ apply it from memory.
 [^src-length-utf8]: [expression.clj `(defmethod codegen-call [:length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2246-L2247)
 [^src-nth]: [expression.clj `(defmethod codegen-call [:nth :list :int]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2225-L2237)
 [^string-length]: [string.md line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/string.md?plain=1#L10-L10)
+[^atomic-txs]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11)
+[^obs-frontier-step]: Observed on XTDB v2.2.0: example `frontier-step` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-two-hop]: Observed on XTDB v2.2.0: example `two-hop` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-union-all-unplanned]: Observed on XTDB v2.2.0: example `union-all-unplanned` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-up-to-three-hops]: Observed on XTDB v2.2.0: example `up-to-three-hops` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^src-recursive-cte]: [sql.clj line 265, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/sql.clj#L265-L265)
+[^src-union-all]: [xtql.clj `(defmethod parse-query 'union-all`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L614-L617)
+[^src-unknown-op]: [xtql.clj `(defmethod parse-query :default`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L44-L45)

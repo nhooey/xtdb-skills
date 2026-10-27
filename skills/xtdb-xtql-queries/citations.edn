@@ -15,7 +15,8 @@
           ;; Changes under these paths that no citation covers are reported as gaps.
           :watch ["docs/src/content/docs/reference/main/xtql/"
                   "core/src/main/clojure/xtdb/xtql/"
-                  "core/src/main/clojure/xtdb/xtql.clj"]}
+                  "core/src/main/clojure/xtdb/xtql.clj"
+                  "core/src/main/clojure/xtdb/sql.clj"]}
 
  :observations "../../evals/xtdb-xtql-queries/examples.edn"
 
@@ -48,7 +49,11 @@
   {:id "src-length-list" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:length :list]"}
   {:id "src-length-set" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:length :set]"}
   {:id "src-array-length" :path "core/src/main/clojure/xtdb/expression.clj" :form "(defmethod codegen-call [:array_length :list :i64]"}
-  {:id "src-xt-q":path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}]
+  {:id "src-xt-q":path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}
+  {:id "src-union-all" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defmethod parse-query 'union-all"}
+  {:id "src-unknown-op" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defmethod parse-query :default"}
+  {:id "src-recursive-cte" :path "core/src/main/clojure/xtdb/sql.clj" :line "(throw (err/unsupported ::recursive-ctes \"Recursive CTEs are not supported yet\")))"}
+  {:id "atomic-txs" :path "docs/src/content/docs/about/txs-in-xtdb.md" :line "it wraps up the transaction operations and sends them as an atomic message on a shared log."}]
 
  :observed
  [{:id "obs-v1-map" :example "v1-query-map"}
@@ -75,4 +80,8 @@
   {:id "obs-list-lengths" :example "list-lengths"}
   {:id "obs-set-length" :example "set-length"}
   {:id "obs-set-cardinality-fails" :example "set-cardinality-fails"}
-  {:id "obs-nth-from-zero" :example "nth-from-zero"}]}
+  {:id "obs-nth-from-zero" :example "nth-from-zero"}
+  {:id "obs-two-hop" :example "two-hop"}
+  {:id "obs-up-to-three-hops" :example "up-to-three-hops"}
+  {:id "obs-frontier-step" :example "frontier-step"}
+  {:id "obs-union-all-unplanned" :example "union-all-unplanned"}]}
