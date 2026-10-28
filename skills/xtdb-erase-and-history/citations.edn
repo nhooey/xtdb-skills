@@ -6,6 +6,7 @@
           :watch ["docs/src/content/docs/reference/main/xtql/txs.md"
                   "docs/src/content/docs/about/time-in-xtdb.md"]}
 
+ :observed-on "XTDB"
  :observations "../../evals/xtdb-erase-and-history/examples.edn"
 
  :cite

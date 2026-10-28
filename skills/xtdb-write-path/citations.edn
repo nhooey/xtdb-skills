@@ -14,6 +14,7 @@
                   "docs/src/content/docs/about/dbs-in-xtdb.md"
                   "docs/src/content/docs/about/txs-in-xtdb.md"]}
 
+ :observed-on "XTDB"
  :observations "../../evals/xtdb-write-path/examples.edn"
  :observed-by "storage"
 

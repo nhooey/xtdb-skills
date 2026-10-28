@@ -18,6 +18,11 @@
       url = "github:nhooey/agent-skill-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # The `skill-citations` tool and the `citations-<skill>` checks.
+    skill-authoring-skills = {
+      url = "github:nhooey/skill-authoring-skills";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -70,25 +75,22 @@
       perSystem =
         { pkgs, system, ... }:
         let
-          citations = import ./nix/citations.nix {
-            inherit pkgs;
-            root = ./.;
-          };
+          inherit (inputs) skill-authoring-skills;
         in
         {
           packages = base.packages.${system};
 
           # `skill-citations` is an app as well as a dev-shell command, so the
-          # scheduled drift workflow can run it without entering the shell.
+          # scheduled drift workflow can run it, at the version this flake
+          # locks, without entering the shell.
           apps = base.apps.${system} // {
-            skill-citations = {
-              type = "app";
-              program = pkgs.lib.getExe citations.tool;
-              meta.description = "Lock, verify or drift-check a skill's upstream citations";
-            };
+            inherit (skill-authoring-skills.apps.${system}) skill-citations;
           };
 
-          inherit (citations) checks;
+          checks = skill-authoring-skills.lib.citationChecks {
+            inherit pkgs;
+            root = ./.;
+          };
 
           # The devShell (motd, install-skills startup reconciling the
           # `skills-devshell/` sub-flake, and the standard + skills command
@@ -99,7 +101,7 @@
               category = "skills";
               name = "skill-citations";
               help = "lock, verify or drift-check a skill's upstream citations";
-              package = citations.tool;
+              package = skill-authoring-skills.packages.${system}.skill-citations;
             }
           ];
 

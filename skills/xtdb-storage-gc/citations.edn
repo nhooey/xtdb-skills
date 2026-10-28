@@ -24,6 +24,7 @@
                   "core/src/main/antlr/xtdb/antlr/Sql.g4"
                   "gradle/libs.versions.toml"]}
 
+ :observed-on "XTDB"
  :observations "../../evals/xtdb-storage-gc/examples.edn"
  :observed-by "storage"
 

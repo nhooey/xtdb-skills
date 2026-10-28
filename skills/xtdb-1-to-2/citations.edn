@@ -21,6 +21,7 @@
                   "core/src/main/clojure/xtdb/xtql.clj"
                   "docs/src/content/docs/reference/main/xtql/"]}
 
+ :observed-on "XTDB"
  :observations "../../evals/xtdb-1-to-2/examples.edn"
 
  :cite

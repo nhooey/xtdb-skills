@@ -7,6 +7,7 @@
                   "docs/src/content/docs/about/txs-in-xtdb.md"
                   "docs/src/content/docs/about/time-in-xtdb.md"]}
 
+ :observed-on "XTDB"
  :observations "../../evals/xtdb-history-cost-design/examples.edn"
 
  :cite
