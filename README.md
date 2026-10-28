@@ -102,6 +102,8 @@ clojure -M:eval storage xtdb-write-path                # under a minute; needs D
 
 `storage` starts nodes of its own. For `xtdb-storage-gc` it starts two, one with the garbage collector on and one with it off, writes the same rows to both, and compares their storage directories. For `xtdb-write-path` it starts one that cuts a block every 50 rows, writes in three steps, and lists the files each step leaves.
 
+`bb scripts/eval-releases.clj SUITE...` runs suites against every XTDB 2.x tag that has an image and a client on Maven Central, betas and release candidates included (`--storage` for the storage suites, `--tags REGEX` to narrow it), and writes `evals/SUITE/releases.edn`. `skill-citations lock` turns that, and each cited span's history across tags, into the footnotes: "unchanged since v2.0.0-beta7", "holds on every tag the eval ran since …", and "differs in" or "fails on" for later tags off that line. Each skill's "Versions" section tells the agent to check the project's XTDB version against them.
+
 An example in `examples.edn` with `:tx` is a transaction that must fail with its `:expect-error`, and one with `:absent-vars` names client functions that must not resolve; `xtdb-1-to-2` uses both to show XTDB 2.2.0 rejecting XTDB 1 code.
 
 Every ```` ```clojure ```` block in the skill is preceded by `<!-- xtql-example: id… -->`, one id per top-level form; `examples` fails on an unmarked block, so a new example can't go untested. `skill-citations pairs` feeds a reviewer who checks each claim against only what it cites. That catches misreadings, while running queries catches errors in the sources themselves, such as the docs' `exists`.

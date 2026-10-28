@@ -20,142 +20,220 @@
     "block-path" : {
       "path" : "core/src/main/kotlin/xtdb/catalog/TableCatalog.kt",
       "lines" : [ 346, 346 ],
-      "sha256" : "71ac7463459928959ddabb669e175490269e03a08df51d4d73cc59ff5d4c70ea"
+      "sha256" : "71ac7463459928959ddabb669e175490269e03a08df51d4d73cc59ff5d4c70ea",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "finish-block" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
       "lines" : [ 183, 183 ],
-      "sha256" : "b79fb527852f2995cd0e11c6dda45c0075c80134271bae6ee54ce4fd7a916bda"
+      "sha256" : "b79fb527852f2995cd0e11c6dda45c0075c80134271bae6ee54ce4fd7a916bda",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "flush-changelog" : {
       "path" : "docs/src/content/docs/ops/config.md",
       "lines" : [ 12, 12 ],
-      "sha256" : "3e46b2acbd7f826dc10b7092c67fd80ea15122d63624ddd7ff15fee086685289"
+      "sha256" : "3e46b2acbd7f826dc10b7092c67fd80ea15122d63624ddd7ff15fee086685289",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "block-flusher" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt",
       "lines" : [ 18, 50 ],
-      "sha256" : "691b56f89c0ba20a92d89882e4c307007cd2b6735726b53c95803e94df15d007"
+      "sha256" : "691b56f89c0ba20a92d89882e4c307007cd2b6735726b53c95803e94df15d007",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "no-rows" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LiveTable.kt",
       "lines" : [ 193, 193 ],
-      "sha256" : "47b2ae0d7df05db5bc4d731a6360432aba092f27f95ef4f17ef60f2e5143bd0d"
+      "sha256" : "47b2ae0d7df05db5bc4d731a6360432aba092f27f95ef4f17ef60f2e5143bd0d",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "trie-writer-data" : {
       "path" : "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt",
       "lines" : [ 14, 14 ],
-      "sha256" : "393baeb2e8efba08af8e8a8bee69af48949b207b048d201a7c6d0a80d8cbf7fd"
+      "sha256" : "393baeb2e8efba08af8e8a8bee69af48949b207b048d201a7c6d0a80d8cbf7fd",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "quiet-flush" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt",
       "lines" : [ 11, 11 ],
-      "sha256" : "56cdd0c69e724203aea2a2a1a9c7ceb1b17db81d068eac3a52421b0d98a4ec41"
+      "sha256" : "56cdd0c69e724203aea2a2a1a9c7ceb1b17db81d068eac3a52421b0d98a4ec41",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "signal-compactor" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
       "lines" : [ 295, 295 ],
-      "sha256" : "2f4f54c0a16615b79c086ebfa3bd097b0c012118b2b95eae5285183335830db7"
+      "sha256" : "2f4f54c0a16615b79c086ebfa3bd097b0c012118b2b95eae5285183335830db7",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "empty-block" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt",
       "lines" : [ 15, 15 ],
-      "sha256" : "9c4ffbc30bc722de4f81cd5c083e48cfcb534469a3c76d66453bd52c2c4fbfbc"
+      "sha256" : "9c4ffbc30bc722de4f81cd5c083e48cfcb534469a3c76d66453bd52c2c4fbfbc",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "live-table-l0" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LiveTable.kt",
       "lines" : [ 195, 195 ],
-      "sha256" : "94af1080ec3f789a038b531b9c6367b14a52413f1cf42f3830edd340cabfe102"
+      "sha256" : "94af1080ec3f789a038b531b9c6367b14a52413f1cf42f3830edd340cabfe102",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "key-format" : {
       "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
       "lines" : [ 44, 44 ],
-      "sha256" : "b027309d38cf6bc380dbe3709345a3e04a69990eaab486c3dc0e0142873021d0"
+      "sha256" : "b027309d38cf6bc380dbe3709345a3e04a69990eaab486c3dc0e0142873021d0",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "txs-atomic" : {
       "path" : "docs/src/content/docs/about/txs-in-xtdb.md",
       "lines" : [ 11, 11 ],
-      "sha256" : "86076283879945b5c078ec90eb98772186110d683b8dc565d14fbe2d832d3115"
+      "sha256" : "86076283879945b5c078ec90eb98772186110d683b8dc565d14fbe2d832d3115",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "l0-key" : {
       "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
       "lines" : [ 54, 54 ],
-      "sha256" : "bc1fede868acb0a83fc35bc1fe908d08fbf8ae23cba4d2328700e1d02ac80efb"
+      "sha256" : "bc1fede868acb0a83fc35bc1fe908d08fbf8ae23cba4d2328700e1d02ac80efb",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "indexer-config" : {
       "path" : "core/src/main/kotlin/xtdb/api/IndexerConfig.kt",
       "lines" : [ 12, 31 ],
-      "sha256" : "3b0c8ce6e5413714c891dc75bd73481cbf956f2418af97f4c43b426e128ff0d7"
+      "sha256" : "3b0c8ce6e5413714c891dc75bd73481cbf956f2418af97f4c43b426e128ff0d7",
+      "since" : "v2.2.0-rc2",
+      "differs" : [ "v2.1.1" ]
     },
     "key-block" : {
       "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
       "lines" : [ 47, 47 ],
-      "sha256" : "288f023aa3ec30cad99b22b6c92297b58a4797464030e1eb3b01ddef091f936d"
+      "sha256" : "288f023aa3ec30cad99b22b6c92297b58a4797464030e1eb3b01ddef091f936d",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "tx-rows" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
       "lines" : [ 141, 141 ],
-      "sha256" : "ea1613d3ab8473d3e3044bc76fc322da1903aa6c84272078575d1619dc307263"
+      "sha256" : "ea1613d3ab8473d3e3044bc76fc322da1903aa6c84272078575d1619dc307263",
+      "since" : "v2.2.0-beta3",
+      "differs" : [ "v2.1.1" ]
     },
     "block-full" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
       "lines" : [ 124, 124 ],
-      "sha256" : "946d42ff99bccc412adbbefcd4c1cd95b55a5ca8851dbdb58babd849b98b0bcc"
+      "sha256" : "946d42ff99bccc412adbbefcd4c1cd95b55a5ca8851dbdb58babd849b98b0bcc",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "key-recency" : {
       "path" : "core/src/main/kotlin/xtdb/trie/Trie.kt",
       "lines" : [ 45, 45 ],
-      "sha256" : "768a0ccb9e437f591e2cac5c1b8b3373f1fa59752b06c2b595513fa9260be457"
+      "sha256" : "768a0ccb9e437f591e2cac5c1b8b3373f1fa59752b06c2b595513fa9260be457",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "boundary-order" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
       "lines" : [ 150, 150 ],
-      "sha256" : "9034311164825575faaf30b6ccccf2cd43d73f89b4cabf89d866024eda404e2f"
+      "sha256" : "9034311164825575faaf30b6ccccf2cd43d73f89b4cabf89d866024eda404e2f",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "block-file" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt",
       "lines" : [ 242, 242 ],
-      "sha256" : "399f1c5d5ed6e68aeddeaa231488130bdca76a381eaa1ed2847a4b220ee0c3e6"
+      "sha256" : "399f1c5d5ed6e68aeddeaa231488130bdca76a381eaa1ed2847a4b220ee0c3e6",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "external-stores" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
       "lines" : [ 185, 208 ],
-      "sha256" : "07b1913aa67a496b4db62d4da1d479c94e84aae3d5c8f84c62fc5eebbb83ec23"
+      "sha256" : "07b1913aa67a496b4db62d4da1d479c94e84aae3d5c8f84c62fc5eebbb83ec23",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "indexer-docs" : {
       "path" : "docs/src/content/docs/ops/config.md",
       "lines" : [ 244, 283 ],
-      "sha256" : "f5d883b4fe4e0b7af3b5003101c4f908012bd185c650ddf23fc8e6385d3342de"
+      "sha256" : "f5d883b4fe4e0b7af3b5003101c4f908012bd185c650ddf23fc8e6385d3342de",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "data-path" : {
       "path" : "core/src/main/kotlin/xtdb/table/TableSlug.kt",
       "lines" : [ 21, 21 ],
-      "sha256" : "55df34b3a458225bfc80d50abeb9ac6d90fc9011f2d064cc6ad1cae2099ee7e3"
+      "sha256" : "55df34b3a458225bfc80d50abeb9ac6d90fc9011f2d064cc6ad1cae2099ee7e3",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "clj-indexer" : {
       "path" : "core/src/main/clojure/xtdb/node.clj",
       "lines" : [ 52, 59 ],
-      "sha256" : "a6488c255ba5d462198f804ebbdfc520dacbdacc6314b5e40981ca3deff2e1b7"
+      "sha256" : "a6488c255ba5d462198f804ebbdfc520dacbdacc6314b5e40981ca3deff2e1b7",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "meta-path" : {
       "path" : "core/src/main/kotlin/xtdb/table/TableSlug.kt",
       "lines" : [ 25, 25 ],
-      "sha256" : "a3dad0e4c0e4c6c8a7cf2648e491ea322465ce724f09ab453203c86a7c45ad58"
+      "sha256" : "a3dad0e4c0e4c6c8a7cf2648e491ea322465ce724f09ab453203c86a7c45ad58",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "node-processing" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
       "lines" : [ 210, 244 ],
-      "sha256" : "197586c5a7b40413f0b82f0084fcdb62455483eb993560a4809a17a6ab6466b4"
+      "sha256" : "197586c5a7b40413f0b82f0084fcdb62455483eb993560a4809a17a6ab6466b4",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "leader-block" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
       "lines" : [ 223, 223 ],
-      "sha256" : "f3d30257570d4c448a58e55d0eecc6b17a22c156a827fc1579532a986ecbcc81"
+      "sha256" : "f3d30257570d4c448a58e55d0eecc6b17a22c156a827fc1579532a986ecbcc81",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "trie-writer-meta" : {
       "path" : "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt",
       "lines" : [ 15, 15 ],
-      "sha256" : "ec5c09d70023e2e8b505c201f6edd6d12854d2caa04752365dfd8e78074743ff"
+      "sha256" : "ec5c09d70023e2e8b505c201f6edd6d12854d2caa04752365dfd8e78074743ff",
+      "since" : "v2.2.0-beta3",
+      "differs" : [ "v2.1.1" ]
+    }
+  },
+  "observed" : {
+    "obs-below-block" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-block-at-rows" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-l0-pair" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-l0-per-table" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-tx-not-split" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
     }
   }
 }

@@ -27,25 +27,56 @@
            [[:put-docs :people {:xt/id 1 :name "Ada" :city "Paris"}]]]
    :expected [{:city "London"} {:city "Paris"}]}
 
+  ;; --- conditional writes: an ASSERT whose body is XTQL ---------------------
+  {:id "guard-commits"
+   ;; The guard passes on an empty table, so the write commits.
+   :private [:users]
+   :tx [[:sql "ASSERT NOT EXISTS (XTQL ($$ (fn [e] (from :users [{:email e}])) $$, ?))" ["c@x"]]
+        [:put-docs :users {:xt/id 7 :email "c@x"}]]
+   :query (from :users [xt/id email])
+   :expected [{:xt/id 7 :email "c@x"}]}
+
+  {:id "guard-aborts"
+   ;; The guard fails, so the whole transaction rolls back: no row 8.
+   :private [:users]
+   :setup [[[:put-docs :users {:xt/id 1 :email "c@x"}]]]
+   :tx [[:sql "ASSERT NOT EXISTS (XTQL ($$ (fn [e] (from :users [{:email e}])) $$, ?))" ["c@x"]]
+        [:put-docs :users {:xt/id 8 :email "c@x"}]]
+   :expect-error "assert-failed"
+   :query (from :users [xt/id email])
+   :expected [{:xt/id 1 :email "c@x"}]}
+
+  {:id "guard-no-params"
+   :private [:users]
+   :setup [[[:put-docs :users {:xt/id 1 :email "c@x"}]]]
+   :tx [[:sql "ASSERT NOT EXISTS (XTQL $$ (from :users [{:email \"c@x\"}]) $$)"]
+        [:put-docs :users {:xt/id 8 :email "c@x"}]]
+   :expect-error "assert-failed"}
+
+  {:id "guard-params-need-parens"
+   :private [:users]
+   :tx [[:sql "ASSERT NOT EXISTS (XTQL $$ (fn [e] (from :users [{:email e}])) $$, ?)" ["c@x"]]]
+   :expect-error "Errors parsing SQL statement"}
+
   ;; --- XTDB 1 queries ------------------------------------------------------
   {:id "v1-datalog-map"
    :query {:find [e] :where [[e :name n]]}
-   :expect-error "Unknown query type"}
+   :expect-error "unknown-query-type"}
 
   {:id "v1-rules"
    :private [:people]
    :query (rules [] (from :people [name]))
-   :expect-error "Unknown query op"}
+   :expect-error "unknown-query-op"}
 
   {:id "v1-or-clause"
    :private [:people]
    :query (unify (from :people [name]) (or [(= name "Ada")]))
-   :expect-error "Unknown unify clause"}
+   :expect-error "unknown-unify-clause"}
 
   {:id "v1-not-clause"
    :private [:people]
    :query (unify (from :people [name]) (not (from :people [name])))
-   :expect-error "Unknown unify clause"}
+   :expect-error "unknown-unify-clause"}
 
   {:id "not-exists-fn"
    ;; Not a subquery form, so its argument is read as an ordinary expression.
@@ -68,55 +99,55 @@
   {:id "v1-put-op"
    :private [:people]
    :tx [[:xtdb.api/put {:xt/id 1 :name "Ada"}]]
-   :expect-error "Unknown tx-op"}
+   :expect-error "unknown-tx-op"}
 
   {:id "v1-match-op"
    :tx [[:xtdb.api/match 1 {:xt/id 1 :name "Ada"}]]
-   :expect-error "Unknown tx-op"}
+   :expect-error "unknown-tx-op"}
 
   {:id "v1-evict-op"
    :tx [[:xtdb.api/evict 1]]
-   :expect-error "Unknown tx-op"}
+   :expect-error "unknown-tx-op"}
 
   {:id "v1-fn-op"
    :tx [[:xtdb.api/fn :increment 1]]
-   :expect-error "Unknown tx-op"}
+   :expect-error "unknown-tx-op"}
 
   ;; --- 2.x transaction functions and XTQL DML, removed in 2.0.0-beta7 -------
   {:id "put-fn-removed"
    :tx [[:put-fn :increment (fn [id] [])]]
-   :expect-error "tx-fns are no longer supported"}
+   :expect-error "tx-fns-removed"}
 
   {:id "call-removed"
    :tx [[:call :increment 1]]
-   :expect-error "tx-fns are no longer supported"}
+   :expect-error "tx-fns-removed"}
 
   {:id "insert-into-removed"
    :private [:people]
    :tx [[:insert-into :people (from :people [name])]]
-   :expect-error "XTQL DML is no longer supported"}
+   :expect-error "xtql-dml-removed"}
 
   {:id "update-removed"
    :private [:people]
    :tx [[:update {:table :people :set {:name "Bo"}}]]
-   :expect-error "XTQL DML is no longer supported"}
+   :expect-error "xtql-dml-removed"}
 
   {:id "delete-removed"
    :private [:people]
    :tx [[:delete {:from :people :bind [{:xt/id 1}]}]]
-   :expect-error "XTQL DML is no longer supported"}
+   :expect-error "xtql-dml-removed"}
 
   {:id "erase-removed"
    :private [:people]
    :tx [[:erase {:from :people :bind [{:xt/id 1}]}]]
-   :expect-error "XTQL DML is no longer supported"}
+   :expect-error "xtql-dml-removed"}
 
   {:id "assert-exists-removed"
    :private [:people]
    :tx [[:assert-exists (from :people [name])]]
-   :expect-error "XTQL DML is no longer supported"}
+   :expect-error "xtql-dml-removed"}
 
   {:id "assert-not-exists-removed"
    :private [:people]
    :tx [[:assert-not-exists (from :people [name])]]
-   :expect-error "XTQL DML is no longer supported"}]}
+   :expect-error "xtql-dml-removed"}]}

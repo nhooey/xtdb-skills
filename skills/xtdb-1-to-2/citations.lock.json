@@ -3,18 +3,23 @@
   "tag" : "v2.2.0",
   "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
   "files" : {
-    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701",
     "api/src/main/clojure/xtdb/api.clj" : "b16685624979e87259780b9fb3ae9c6af58f040af81115d27ce8987e378acec0",
-    "core/src/main/clojure/xtdb/xtql.clj" : "8b16aba608098aa608ea1025fa216a78d5942be3b45056103afec804cd2e3040",
     "docs/src/content/docs/reference/main/stdlib/predicates.md" : "5e42c091c5fbedfff041f10441e59c8e8d7934a4e7f83e17369bf7e73ee87f94",
+    "core/src/main/clojure/xtdb/xtql.clj" : "8b16aba608098aa608ea1025fa216a78d5942be3b45056103afec804cd2e3040",
+    "api/src/main/clojure/xtdb/tx_ops.clj" : "b3d248ace6d5c89e89746e25bab6eb8c2b8505a6d25d6594a0e30f5c16539f04",
+    "docs/src/content/docs/reference/main/sql/txs.md" : "71a104fc43f42fd9137c05c0d04932c30220cbee8fb77e4afcf4e64fffefa1ef",
+    "docs/src/content/docs/about/txs-in-xtdb.md" : "0b6454114048ecba211fb9895bf042877acc6e9999bf1281d0fc5d0a39b70424",
     "docs/src/content/docs/reference/main/xtql/txs.md" : "68c444c3aff1c1edfa66077a786588a49a814ad4e09ff6374b778bb60cdfe12a",
-    "api/src/main/clojure/xtdb/tx_ops.clj" : "b3d248ace6d5c89e89746e25bab6eb8c2b8505a6d25d6594a0e30f5c16539f04"
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701",
+    "core/src/main/antlr/xtdb/antlr/Sql.g4" : "46ac30b2a5b2cd94b60d4dba7f3e0e89e0bacdc05ab86f7d6367aed2d891840e"
   },
   "citations" : {
     "unknown-query-type" : {
       "path" : "api/src/main/clojure/xtdb/api.clj",
       "lines" : [ 116, 116 ],
-      "sha256" : "e651c852ec6a5240fe4d8bc5eb8c347f906b1109d593cfd21100c46d9eac5bcb"
+      "sha256" : "e651c852ec6a5240fe4d8bc5eb8c347f906b1109d593cfd21100c46d9eac5bcb",
+      "since" : "v2.0.0-beta8.3",
+      "differs" : [ ]
     },
     "v1-pull-many" : {
       "path" : "core/src/xtdb/api.clj",
@@ -25,7 +30,9 @@
     "temporal-filters" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 162, 190 ],
-      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "v1-evict" : {
       "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
@@ -36,17 +43,23 @@
     "grammar" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 7, 36 ],
-      "sha256" : "8ca008fff36718cc4f272ea7d708b5b6198232796894d04e102657754107370d"
+      "sha256" : "8ca008fff36718cc4f272ea7d708b5b6198232796894d04e102657754107370d",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "xtql-sql" : {
       "path" : "api/src/main/clojure/xtdb/api.clj",
       "lines" : [ 61, 71 ],
-      "sha256" : "dd7a00622e3b55e132b69c2f027e8e824234caa540de5ebb58a0937ee62c01bb"
+      "sha256" : "dd7a00622e3b55e132b69c2f027e8e824234caa540de5ebb58a0937ee62c01bb",
+      "since" : "v2.0.0-beta8.3",
+      "differs" : [ ]
     },
     "plan-q" : {
       "path" : "api/src/main/clojure/xtdb/api.clj",
       "lines" : [ 94, 118 ],
-      "sha256" : "0cb498943600bd092a7151600458906aa8b6b04b20cf43affaaa02d17cdc5031"
+      "sha256" : "0cb498943600bd092a7151600458906aa8b6b04b20cf43affaaa02d17cdc5031",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
     },
     "v1-open-q" : {
       "path" : "core/src/xtdb/api.clj",
@@ -57,7 +70,9 @@
     "q-opts" : {
       "path" : "api/src/main/clojure/xtdb/api.clj",
       "lines" : [ 120, 164 ],
-      "sha256" : "f89bfc28496691ca63cc5ce1d0e2b52a0f9396bbd8efd6d6861fdb551b3f5ac0"
+      "sha256" : "f89bfc28496691ca63cc5ce1d0e2b52a0f9396bbd8efd6d6861fdb551b3f5ac0",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "v1-db" : {
       "path" : "core/src/xtdb/api.clj",
@@ -68,12 +83,23 @@
     "erase-docs" : {
       "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
       "lines" : [ 180, 208 ],
-      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd"
+      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "sql-op" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 53, 57 ],
+      "sha256" : "89328d40e8b58312f24272f852ddce5055f3d66d761483cf14c8c8e23bc178f9",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
     },
     "delete-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 106, 110 ],
-      "sha256" : "2971d95566e5ece5d4f4d021c27155a6ef74087e9baa4f8d50eab33aee984588"
+      "sha256" : "2971d95566e5ece5d4f4d021c27155a6ef74087e9baa4f8d50eab33aee984588",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "v1-tx-fns" : {
       "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
@@ -99,6 +125,13 @@
       "sha256" : "9305cc720da1bc97346608b9689bff392a01221fb3175310dbdab81c2395b25d",
       "source" : "xtdb/xtdb@1.24.5"
     },
+    "txs-atomic" : {
+      "path" : "docs/src/content/docs/about/txs-in-xtdb.md",
+      "lines" : [ 34, 34 ],
+      "sha256" : "6e68f841154f3428d26c54dc67b69fa83f3b0a31ac6d7019aa9199f77d4bc62d",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
     "v1-tx-fn-db" : {
       "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
       "lines" : [ 244, 244 ],
@@ -108,7 +141,9 @@
     "tx-ops" : {
       "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
       "lines" : [ 10, 208 ],
-      "sha256" : "53ef8129253d3fff219e4b150adf673c353a18b93ef370206f75dff00502382f"
+      "sha256" : "53ef8129253d3fff219e4b150adf673c353a18b93ef370206f75dff00502382f",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "v1-history" : {
       "path" : "core/src/xtdb/api.clj",
@@ -122,6 +157,13 @@
       "sha256" : "cb0bdb5f2567a2f988891a72d41757f196cafe5d7d306903619b4df5bf8c7ef7",
       "source" : "xtdb/xtdb@1.24.5"
     },
+    "sql-assert" : {
+      "path" : "docs/src/content/docs/reference/main/sql/txs.md",
+      "lines" : [ 99, 132 ],
+      "sha256" : "4855871c09409913a55478c77b4ea72fe9a979fc5b526c785d9721fb3a65caca",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
     "v1-tx-fn-speculative" : {
       "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
       "lines" : [ 251, 251 ],
@@ -131,42 +173,65 @@
     "erase-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 122, 126 ],
-      "sha256" : "6be8d6ceafd52b27a0f96b6188b65959cefede3c217e2fce9ed445aeca58b702"
+      "sha256" : "6be8d6ceafd52b27a0f96b6188b65959cefede3c217e2fce9ed445aeca58b702",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "xtql-in-sql" : {
+      "path" : "core/src/main/antlr/xtdb/antlr/Sql.g4",
+      "lines" : [ 704, 704 ],
+      "sha256" : "3e12554bfea92855ebed479df3c9b423dcba19ca6444802f5718157b62ad82f7",
+      "since" : "v2.0.0-beta8",
+      "differs" : [ ]
     },
     "unknown-tx-op" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 27, 27 ],
-      "sha256" : "3760424a056f33c068c9f6c0f18b7994470f8dff34d8bfd3e2c1b2ffdeef7dde"
+      "sha256" : "3760424a056f33c068c9f6c0f18b7994470f8dff34d8bfd3e2c1b2ffdeef7dde",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "subqueries" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 487, 543 ],
-      "sha256" : "ca5291c42f480fc867311395269ced1443e2b8ee17cbab6843d80df9193aff67"
+      "sha256" : "ca5291c42f480fc867311395269ced1443e2b8ee17cbab6843d80df9193aff67",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "assert-not-exists-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 139, 143 ],
-      "sha256" : "e6386f4621c5accd003a5bda38326f6571be62a2621959db2a861394927663a7"
+      "sha256" : "e6386f4621c5accd003a5bda38326f6571be62a2621959db2a861394927663a7",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "unknown-query-op" : {
       "path" : "core/src/main/clojure/xtdb/xtql.clj",
       "lines" : [ 45, 45 ],
-      "sha256" : "6f8b791a704221ac44e30512185fc366a62dc1fb00c4296f6fdd2cdb2c7c4684"
+      "sha256" : "6f8b791a704221ac44e30512185fc366a62dc1fb00c4296f6fdd2cdb2c7c4684",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "insert-into-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 94, 98 ],
-      "sha256" : "8cd6b25ceaf7e64fd147da22deb25c586e5f38b64cb935e3bf691fdde8c33e7b"
+      "sha256" : "8cd6b25ceaf7e64fd147da22deb25c586e5f38b64cb935e3bf691fdde8c33e7b",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "template" : {
       "path" : "api/src/main/clojure/xtdb/api.clj",
       "lines" : [ 468, 481 ],
-      "sha256" : "4ed76c4ff41875dcf6b7cc408c3ed76280901dcf616f63ca630aab38586425ea"
+      "sha256" : "4ed76c4ff41875dcf6b7cc408c3ed76280901dcf616f63ca630aab38586425ea",
+      "since" : "v2.0.0-beta1",
+      "differs" : [ ]
     },
     "subquery-forms" : {
       "path" : "core/src/main/clojure/xtdb/xtql.clj",
       "lines" : [ 141, 141 ],
-      "sha256" : "33a9a59b4f927aee4b094c2a5b16349dd2bcefd93d2c9302bf8bc52a61516734"
+      "sha256" : "33a9a59b4f927aee4b094c2a5b16349dd2bcefd93d2c9302bf8bc52a61516734",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "v1-pull" : {
       "path" : "core/src/xtdb/api.clj",
@@ -183,17 +248,23 @@
     "boolean-fns" : {
       "path" : "docs/src/content/docs/reference/main/stdlib/predicates.md",
       "lines" : [ 29, 50 ],
-      "sha256" : "ab72ae36bef43c2d87242af863fce0f0c280d00f1e28c0345dea77b597c03c24"
+      "sha256" : "ab72ae36bef43c2d87242af863fce0f0c280d00f1e28c0345dea77b597c03c24",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "assert-exists-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 133, 137 ],
-      "sha256" : "1fa94f995cffb2a2ace1765c464b860a1f89077fda46cb86441a7bb5c912018a"
+      "sha256" : "1fa94f995cffb2a2ace1765c464b860a1f89077fda46cb86441a7bb5c912018a",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "unknown-unify-clause" : {
       "path" : "core/src/main/clojure/xtdb/xtql.clj",
       "lines" : [ 78, 78 ],
-      "sha256" : "c3197ba31c1ee7cab2e5235c16cfcbd0115bd2b888175ef4453713954774954d"
+      "sha256" : "c3197ba31c1ee7cab2e5235c16cfcbd0115bd2b888175ef4453713954774954d",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "v1-or" : {
       "path" : "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc",
@@ -207,20 +278,33 @@
       "sha256" : "d66aa6265c69e650d60c647e3cbd9821405b03dfa66d7bda14520b5ffd97a3af",
       "source" : "xtdb/xtdb@1.24.5"
     },
+    "execute-tx-throws" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 320, 320 ],
+      "sha256" : "04866bd232e0a217f1f30ca104eb002b1b28a3ecb0d512495b408b530fd36d79",
+      "since" : "v2.0.0-beta8.3",
+      "differs" : [ ]
+    },
     "update-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 100, 104 ],
-      "sha256" : "dca30c58ef8f467c1899b636de4d0632915c04fe5858e0dd0523e011090c3871"
+      "sha256" : "dca30c58ef8f467c1899b636de4d0632915c04fe5858e0dd0523e011090c3871",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "call-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 145, 149 ],
-      "sha256" : "3d2725344c620afd1b1de344813815994008ce2cc7390b7ab050f1762d30fa70"
+      "sha256" : "3d2725344c620afd1b1de344813815994008ce2cc7390b7ab050f1762d30fa70",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "put-fn-removed" : {
       "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
       "lines" : [ 75, 79 ],
-      "sha256" : "25336fabba14edae63a5bc014f68e876f21dca63881e0844e0c6cbcdf7a49cb1"
+      "sha256" : "25336fabba14edae63a5bc014f68e876f21dca63881e0844e0c6cbcdf7a49cb1",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "v1-q" : {
       "path" : "core/src/xtdb/api.clj",
@@ -239,6 +323,108 @@
         "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc" : "ddbb44d123e9f6aa15220ccf1c341165ae0fed370e5d386649dda0710b07ec62",
         "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc" : "e3e30e52f2c2feab3a5db5566e1fda18814c83341418ca205aaa3289308e4d62"
       }
+    }
+  },
+  "observed" : {
+    "obs-assert-exists-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-assert-not-exists-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-call-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-delete-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-erase-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-guard-aborts" : {
+      "since" : "v2.0.0-beta8",
+      "fails" : [ ]
+    },
+    "obs-guard-commits" : {
+      "since" : "v2.0.0-beta8",
+      "fails" : [ ]
+    },
+    "obs-guard-no-params" : {
+      "since" : "v2.0.0-beta8",
+      "fails" : [ ]
+    },
+    "obs-guard-params-need-parens" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-history-all-time" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-insert-into-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-not-exists-fn" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-or-in-where" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-put-fn-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-update-removed" : {
+      "since" : "v2.0.0-beta7",
+      "fails" : [ ]
+    },
+    "obs-v1-api-gone" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-datalog-map" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-evict-op" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-fn-op" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-get-attr" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-match-op" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-not-clause" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-or-clause" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-put-op" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-v1-rules" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
     }
   }
 }

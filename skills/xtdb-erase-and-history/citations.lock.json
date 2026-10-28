@@ -11,27 +11,79 @@
     "system-time" : {
       "path" : "docs/src/content/docs/about/time-in-xtdb.md",
       "lines" : [ 35, 81 ],
-      "sha256" : "cd9f67c3e02cd788b2b1140dbab65fa8419da53d33192f4d5e9b1cb678656ad0"
+      "sha256" : "cd9f67c3e02cd788b2b1140dbab65fa8419da53d33192f4d5e9b1cb678656ad0",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "patch-docs" : {
       "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
       "lines" : [ 68, 127 ],
-      "sha256" : "053f89528c53ed194b780d48c12a120606a9666cf1a18b35e6a447d7ec8ba02d"
+      "sha256" : "053f89528c53ed194b780d48c12a120606a9666cf1a18b35e6a447d7ec8ba02d",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "delete-docs" : {
       "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
       "lines" : [ 129, 178 ],
-      "sha256" : "0634e4ae22b549d5588e19392b63ac470e76cff7101ddb3db1508ff3405b21ec"
+      "sha256" : "0634e4ae22b549d5588e19392b63ac470e76cff7101ddb3db1508ff3405b21ec",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "erase-docs" : {
       "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
       "lines" : [ 180, 208 ],
-      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd"
+      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "temporal-filters" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 162, 190 ],
-      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    }
+  },
+  "observed" : {
+    "obs-delete-hides-current" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-delete-keeps-history" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-erase-all-versions" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-erase-per-table" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-erase-then-put" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-history-of-id" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-identical-put" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-patch-whole" : {
+      "since" : "v2.0.0-beta4",
+      "fails" : [ ]
+    },
+    "obs-put-then-erase" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-put-whole" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
     }
   }
 }

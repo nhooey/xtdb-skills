@@ -1,6 +1,6 @@
 ---
 name: xtdb-storage-gc
-description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and runs on each database's indexing leader at every block boundary, deleting files that compaction has superseded; and know what it never deletes — level-0 files and the source and replica logs. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, when a v2.1 config with approxRunInterval stops starting, or when asking whether erased data has left disk. Pinned to XTDB v2.2.0; every claim cites the source or docs, or an observation re-run against a live node.
+description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and runs on each database's indexing leader at every block boundary, deleting files that compaction has superseded; and know what it never deletes — level-0 files and the source and replica logs. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, when a v2.1 config with approxRunInterval stops starting, or when asking whether erased data has left disk, what the disk or memory cache (diskCache, memoryCache, maxSizeRatio) holds, whether DETACH DATABASE frees space, or how to drop or truncate a table. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
 ---
 
 # Storage garbage collection (XTDB 2.x)
@@ -12,6 +12,22 @@ writes on two nodes, with the collector on and off, and compares their
 storage directories. Kafka's retention defaults cite `apache/kafka` at
 `4.3.1`. `citations.edn` lists them. For what erase does to
 query results, see the `xtdb-erase-and-history` skill.
+
+## Versions
+
+Each footnote says since which `xtdb/xtdb` tag, betas and release
+candidates included, its cited span has read the same ("unchanged
+since"), or since which tag the eval saw its example hold ("holds on
+every tag the eval ran since"); "differs in" and "fails on" name later
+tags off that line, such as a patch release of an older minor version.
+`evals/<skill>/releases.edn` lists the result on every tag.
+
+Before relying on a claim, find the project's XTDB version: the
+`com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
+build file, or the `ghcr.io/xtdb/xtdb` image tag. If every footnote on a
+claim starts after that version, or names it under "differs in" or
+"fails on", the claim may not hold there: say so, and check that
+version's docs or source, rather than applying it.
 
 ## It is on by default
 
@@ -159,6 +175,27 @@ The docs' "fully erased" waits on that background processing.[^erase-disk]
 For what erase removes from query results, see the
 `xtdb-erase-and-history` skill.
 
+## Caches, detached databases and dropped tables
+
+A node keeps two caches of object-store files: one in memory, and one on
+local disk, which a remote object store requires; each has a
+`maxSizeBytes`, or else a `maxSizeRatio`.[^cache-docs] The disk cache's
+ratio defaults to 0.75 of its filesystem's total
+space,[^disk-cache-ratio][^disk-cache-size] and the memory cache's to
+0.5 of the JVM's direct memory.[^memory-cache-ratio] So a disk that fills
+on a node with a remote object store may be its cache, not its data; set
+`diskCache.maxSizeBytes` to cap it.
+
+`DETACH DATABASE` returns once the database is no longer queryable, and
+its cleanup closes the log subscription and flushes
+buffers.[^detach-docs] Closing it closes its partitions, logs and
+allocator,[^db-close] and deletes neither its log nor its storage: those
+stay until you remove them.
+
+XTDB's statements create tables but have no `DROP TABLE` or
+`TRUNCATE`;[^create-table-only] to empty a table, erase each of its
+ids.[^erase-docs]
+
 ## Checking it's running
 
 Set the logger `xtdb.garbage_collector` to DEBUG. The collectors log
@@ -189,70 +226,77 @@ apply it from memory.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
 - `xtdb-erase-and-history`: what erase removes from query results, and what each write adds to history.
 - `xtdb-history-cost-design`: splitting volatile fields into their own table, so history grows more slowly.
-[^block-gc]: [BlockGarbageCollector.kt `class BlockGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt#L39-L218)
-[^block-signal]: [LeaderLogProcessor.kt line 162, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L162-L162)
-[^clj-config]: [garbage_collector.clj `(defmethod xtn/apply-config! :xtdb/garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/garbage_collector.clj#L5-L11)
-[^compactor-config]: [CompactorConfig.kt line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L10-L10)
-[^compactor-factory]: [compactor.clj `(defn ->factory`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/compactor.clj#L11-L19)
-[^compactor-publish]: [Compactor.kt line 151, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/compactor/Compactor.kt#L151-L151)
-[^compactor-threads]: [CompactorConfig.kt line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L14-L14)
-[^db-catalog]: [DatabaseCatalog.kt line 214, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt#L214-L214)
-[^db-config-log]: [Database.kt line 440, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L440-L440)
-[^db-config-mode]: [Database.kt line 442, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L442-L442)
-[^db-config-storage]: [Database.kt line 441, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L441-L441)
-[^db-gc]: [GarbageCollector.kt `internal class GarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/GarbageCollector.kt#L22-L139)
-[^db-open]: [DatabaseCatalog.kt line 121, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt#L121-L121)
-[^dbs-attach]: [dbs-in-xtdb.md § Attaching/Detaching secondary databases (v2.1+), v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L246-L289)
-[^dbs-leader]: [dbs-in-xtdb.md § Node processing, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L210-L244)
-[^dbs-shared]: [dbs-in-xtdb.md line 57, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L57-L57)
-[^drop-l0]: [trie_catalog.clj `(defn- drop-superseded-l0`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L183-L191)
-[^duration-serde]: [Serde.kt `object DurationSerde`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/kotlin/xtdb/Serde.kt#L31-L64)
-[^epoch]: [log.md § Bumping an Epoch, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L103-L118)
-[^erase-disk]: [sql-overview.mdx § ERASE as 'hard' delete, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/quickstart/sql-overview.mdx?plain=1#L437-L461)
-[^erase-docs]: [txs.md § `erase-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208)
-[^event-order]: [EventRowPointer.kt `class EventRowPointer(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/EventRowPointer.kt#L10-L125)
-[^garbage-fn]: [trie_catalog.clj `(defn garbage-fn`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L324-L327)
-[^garbage-tries]: [trie_catalog.clj `(defn garbage-tries`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L329-L331)
-[^gc-all]: [Database.kt line 193, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L193-L193)
-[^gc-await]: [LogProcessor.kt line 514, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L514-L514)
-[^gc-config]: [GarbageCollectorConfig.kt `data class GarbageCollectorConfig(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt#L9-L21)
+[^block-gc]: [BlockGarbageCollector.kt `class BlockGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt#L39-L218), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^block-signal]: [LeaderLogProcessor.kt line 162, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L162-L162), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^clj-config]: [garbage_collector.clj `(defmethod xtn/apply-config! :xtdb/garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/garbage_collector.clj#L5-L11), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^compactor-config]: [CompactorConfig.kt line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L10-L10), unchanged since v2.0.0-beta6
+[^compactor-factory]: [compactor.clj `(defn ->factory`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/compactor.clj#L11-L19), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^compactor-publish]: [Compactor.kt line 151, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/compactor/Compactor.kt#L151-L151), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^compactor-threads]: [CompactorConfig.kt line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/CompactorConfig.kt#L14-L14), unchanged since v2.0.0-beta7
+[^db-catalog]: [DatabaseCatalog.kt line 214, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt#L214-L214), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^db-config-log]: [Database.kt line 440, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L440-L440), unchanged since v2.1.0-beta1
+[^db-config-mode]: [Database.kt line 442, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L442-L442), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^db-config-storage]: [Database.kt line 441, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L441-L441), unchanged since v2.1.0-rc0
+[^db-gc]: [GarbageCollector.kt `internal class GarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/GarbageCollector.kt#L22-L139), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^db-open]: [DatabaseCatalog.kt line 121, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt#L121-L121), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^dbs-attach]: [dbs-in-xtdb.md § Attaching/Detaching secondary databases (v2.1+), v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L246-L289), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^dbs-leader]: [dbs-in-xtdb.md § Node processing, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L210-L244), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^dbs-shared]: [dbs-in-xtdb.md line 57, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L57-L57), unchanged since v2.1.0-rc0
+[^drop-l0]: [trie_catalog.clj `(defn- drop-superseded-l0`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L183-L191), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^duration-serde]: [Serde.kt `object DurationSerde`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/kotlin/xtdb/Serde.kt#L31-L64), unchanged since v2.1.0-rc0
+[^epoch]: [log.md § Bumping an Epoch, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L103-L118), unchanged since v2.1.0-rc0
+[^erase-disk]: [sql-overview.mdx § ERASE as 'hard' delete, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/quickstart/sql-overview.mdx?plain=1#L437-L461), unchanged since v2.0.0-beta7
+[^erase-docs]: [txs.md § `erase-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208), unchanged since v2.1.0-rc0
+[^event-order]: [EventRowPointer.kt `class EventRowPointer(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/EventRowPointer.kt#L10-L125), unchanged since v2.2.0-rc2; differs in v2.1.1
+[^garbage-fn]: [trie_catalog.clj `(defn garbage-fn`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L324-L327), unchanged since v2.1.0-beta1
+[^garbage-tries]: [trie_catalog.clj `(defn garbage-tries`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L329-L331), unchanged since v2.1.0-beta1
+[^gc-all]: [Database.kt line 193, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L193-L193), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^gc-await]: [LogProcessor.kt line 514, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L514-L514), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^gc-config]: [GarbageCollectorConfig.kt `data class GarbageCollectorConfig(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt#L9-L21), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^kafka-default-ms]: [LogConfig.java line 128, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L128-L128)
 [^kafka-hours]: [LogConfig.java line 160, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L160-L160)
 [^kafka-minutes-doc]: [ServerLogConfigs.java line 77, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L77-L77)
-[^kafka-module-clients]: [build.gradle.kts line 30, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/build.gradle.kts#L30-L30)
+[^kafka-module-clients]: [build.gradle.kts line 30, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/build.gradle.kts#L30-L30), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^kafka-ms-doc]: [ServerLogConfigs.java line 76, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java#L76-L76)
-[^kafka-replica-topic]: [KafkaCluster.kt line 426, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L426-L426)
-[^kafka-settings]: [kafka.md § Settings, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L111-L134)
-[^kafka-setup]: [kafka.md § Setup, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L95-L109)
+[^kafka-replica-topic]: [KafkaCluster.kt line 426, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L426-L426), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^kafka-settings]: [kafka.md § Settings, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L111-L134), new or changed in v2.2.0
+[^kafka-setup]: [kafka.md § Setup, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log/kafka.md?plain=1#L95-L109), unchanged since v2.2.0-beta2; differs in v2.1.1
 [^kafka-synonyms]: [ServerTopicConfigSynonyms.java line 64, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java#L64-L64)
-[^kafka-topic]: [KafkaCluster.kt `private fun AdminClient.ensureTopicExists(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L122-L474)
+[^kafka-topic]: [KafkaCluster.kt `private fun AdminClient.ensureTopicExists(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt#L122-L474), unchanged since v2.2.0-rc2; differs in v2.1.1
 [^kafka-topic-ms]: [LogConfig.java line 202, apache/kafka 4.3.1](https://github.com/apache/kafka/blob/4.3.1/storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java#L202-L202)
-[^kafka-version]: [libs.versions.toml line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/gradle/libs.versions.toml#L14-L14)
-[^leader-add-tries]: [LeaderLogProcessor.kt line 198, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L198-L198)
-[^leader-gc]: [LeaderLogProcessor.kt line 79, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L79-L79)
-[^leader-gc-run]: [LeaderLogProcessor.kt line 241, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L241-L241)
-[^local-log]: [LocalLog.kt `class LocalLog<M> @JvmOverloads constructor(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L45-L362)
-[^local-replica-log]: [LocalLog.kt line 350, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L350-L350)
-[^log-local-disk]: [log.md § Local disk, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L54-L67)
-[^log-split]: [log.md line 21, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L21-L21)
-[^node-clj-key]: [node.clj `(defmethod apply-config! :garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/node.clj#L84-L85)
-[^node-config]: [Xtdb.kt line 1642, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/Xtdb.kt#L1642-L1642)
-[^obs-keeps-blocks]: Observed on XTDB v2.2.0: example `gc-keeps-recent-blocks` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-keeps-l0]: Observed on XTDB v2.2.0: example `gc-keeps-l0` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-legacy-refused]: Observed on XTDB v2.2.0: example `gc-legacy-interval-refused` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-log-untouched]: Observed on XTDB v2.2.0: example `gc-log-untouched` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-off-idle]: Observed on XTDB v2.2.0: example `gc-off-idle` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-superseded]: Observed on XTDB v2.2.0: example `gc-deletes-superseded` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-yaml-starts]: Observed on XTDB v2.2.0: example `gc-yaml-starts` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^polygon-erase]: [PolygonCalculator.kt `class PolygonCalculator(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt#L7-L48)
-[^primary-db]: [db_catalog.clj `(defn primary-db`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/db_catalog.clj#L20-L23)
-[^read-only-compactor]: [Database.kt line 328, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L328-L328)
-[^read-only-follows]: [LogProcessor.kt line 280, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L280-L280)
-[^segment-merge]: [SegmentMerge.kt `internal class SegmentMerge(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt#L115-L316)
-[^supersede]: [trie_catalog.clj `(defn- supersede-by-block-idx`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L169-L181)
-[^trie-gc]: [TrieGarbageCollector.kt `class TrieGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/TrieGarbageCollector.kt#L52-L216)
-[^yaml-config]: [YamlSerde.kt `fun nodeConfig(yamlString: String)`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/YamlSerde.kt#L90-L101)
-[^system-logger]: [SystemLogger.kt line 8, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/util/SystemLogger.kt#L8-L8)
-[^gc-docs]: [config.md § Garbage Collector, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L285-L301)
-[^gc-grace]: [gc.allium line 278, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/dev/doc/gc.allium#L278-L278)
-[^snapshot-lifetime]: [TrieCatalog.kt line 40, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/TrieCatalog.kt#L40-L40)
+[^kafka-version]: [libs.versions.toml line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/gradle/libs.versions.toml#L14-L14), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^leader-add-tries]: [LeaderLogProcessor.kt line 198, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L198-L198), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^leader-gc]: [LeaderLogProcessor.kt line 79, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L79-L79), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^leader-gc-run]: [LeaderLogProcessor.kt line 241, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt#L241-L241), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^local-log]: [LocalLog.kt `class LocalLog<M> @JvmOverloads constructor(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L45-L362), unchanged since v2.2.0-beta3; differs in v2.1.1
+[^local-replica-log]: [LocalLog.kt line 350, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/log/LocalLog.kt#L350-L350), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^log-local-disk]: [log.md § Local disk, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L54-L67), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^log-split]: [log.md line 21, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L21-L21), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^node-clj-key]: [node.clj `(defmethod apply-config! :garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/node.clj#L84-L85), unchanged since v2.1.0-beta1
+[^node-config]: [Xtdb.kt line 1642, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/Xtdb.kt#L1642-L1642), unchanged since v2.0.0-beta7
+[^obs-keeps-blocks]: Observed on XTDB v2.2.0: example `gc-keeps-recent-blocks` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-keeps-l0]: Observed on XTDB v2.2.0: example `gc-keeps-l0` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-legacy-refused]: Observed on XTDB v2.2.0: example `gc-legacy-interval-refused` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-log-untouched]: Observed on XTDB v2.2.0: example `gc-log-untouched` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-off-idle]: Observed on XTDB v2.2.0: example `gc-off-idle` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-superseded]: Observed on XTDB v2.2.0: example `gc-deletes-superseded` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-yaml-starts]: Observed on XTDB v2.2.0: example `gc-yaml-starts` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^polygon-erase]: [PolygonCalculator.kt `class PolygonCalculator(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt#L7-L48), unchanged since v2.2.0-rc2; differs in v2.1.1
+[^primary-db]: [db_catalog.clj `(defn primary-db`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/db_catalog.clj#L20-L23), unchanged since v2.1.0-beta1
+[^read-only-compactor]: [Database.kt line 328, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L328-L328), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^read-only-follows]: [LogProcessor.kt line 280, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L280-L280), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^segment-merge]: [SegmentMerge.kt `internal class SegmentMerge(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt#L115-L316), unchanged since v2.2.0-rc2; differs in v2.1.1
+[^supersede]: [trie_catalog.clj `(defn- supersede-by-block-idx`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/trie_catalog.clj#L169-L181), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^trie-gc]: [TrieGarbageCollector.kt `class TrieGarbageCollector(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/garbage_collector/TrieGarbageCollector.kt#L52-L216), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^yaml-config]: [YamlSerde.kt `fun nodeConfig(yamlString: String)`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/YamlSerde.kt#L90-L101), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^system-logger]: [SystemLogger.kt line 8, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/util/SystemLogger.kt#L8-L8), unchanged since v2.0.0-beta6
+[^gc-docs]: [config.md § Garbage Collector, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L285-L301), unchanged since v2.2.0-rc1; differs in v2.1.1
+[^gc-grace]: [gc.allium line 278, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/dev/doc/gc.allium#L278-L278), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^snapshot-lifetime]: [TrieCatalog.kt line 40, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/TrieCatalog.kt#L40-L40), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^cache-docs]: [config.md § Caching, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L79-L107), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^create-table-only]: [Sql.g4 line 62, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/antlr/xtdb/antlr/Sql.g4#L62-L62), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^db-close]: [Database.kt line 154, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L154-L154), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^detach-docs]: [dbs-in-xtdb.md line 286, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L286-L286), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^disk-cache-ratio]: [DiskCache.kt line 33, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/cache/DiskCache.kt#L33-L33), unchanged since v2.1.0-beta1
+[^disk-cache-size]: [DiskCache.kt line 41, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/cache/DiskCache.kt#L41-L41), unchanged since v2.1.0-beta1
+[^memory-cache-ratio]: [MemoryCache.kt line 250, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/cache/MemoryCache.kt#L250-L250), unchanged since v2.1.0-beta1

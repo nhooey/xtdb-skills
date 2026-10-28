@@ -11,6 +11,7 @@
     "core/src/main/kotlin/xtdb/util/SystemLogger.kt" : "8bf96dcea818b9cf7496a96862de40283ad6b49160792f66752d3900ca4d31a5",
     "core/src/main/kotlin/xtdb/api/CompactorConfig.kt" : "161279d29274a5803eca7fbb4d0cd44c0598618e92fd17a1a211726cf808e721",
     "core/src/main/clojure/xtdb/trie_catalog.clj" : "25f22caa5f5ee7277e861e7ef9cd7ed4598e318bc2affa6faa838a835fc7229d",
+    "core/src/main/kotlin/xtdb/cache/MemoryCache.kt" : "12f69d36f71cb4b4a7b63579a262fafeb2926df2d03c351c5249e806dddecfeb",
     "gradle/libs.versions.toml" : "5821ded748c3a3415dfcba2995871de80c962e0b3a5351645089087f4656749d",
     "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt" : "88cf8f595a3594dccc6bd9e51c06e8eb9511b242595c18c6d0a940adfae318f7",
     "core/src/main/kotlin/xtdb/database/Database.kt" : "8455da9db9cca14d33952a061154466d8c5972e4385020b437c95e5d6bf0a087",
@@ -28,12 +29,14 @@
     "core/src/main/clojure/xtdb/compactor.clj" : "269eb5a9b320076e8ffa1afb078c3e5a4ff979a6d8d031110ee6522a39ed8afa",
     "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt" : "f07451f7b672b170a07a9b584e504762af1577a8626e8d74ad398d9ff09d101f",
     "core/src/main/kotlin/xtdb/indexer/GarbageCollector.kt" : "686fa80ff8902bd6b1cda961f0b6719c8142322e51111d6c1e69da5b8c31c15b",
+    "core/src/main/kotlin/xtdb/cache/DiskCache.kt" : "94930fe0040777e7c3608a982cf40d2e38040c333151ab04d6a96a8c2e0cdf36",
     "core/src/main/clojure/xtdb/node.clj" : "2b4fff0beb7cf8d1c5cf82c80d7152568e25f2d6fbce4b707b02b598df434f93",
     "core/src/main/kotlin/xtdb/trie/TrieCatalog.kt" : "4b47a9bd9c536a01aa73b6662840ab921ad43ae3f94706c399e0bbcae5dd14de",
     "modules/kafka/build.gradle.kts" : "e9ed9f7422b17fd63483b944dfca739e533251b7b7762f2d0a51c6c7a72bbbe1",
     "docs/src/content/docs/quickstart/sql-overview.mdx" : "ab1f914585b4bc1149437cd38879591234094a8c7d5cff7ca1315fa2aacde5c9",
     "docs/src/content/docs/ops/config/log/kafka.md" : "b4f7e14501e3dd54e1bf1c67175764a7197166919696c6691bc17c3dc673134e",
     "dev/doc/gc.allium" : "c7abbec538572e4bd23bdb313cb8864e12d219b7c8a3c76289734278235a193e",
+    "core/src/main/antlr/xtdb/antlr/Sql.g4" : "46ac30b2a5b2cd94b60d4dba7f3e0e89e0bacdc05ab86f7d6367aed2d891840e",
     "core/src/main/clojure/xtdb/garbage_collector.clj" : "8855f253e224bcf11ac444d900f2713306332df460f01e852d2fcd3da73c7806",
     "core/src/main/kotlin/xtdb/compactor/Compactor.kt" : "dd8ce9f92898e9b7c4bb10a59a0aeb7c573b01ad9a25d366db9a065f7ec387e7",
     "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt" : "1336cfc627fcc45c293691197c0b78d68ce977724ae2fe73631ff74b5f21f3f5"
@@ -42,17 +45,23 @@
     "gc-config" : {
       "path" : "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt",
       "lines" : [ 9, 21 ],
-      "sha256" : "a5c4fafc026c7719f708627969cc1d0839899fce2749ec2d2591988f424105cb"
+      "sha256" : "a5c4fafc026c7719f708627969cc1d0839899fce2749ec2d2591988f424105cb",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
     },
     "local-log" : {
       "path" : "core/src/main/kotlin/xtdb/api/log/LocalLog.kt",
       "lines" : [ 45, 362 ],
-      "sha256" : "b1642782a78c7e4b2d8f4b1c93f8e88044c565d2938ad64a469f9077dd37c89c"
+      "sha256" : "b1642782a78c7e4b2d8f4b1c93f8e88044c565d2938ad64a469f9077dd37c89c",
+      "since" : "v2.2.0-beta3",
+      "differs" : [ "v2.1.1" ]
     },
     "compactor-factory" : {
       "path" : "core/src/main/clojure/xtdb/compactor.clj",
       "lines" : [ 11, 19 ],
-      "sha256" : "e8e7ee0aaf52c568d50a91194dd9688ccd77374f60b73acce626d2152407985b"
+      "sha256" : "e8e7ee0aaf52c568d50a91194dd9688ccd77374f60b73acce626d2152407985b",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-ms-doc" : {
       "path" : "server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java",
@@ -63,137 +72,212 @@
     "epoch" : {
       "path" : "docs/src/content/docs/ops/config/log.md",
       "lines" : [ 103, 118 ],
-      "sha256" : "2fbc5a68b669c127ce0aafbbb1211bfba9188eb6d32f83b1877d29d38a8b171b"
+      "sha256" : "2fbc5a68b669c127ce0aafbbb1211bfba9188eb6d32f83b1877d29d38a8b171b",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "yaml-config" : {
       "path" : "core/src/main/kotlin/xtdb/api/YamlSerde.kt",
       "lines" : [ 90, 101 ],
-      "sha256" : "5cbeec13820bc2e28aa44004583dbffd5a1620fb9587848d4bf5d71fd6797932"
+      "sha256" : "5cbeec13820bc2e28aa44004583dbffd5a1620fb9587848d4bf5d71fd6797932",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "block-signal" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt",
       "lines" : [ 162, 162 ],
-      "sha256" : "2e23092b4cb5552a7a2c10ed872e6f87fe557b761c9018903451e6e23a7942d3"
+      "sha256" : "2e23092b4cb5552a7a2c10ed872e6f87fe557b761c9018903451e6e23a7942d3",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "block-gc" : {
       "path" : "core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt",
       "lines" : [ 39, 218 ],
-      "sha256" : "3dc6102da0c7fa41dcd1c7e589f1d757415d4f701a2ebb2a3456731eba3c3d9b"
+      "sha256" : "3dc6102da0c7fa41dcd1c7e589f1d757415d4f701a2ebb2a3456731eba3c3d9b",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-settings" : {
       "path" : "docs/src/content/docs/ops/config/log/kafka.md",
       "lines" : [ 111, 134 ],
-      "sha256" : "272fb5e0157d38bfb6e8891a86c505f64fedbc350686f85d1dce5a1f71a8e2b5"
+      "sha256" : "272fb5e0157d38bfb6e8891a86c505f64fedbc350686f85d1dce5a1f71a8e2b5",
+      "since" : "v2.2.0",
+      "differs" : [ ]
     },
     "gc-await" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt",
       "lines" : [ 514, 514 ],
-      "sha256" : "1fe93b632f769c6e48a1c602fd1cba43d7691b0a8d511a8ef94a1920bf010ec8"
+      "sha256" : "1fe93b632f769c6e48a1c602fd1cba43d7691b0a8d511a8ef94a1920bf010ec8",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "gc-docs" : {
       "path" : "docs/src/content/docs/ops/config.md",
       "lines" : [ 285, 301 ],
-      "sha256" : "8bf7423c93c21d4fda8736d4c54f636a0d9c747103e11d8069e35dfc36f8f608"
+      "sha256" : "8bf7423c93c21d4fda8736d4c54f636a0d9c747103e11d8069e35dfc36f8f608",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
     },
     "garbage-tries" : {
       "path" : "core/src/main/clojure/xtdb/trie_catalog.clj",
       "lines" : [ 329, 331 ],
-      "sha256" : "29bad31cae071ef66016731cfa6009e57760ff9b9e576ad1c1e1ec34e5fc53f2"
+      "sha256" : "29bad31cae071ef66016731cfa6009e57760ff9b9e576ad1c1e1ec34e5fc53f2",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
     },
     "kafka-setup" : {
       "path" : "docs/src/content/docs/ops/config/log/kafka.md",
       "lines" : [ 95, 109 ],
-      "sha256" : "66960e9a05bc654d70b26ea6b1d8fa4cb8db622dff7f84dcea59cb7267f9b7f6"
+      "sha256" : "66960e9a05bc654d70b26ea6b1d8fa4cb8db622dff7f84dcea59cb7267f9b7f6",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "log-split" : {
       "path" : "docs/src/content/docs/ops/config/log.md",
       "lines" : [ 21, 21 ],
-      "sha256" : "1ae2c10cd8a69f9860298212b32cf06e732fe561facac178b459db5d2b792c73"
+      "sha256" : "1ae2c10cd8a69f9860298212b32cf06e732fe561facac178b459db5d2b792c73",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "erase-docs" : {
       "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
       "lines" : [ 180, 208 ],
-      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd"
+      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "primary-db" : {
       "path" : "core/src/main/clojure/xtdb/db_catalog.clj",
       "lines" : [ 20, 23 ],
-      "sha256" : "d7155185af2723e42019c90567419aa80ae0f19a8b76492a184660056b7cd5d1"
+      "sha256" : "d7155185af2723e42019c90567419aa80ae0f19a8b76492a184660056b7cd5d1",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
     },
     "gc-all" : {
       "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
       "lines" : [ 193, 193 ],
-      "sha256" : "0744fe57efab93cf5284f1211f0f8f955075feb28d41fa370c340d7bf395ac77"
+      "sha256" : "0744fe57efab93cf5284f1211f0f8f955075feb28d41fa370c340d7bf395ac77",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "create-table-only" : {
+      "path" : "core/src/main/antlr/xtdb/antlr/Sql.g4",
+      "lines" : [ 62, 62 ],
+      "sha256" : "625ce034c1176d0f16a301f3e4b0f880984fdbba4bbee9b0e393cef7f30b11f2",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
+    },
+    "detach-docs" : {
+      "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
+      "lines" : [ 286, 286 ],
+      "sha256" : "51b1d55165f590d65d2c0d7560b83461978fd2a64f3a52da5fbeca1af1890df8",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-version" : {
       "path" : "gradle/libs.versions.toml",
       "lines" : [ 14, 14 ],
-      "sha256" : "edc7fc87f0a25f6224551addc44c30d36e64e1fdb4006fa7400a9e3eceed834f"
+      "sha256" : "edc7fc87f0a25f6224551addc44c30d36e64e1fdb4006fa7400a9e3eceed834f",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-module-clients" : {
       "path" : "modules/kafka/build.gradle.kts",
       "lines" : [ 30, 30 ],
-      "sha256" : "02dd42e0767a3960e8bcdd958d2e5d5bce98fa7c5ed34516b74287805b47ae64"
+      "sha256" : "02dd42e0767a3960e8bcdd958d2e5d5bce98fa7c5ed34516b74287805b47ae64",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-topic" : {
       "path" : "modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt",
       "lines" : [ 122, 474 ],
-      "sha256" : "a4c752b8987e1790d2f3d70f30244f023d24ae656430b6f7f182dd811d2566b3"
+      "sha256" : "a4c752b8987e1790d2f3d70f30244f023d24ae656430b6f7f182dd811d2566b3",
+      "since" : "v2.2.0-rc2",
+      "differs" : [ "v2.1.1" ]
     },
     "event-order" : {
       "path" : "core/src/main/kotlin/xtdb/trie/EventRowPointer.kt",
       "lines" : [ 10, 125 ],
-      "sha256" : "917f12222412d6fe2fdae2717a79feef85ae88e010e2146f5d7b0288fb07fbf6"
+      "sha256" : "917f12222412d6fe2fdae2717a79feef85ae88e010e2146f5d7b0288fb07fbf6",
+      "since" : "v2.2.0-rc2",
+      "differs" : [ "v2.1.1" ]
     },
     "snapshot-lifetime" : {
       "path" : "core/src/main/kotlin/xtdb/trie/TrieCatalog.kt",
       "lines" : [ 40, 40 ],
-      "sha256" : "da48ee7f6604df98a2fc18126b9d80d4535ca145c0c66796766b89438bab013e"
+      "sha256" : "da48ee7f6604df98a2fc18126b9d80d4535ca145c0c66796766b89438bab013e",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "node-clj-key" : {
       "path" : "core/src/main/clojure/xtdb/node.clj",
       "lines" : [ 84, 85 ],
-      "sha256" : "d0e441fada6c70486a8d6e20bfab71e22ff4ba2340b16ae935eb0865dee6a94c"
+      "sha256" : "d0e441fada6c70486a8d6e20bfab71e22ff4ba2340b16ae935eb0865dee6a94c",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
     },
     "dbs-leader" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
       "lines" : [ 210, 244 ],
-      "sha256" : "197586c5a7b40413f0b82f0084fcdb62455483eb993560a4809a17a6ab6466b4"
+      "sha256" : "197586c5a7b40413f0b82f0084fcdb62455483eb993560a4809a17a6ab6466b4",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
+    },
+    "cache-docs" : {
+      "path" : "docs/src/content/docs/ops/config.md",
+      "lines" : [ 79, 107 ],
+      "sha256" : "b21a86074e130388be92e58169c233cc3930f1148a99069ee8a2b54b8cca06af",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "compactor-publish" : {
       "path" : "core/src/main/kotlin/xtdb/compactor/Compactor.kt",
       "lines" : [ 151, 151 ],
-      "sha256" : "b11e1c647522152671fb9b8f57ab52bcc4e097802b64e611ea99bf03cb00f17f"
+      "sha256" : "b11e1c647522152671fb9b8f57ab52bcc4e097802b64e611ea99bf03cb00f17f",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-replica-topic" : {
       "path" : "modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt",
       "lines" : [ 426, 426 ],
-      "sha256" : "4a8fa61a51baa2df105c108b4c61e43e0c81d502f08a12079b872f6fd2372799"
+      "sha256" : "4a8fa61a51baa2df105c108b4c61e43e0c81d502f08a12079b872f6fd2372799",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "db-config-mode" : {
       "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
       "lines" : [ 442, 442 ],
-      "sha256" : "b76a441c7c1a06f9c4a192a2bce9634428229341e2eca6c16f4a9f95dd1585cc"
+      "sha256" : "b76a441c7c1a06f9c4a192a2bce9634428229341e2eca6c16f4a9f95dd1585cc",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "compactor-threads" : {
       "path" : "core/src/main/kotlin/xtdb/api/CompactorConfig.kt",
       "lines" : [ 14, 14 ],
-      "sha256" : "beaf6c88d2882552e30851ed70a6ccac7caf063d9549b6dd26094ba86e7543bf"
+      "sha256" : "beaf6c88d2882552e30851ed70a6ccac7caf063d9549b6dd26094ba86e7543bf",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "gc-grace" : {
       "path" : "dev/doc/gc.allium",
       "lines" : [ 278, 278 ],
-      "sha256" : "abc931db660b5cce1444140c11317aed4f3f6acd863a268470ad0f5ed554f3e4"
+      "sha256" : "abc931db660b5cce1444140c11317aed4f3f6acd863a268470ad0f5ed554f3e4",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "dbs-shared" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
       "lines" : [ 57, 57 ],
-      "sha256" : "cee3a2dae1ab3fb97714dfcc5245eb67f8b70f65efeb1a0ecb67c01739118e03"
+      "sha256" : "cee3a2dae1ab3fb97714dfcc5245eb67f8b70f65efeb1a0ecb67c01739118e03",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "local-replica-log" : {
       "path" : "core/src/main/kotlin/xtdb/api/log/LocalLog.kt",
       "lines" : [ 350, 350 ],
-      "sha256" : "b9eb7db9d20761bba8707ac9fd8dfeb632c3a314373b5e4f2af330267013db43"
+      "sha256" : "b9eb7db9d20761bba8707ac9fd8dfeb632c3a314373b5e4f2af330267013db43",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-synonyms" : {
       "path" : "server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java",
@@ -204,7 +288,9 @@
     "polygon-erase" : {
       "path" : "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt",
       "lines" : [ 7, 48 ],
-      "sha256" : "0f0cf4f4f68b5225f20161a23e47e8e69f784a91b76cdc8a74cb69af99c4d774"
+      "sha256" : "0f0cf4f4f68b5225f20161a23e47e8e69f784a91b76cdc8a74cb69af99c4d774",
+      "since" : "v2.2.0-rc2",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-hours" : {
       "path" : "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java",
@@ -212,35 +298,54 @@
       "sha256" : "3de6d9018bb4646549a9dce25ce51fcf92c870dcf0c54c1a01d973d69293910a",
       "source" : "apache/kafka@4.3.1"
     },
+    "memory-cache-ratio" : {
+      "path" : "core/src/main/kotlin/xtdb/cache/MemoryCache.kt",
+      "lines" : [ 250, 250 ],
+      "sha256" : "f3ccb5a356a7048bda94c1a6c001814304c16e3be53b9a3234ced36a71cba36d",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
+    },
     "drop-l0" : {
       "path" : "core/src/main/clojure/xtdb/trie_catalog.clj",
       "lines" : [ 183, 191 ],
-      "sha256" : "e3c92ee1de158cb399cfcdd0a8beb4e7780727ce94f1b3e4a82b421c16d4b241"
+      "sha256" : "e3c92ee1de158cb399cfcdd0a8beb4e7780727ce94f1b3e4a82b421c16d4b241",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "db-config-storage" : {
       "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
       "lines" : [ 441, 441 ],
-      "sha256" : "7383bd144e2eee2fa3cc5e139bff231fcd14a2fe4c683d08a4a67debe4c3f990"
+      "sha256" : "7383bd144e2eee2fa3cc5e139bff231fcd14a2fe4c683d08a4a67debe4c3f990",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "db-config-log" : {
       "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
       "lines" : [ 440, 440 ],
-      "sha256" : "80b9585b7188715d5a8deb095f461627e1a1c6118019a88730b05f6d62378677"
+      "sha256" : "80b9585b7188715d5a8deb095f461627e1a1c6118019a88730b05f6d62378677",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
     },
     "erase-disk" : {
       "path" : "docs/src/content/docs/quickstart/sql-overview.mdx",
       "lines" : [ 437, 461 ],
-      "sha256" : "734887a8bafc3b9648060fa205d52195f90fa178c020165f3973e57bbb5b7c73"
+      "sha256" : "734887a8bafc3b9648060fa205d52195f90fa178c020165f3973e57bbb5b7c73",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "dbs-attach" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
       "lines" : [ 246, 289 ],
-      "sha256" : "7f4627d735c18dfdacebd8610508ce794c9321bc96e7101c053e4a6e6223e9e1"
+      "sha256" : "7f4627d735c18dfdacebd8610508ce794c9321bc96e7101c053e4a6e6223e9e1",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "system-logger" : {
       "path" : "core/src/main/kotlin/xtdb/util/SystemLogger.kt",
       "lines" : [ 8, 8 ],
-      "sha256" : "cacfdcdb8f7c70375a07c4ee893857a6fd97a4dcacf020b3847a85fe9359365d"
+      "sha256" : "cacfdcdb8f7c70375a07c4ee893857a6fd97a4dcacf020b3847a85fe9359365d",
+      "since" : "v2.0.0-beta6",
+      "differs" : [ ]
     },
     "kafka-topic-ms" : {
       "path" : "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java",
@@ -251,27 +356,51 @@
     "supersede" : {
       "path" : "core/src/main/clojure/xtdb/trie_catalog.clj",
       "lines" : [ 169, 181 ],
-      "sha256" : "e95e9a6e53c71046819f4ec377ee1900146b4bc9b5798b19a6c4c603da60859b"
+      "sha256" : "e95e9a6e53c71046819f4ec377ee1900146b4bc9b5798b19a6c4c603da60859b",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "clj-config" : {
       "path" : "core/src/main/clojure/xtdb/garbage_collector.clj",
       "lines" : [ 5, 11 ],
-      "sha256" : "9adbba8ad0dc6335894f7a784a1042f38a4ffe9598aebf0030ac6c39748f9969"
+      "sha256" : "9adbba8ad0dc6335894f7a784a1042f38a4ffe9598aebf0030ac6c39748f9969",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
     },
     "db-open" : {
       "path" : "core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt",
       "lines" : [ 121, 121 ],
-      "sha256" : "a06575afc018947747db64f3bf3765014d924a656e0ab71b7966f5b23f7e1f9a"
+      "sha256" : "a06575afc018947747db64f3bf3765014d924a656e0ab71b7966f5b23f7e1f9a",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
+    },
+    "disk-cache-ratio" : {
+      "path" : "core/src/main/kotlin/xtdb/cache/DiskCache.kt",
+      "lines" : [ 33, 33 ],
+      "sha256" : "df650c28003c1e11394da58b1122cf76e81dab1e8bbfced8328c88d635807219",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
+    },
+    "db-close" : {
+      "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
+      "lines" : [ 154, 154 ],
+      "sha256" : "315c344b9d989dab0686f0afe06507add5a5ff993304b64a8970a123e5c1dbfc",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "duration-serde" : {
       "path" : "api/src/main/kotlin/xtdb/Serde.kt",
       "lines" : [ 31, 64 ],
-      "sha256" : "f7737b0e65d905760a65dcf068b76537f0a3f5a1e2a292ed6935bbbed0ba65e8"
+      "sha256" : "f7737b0e65d905760a65dcf068b76537f0a3f5a1e2a292ed6935bbbed0ba65e8",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "node-config" : {
       "path" : "core/src/main/kotlin/xtdb/api/Xtdb.kt",
       "lines" : [ 1642, 1642 ],
-      "sha256" : "55df46a114986928fef4de2f0d061ee442eaf915fa1b3075e51df69a91285c95"
+      "sha256" : "55df46a114986928fef4de2f0d061ee442eaf915fa1b3075e51df69a91285c95",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
     },
     "kafka-default-ms" : {
       "path" : "storage/src/main/java/org/apache/kafka/storage/internals/log/LogConfig.java",
@@ -282,62 +411,93 @@
     "db-catalog" : {
       "path" : "core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt",
       "lines" : [ 214, 214 ],
-      "sha256" : "73caeee40c2e5909e3a3725de39fd626ebe238ebce39f1432478b13252a6da18"
+      "sha256" : "73caeee40c2e5909e3a3725de39fd626ebe238ebce39f1432478b13252a6da18",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "read-only-compactor" : {
       "path" : "core/src/main/kotlin/xtdb/database/Database.kt",
       "lines" : [ 328, 328 ],
-      "sha256" : "a005efc057879affcd8f51e7712f03da90f7a3022deb9fdf5586102e2dc296c2"
+      "sha256" : "a005efc057879affcd8f51e7712f03da90f7a3022deb9fdf5586102e2dc296c2",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
     },
     "db-gc" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/GarbageCollector.kt",
       "lines" : [ 22, 139 ],
-      "sha256" : "c452aa1cb8e13c6368ae859e3465efb0c975a4d5616e7928b6693c0a43bcaab6"
+      "sha256" : "c452aa1cb8e13c6368ae859e3465efb0c975a4d5616e7928b6693c0a43bcaab6",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "segment-merge" : {
       "path" : "core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt",
       "lines" : [ 115, 316 ],
-      "sha256" : "76fe33d6925e8ab3afb4d1c986ef9efec70b6a9f221c167728e870c895a0310b"
+      "sha256" : "76fe33d6925e8ab3afb4d1c986ef9efec70b6a9f221c167728e870c895a0310b",
+      "since" : "v2.2.0-rc2",
+      "differs" : [ "v2.1.1" ]
     },
     "compactor-config" : {
       "path" : "core/src/main/kotlin/xtdb/api/CompactorConfig.kt",
       "lines" : [ 10, 10 ],
-      "sha256" : "3b8d534b82d3a099c266cf504209363163dde50aad55f562022875485ad33b7c"
+      "sha256" : "3b8d534b82d3a099c266cf504209363163dde50aad55f562022875485ad33b7c",
+      "since" : "v2.0.0-beta6",
+      "differs" : [ ]
     },
     "read-only-follows" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt",
       "lines" : [ 280, 280 ],
-      "sha256" : "20d602586ecba54bf83ca6d850565b2abdb55a90da900fe1823bbbb16c72f498"
+      "sha256" : "20d602586ecba54bf83ca6d850565b2abdb55a90da900fe1823bbbb16c72f498",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "garbage-fn" : {
       "path" : "core/src/main/clojure/xtdb/trie_catalog.clj",
       "lines" : [ 324, 327 ],
-      "sha256" : "d3890793967da09ef4bf97d90b77729ad22ed8bee1e5de7b85812e3e2303a9ed"
+      "sha256" : "d3890793967da09ef4bf97d90b77729ad22ed8bee1e5de7b85812e3e2303a9ed",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
     },
     "leader-gc" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt",
       "lines" : [ 79, 79 ],
-      "sha256" : "eda87ba552cfcb5820eafb1a6b2cc43e4672ab2a9368ce14fcbdd9d84a3dfa4e"
+      "sha256" : "eda87ba552cfcb5820eafb1a6b2cc43e4672ab2a9368ce14fcbdd9d84a3dfa4e",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "leader-gc-run" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt",
       "lines" : [ 241, 241 ],
-      "sha256" : "3e22289e02e4222ded3e267924831d0cf6b5af9403ce8cbaf2c5bfd7fd71b4c9"
+      "sha256" : "3e22289e02e4222ded3e267924831d0cf6b5af9403ce8cbaf2c5bfd7fd71b4c9",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "leader-add-tries" : {
       "path" : "core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt",
       "lines" : [ 198, 198 ],
-      "sha256" : "58bc6bbce6643becc0642c0f918339a4d217aefd52267e05a753adcb3e9b9183"
+      "sha256" : "58bc6bbce6643becc0642c0f918339a4d217aefd52267e05a753adcb3e9b9183",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
+    },
+    "disk-cache-size" : {
+      "path" : "core/src/main/kotlin/xtdb/cache/DiskCache.kt",
+      "lines" : [ 41, 41 ],
+      "sha256" : "4cd706f8532a513d7d7e4826b0d2736f2892f7d3dfab311f2765422209f48b86",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
     },
     "trie-gc" : {
       "path" : "core/src/main/kotlin/xtdb/garbage_collector/TrieGarbageCollector.kt",
       "lines" : [ 52, 216 ],
-      "sha256" : "375ce6bcac7927c9ffc54a3a1d4e3c7866b63a3d0ae4a72aeb743c99c097eefa"
+      "sha256" : "375ce6bcac7927c9ffc54a3a1d4e3c7866b63a3d0ae4a72aeb743c99c097eefa",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "log-local-disk" : {
       "path" : "docs/src/content/docs/ops/config/log.md",
       "lines" : [ 54, 67 ],
-      "sha256" : "595d4016a0a7a7f5fb9dcc2c755bf6866f2c854a762972876ad4f70818b3fb6c"
+      "sha256" : "595d4016a0a7a7f5fb9dcc2c755bf6866f2c854a762972876ad4f70818b3fb6c",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
     },
     "kafka-minutes-doc" : {
       "path" : "server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java",
@@ -356,6 +516,36 @@
         "server-common/src/main/java/org/apache/kafka/server/config/ServerTopicConfigSynonyms.java" : "091d9634748229256ef30f8317698796f7b58f0e9568cf677b6c689be443923d",
         "server-common/src/main/java/org/apache/kafka/server/config/ServerLogConfigs.java" : "5153b1dc4d5b9a0b2f0cb6facdf2f33cd1644639de5a6a08c3a5bce420a0c892"
       }
+    }
+  },
+  "observed" : {
+    "obs-keeps-blocks" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-keeps-l0" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-legacy-refused" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-log-untouched" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-off-idle" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-superseded" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-yaml-starts" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
     }
   }
 }

@@ -109,7 +109,7 @@
   ;; --- observations ------------------------------------------------------
   {:id "v1-query-map"
    :query {:find [e] :where [[e :xt/id]]}
-   :expect-error "Unknown query type"}
+   :expect-error "unknown-query-type"}
 
   {:id "star-in-unify"
    :query (unify (from :customers [*]) (from :orders [*]))
@@ -241,11 +241,11 @@
 
   {:id "v1-rules"
    :query (rules [] (from :customers [customer-name]))
-   :expect-error "Unknown query op"}
+   :expect-error "unknown-query-op"}
 
   {:id "v1-or-clause"
    :query (unify (from :customers [customer-name city]) (or [(= city "Paris")]))
-   :expect-error "Unknown unify clause"}
+   :expect-error "unknown-unify-clause"}
 
   {:id "not-exists-fn"
    ;; Not a subquery form, so its argument is read as an ordinary expression.

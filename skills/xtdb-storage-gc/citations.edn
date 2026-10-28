@@ -19,6 +19,9 @@
                   "docs/src/content/docs/about/dbs-in-xtdb.md"
                   "docs/src/content/docs/ops/config/log.md"
                   "docs/src/content/docs/ops/config/log/kafka.md"
+                  "core/src/main/kotlin/xtdb/cache"
+                  "core/src/main/kotlin/xtdb/database/Database.kt"
+                  "core/src/main/antlr/xtdb/antlr/Sql.g4"
                   "gradle/libs.versions.toml"]}
 
  :observations "../../evals/xtdb-storage-gc/examples.edn"
@@ -59,6 +62,13 @@
   {:id "segment-merge" :path "core/src/main/kotlin/xtdb/compactor/SegmentMerge.kt" :form "internal class SegmentMerge("}
   {:id "polygon-erase" :path "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt" :form "class PolygonCalculator("}
   {:id "erase-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`erase-docs`"}
+  {:id "cache-docs" :path "docs/src/content/docs/ops/config.md" :heading "Caching"}
+  {:id "disk-cache-ratio" :path "core/src/main/kotlin/xtdb/cache/DiskCache.kt" :line "var maxSizeRatio: Double = 0.75,"}
+  {:id "disk-cache-size" :path "core/src/main/kotlin/xtdb/cache/DiskCache.kt" :line "maxSizeBytes ?: (Files.getFileStore(path).totalSpace * maxSizeRatio).toLong()"}
+  {:id "memory-cache-ratio" :path "core/src/main/kotlin/xtdb/cache/MemoryCache.kt" :line "class Factory(var maxSizeBytes: Long? = null, var maxSizeRatio: Double = 0.5) {"}
+  {:id "detach-docs" :path "docs/src/content/docs/about/dbs-in-xtdb.md" :line "(v2.2+) `DETACH` returns once the database is no longer queryable; resource cleanup (closing the log subscription, flushing buffers) continues in the background."}
+  {:id "db-close" :path "core/src/main/kotlin/xtdb/database/Database.kt" :line "(partitions + listOf(logs, allocator)).closeAll()"}
+  {:id "create-table-only" :path "core/src/main/antlr/xtdb/antlr/Sql.g4" :line "| CREATE (OR ALTER)? TABLE targetTable ('(' columnNameList ')')? # CreateTableStatement"}
   {:id "erase-disk" :path "docs/src/content/docs/quickstart/sql-overview.mdx" :heading "ERASE as 'hard' delete"}
   {:id "local-log" :path "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" :form "class LocalLog<M> @JvmOverloads constructor("}
   {:id "local-replica-log" :path "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" :line "LocalLog(path, ReplicaMessage.Codec, instantSource"}

@@ -29,6 +29,13 @@
 ;; second upstream. The lock keeps such a source's commit and file hashes
 ;; under "sources", keyed "repo@tag", and with --source reads its files from
 ;; TREE/_sources/repo@tag/. drift and bump move only the skill's own source.
+;;
+;; lock also records each citation's history: the earliest tag on the pinned
+;; tag's history (releases, betas and release candidates) since which its
+;; span reads the same, and later tags off that history where it differs;
+;; and, from the eval's releases.edn (scripts/eval-releases.clj), the same
+;; for each observed example. The footnotes print both. With --source, lock
+;; keeps the history the previous lock recorded.
 
 (require '[babashka.fs :as fs]
          '[babashka.process :as p]
@@ -44,6 +51,9 @@
 (def footnote-def #"^\[\^([A-Za-z0-9_-]+)\]: ")
 (def heading-re #"^(#{1,6})\s+(.*?)\s*#*\s*$")
 (def tag-re #"^v?(\d+)\.(\d+)\.(\d+)(?:-([A-Za-z]+)(\d*)(?:\.(\d+))?)?$")
+;; The tags a citation's history is checked at: releases, betas and release
+;; candidates, written with a leading v.
+(def release-tag-re #"^v(\d+)\.\d+\.\d+(?:-(?:beta|rc)\d+(?:\.\d+)?)?$")
 
 (defn fail! [msg] (throw (ex-info msg {::citation true})))
 
@@ -86,6 +96,13 @@
              (let [r (git "show" (str ref ":" path))]
                (when (zero? (:exit r)) (:out r))))
      :tags (fn [] (fetch!) (str/split-lines (:out (git "tag" "--list"))))
+     :history (fn [pinned]
+                (let [major (second (re-matches #"^v?(\d+)\..*" pinned))]
+                  (vec (for [t (str/split-lines (:out (git "for-each-ref" "--sort=creatordate"
+                                                           "--format=%(refname:short)" "refs/tags")))
+                             :when (when-let [[_ ma] (re-matches release-tag-re t)] (= ma major))]
+                         {:tag t
+                          :on-line? (zero? (:exit (git "merge-base" "--is-ancestor" t pinned)))}))))
      :renamed-to (fn [old new path]
                    (some (fn [line]
                            (let [[_ from to] (str/split line #"\t")]
@@ -205,6 +222,15 @@
     (get-in lock ["sources" k])
     lock))
 
+(defn history-note
+  "\", unchanged since v2.0.0-beta7; differs in v2.1.1\" and the like, or \"\"
+  when the lock records no history."
+  [pinned since others since-words other-words]
+  (str (cond (nil? since) ""
+             (= since pinned) (str ", new or changed in " pinned)
+             :else (str ", " since-words since))
+       (when (seq others) (str "; " other-words (str/join ", " others)))))
+
 (defn expected-footnotes [cfg lock]
   (let [{:keys [tag]} (:source cfg)]
     (merge
@@ -216,10 +242,17 @@
                                       (:form c) (str "`" (:form c) "`")
                                       :else (str "line " (first (get entry "lines"))))]]
                 [id (str "[^" id "]: [" (fs/file-name path) " " where ", " at "]("
-                         (permalink (:repo src) (:tag src) {:path path :lines (get entry "lines")}) ")")]))
-     (into {} (for [{:keys [id example]} (:observed cfg)]
+                         (permalink (:repo src) (:tag src) {:path path :lines (get entry "lines")}) ")"
+                         (history-note tag (get entry "since") (get entry "differs") "unchanged since " "differs in "))]))
+     (into {} (for [{:keys [id example]} (:observed cfg)
+                    :let [{:strs [since fails]} (get-in lock ["observed" id])]]
                 [id (str "[^" id "]: Observed on XTDB " (:xtdb (:source cfg) tag) ": example `" example
-                         "` in [examples.edn](" (:observations cfg) "), re-run by the eval's `" (:observed-by cfg "examples") "` command.")])))))
+                         "` in [examples.edn](" (:observations cfg) "), re-run by the eval's `" (:observed-by cfg "examples") "` command"
+                         (if (get-in lock ["observed" id])
+                           (str (history-note tag since fails "holds on every tag the eval ran since " "fails on ")
+                                "; [releases.edn](" (str (fs/parent (:observations cfg)) "/releases.edn") ") lists the tags")
+                           "")
+                         ".")])))))
 
 ;; --- commands --------------------------------------------------------------
 
@@ -241,6 +274,67 @@
                                                  foreign (assoc "source" (source-key src)))))))
             {"repo" (:repo own) "tag" (:tag own) "commit" (commit-of own) "files" {} "citations" {}}
             (:cite cfg))))
+
+(defn releases-file
+  "The eval's record of each example on every tag, beside its examples.edn."
+  [skill cfg]
+  (when-let [f (:observations cfg)]
+    (fs/path skill (fs/parent f) "releases.edn")))
+
+(defn with-history
+  "Add to each citation of the skill's own source the earliest tag on the
+  pinned tag's history since which its span is unchanged (\"since\"), and the
+  later tags off that history, such as patch releases of an older line, where
+  it differs (\"differs\"). Add to each observation the same from the eval's
+  releases.edn, where the example passed rather than matched. Without git
+  history (--source), keep what the previous lock recorded."
+  [skill cfg ups lock old]
+  (let [own (own-source cfg)
+        pinned (:tag own)
+        history (:history (ups own))]
+    (if-not history
+      (-> lock
+          (assoc "observed" (get old "observed" {}))
+          (update "citations" (fn [cs] (into {} (for [[id e] cs]
+                                                  [id (merge (select-keys (get-in old ["citations" id]) ["since" "differs"]) e)])))))
+      (let [tags (history pinned)
+            order (into {} (map-indexed (fn [i t] [(:tag t) i]) tags))
+            line (filterv #(and (:on-line? %) (<= (order (:tag %)) (order pinned 0))) tags)
+            off-line (remove :on-line? tags)
+            since-of (fn [ok?] (if (ok? pinned)
+                                 (:tag (or (last (take-while #(ok? (:tag %)) (rseq line))) {:tag pinned}))))
+            later-than (fn [since] (filter #(> (order (:tag %)) (order since)) off-line))
+            read (memoize (fn [t path] ((:read (ups own)) t path)))
+            same? (fn [{:keys [id path] :as c} t]
+                    (when-let [text (read t path)]
+                      (when-let [span (try (resolve-span text c) (catch Exception _ nil))]
+                        (= (span-hash text span) (get-in lock ["citations" id "sha256"])))))
+            releases (some-> (releases-file skill cfg) str (#(when (fs/exists? %) (edn/read-string (slurp %)))))
+            tested (set (for [[t st] (:tags releases) :when (= :tested st)] t))
+            lock (reduce (fn [lock {:keys [id] :as c}]
+                           (if (foreign? cfg c)
+                             lock
+                             (let [since (since-of #(same? c %))]
+                               (update-in lock ["citations" id] assoc
+                                          "since" since
+                                          "differs" (vec (for [t (later-than since) :when (not (same? c (:tag t)))] (:tag t)))))))
+                         lock (:cite cfg))]
+        (assoc lock "observed"
+               (into (sorted-map)
+                     (for [{:keys [id example]} (:observed cfg)
+                           :let [r (into {} (get-in releases [:results example]))
+                                 pass? #(and (tested %) (= :pass (r %)))
+                                 ;; Untested tags neither break the run nor extend it.
+                                 run (filterv #(tested (:tag %)) line)
+                                 since (when (pass? pinned)
+                                         (:tag (or (last (take-while #(pass? (:tag %)) (rseq run))) {:tag pinned})))
+                                 ;; With nothing older tested, there is no history to report.
+                                 since (when (some #(and (not= pinned (:tag %)) (tested (:tag %))) run) since)]
+                           :when (seq r)]
+                       [id {"since" since
+                            "fails" (vec (for [t (later-than (or since pinned))
+                                               :when (and (tested (:tag t)) (not (pass? (:tag t))))]
+                                           (:tag t)))}])))))))
 
 (defn read-lock [skill & {:keys [required] :or {required true}}]
   (let [f (str (fs/path skill lock-name))]
@@ -316,7 +410,9 @@
 
 (defn cmd-lock [skill opts]
   (let [cfg (load-config skill)
-        lock (build-lock cfg (upstreams-for cfg opts (read-lock skill :required false)))
+        old (read-lock skill :required false)
+        ups (upstreams-for cfg opts old)
+        lock (with-history skill cfg ups (build-lock cfg ups) old)
         want (expected-footnotes cfg lock)
         refs (references skill)]
     (spit (str (fs/path skill lock-name)) (str (json/generate-string lock {:pretty true}) "\n"))

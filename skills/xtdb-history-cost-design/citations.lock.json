@@ -11,27 +11,67 @@
     "atomic-txs" : {
       "path" : "docs/src/content/docs/about/txs-in-xtdb.md",
       "lines" : [ 11, 11 ],
-      "sha256" : "86076283879945b5c078ec90eb98772186110d683b8dc565d14fbe2d832d3115"
+      "sha256" : "86076283879945b5c078ec90eb98772186110d683b8dc565d14fbe2d832d3115",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "system-time" : {
       "path" : "docs/src/content/docs/about/time-in-xtdb.md",
       "lines" : [ 35, 81 ],
-      "sha256" : "cd9f67c3e02cd788b2b1140dbab65fa8419da53d33192f4d5e9b1cb678656ad0"
+      "sha256" : "cd9f67c3e02cd788b2b1140dbab65fa8419da53d33192f4d5e9b1cb678656ad0",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "unify-clauses" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 62, 78 ],
-      "sha256" : "2105f0a8eb1ab52e4f54957950536341a190cd95e93cf58351705c547f07c0a1"
+      "sha256" : "2105f0a8eb1ab52e4f54957950536341a190cd95e93cf58351705c547f07c0a1",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "temporal-filters" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 162, 190 ],
-      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
     },
     "joins" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 192, 213 ],
-      "sha256" : "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782"
+      "sha256" : "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782",
+      "since" : "v2.1.0",
+      "differs" : [ ]
+    }
+  },
+  "observed" : {
+    "obs-identical-put" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-split-as-of" : {
+      "since" : "v2.0.0-beta8",
+      "fails" : [ ]
+    },
+    "obs-split-left-join" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-split-missing" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-split-stable" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-split-volatile" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-whole-versions" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
     }
   }
 }

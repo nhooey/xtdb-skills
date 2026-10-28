@@ -1,6 +1,6 @@
 ---
 name: xtdb-write-path
-description: How a write travels through XTDB 2.x, from the source log through the in-memory live index to the object store, and what it leaves there — what a block is, what decides where its boundary falls (rowsPerBlock rows, default 102400, or flushDuration, default 15 minutes), and what a level-0 file is (each block writes one data file and one meta file per table that took rows). Use when working out which files an XTDB 2.x node writes and when, what "block", "level 0" or "L0" means, why recent writes aren't in storage yet, or when tuning rowsPerBlock or flushDuration. Pinned to XTDB v2.2.0; every claim cites the source or docs, or an observation re-run against a live node.
+description: How a write travels through XTDB 2.x, from the source log through the in-memory live index to the object store, and what it leaves there — what a block is, what decides where its boundary falls (rowsPerBlock rows, default 102400, or flushDuration, default 15 minutes), and what a level-0 file is (each block writes one data file and one meta file per table that took rows). Use when working out which files an XTDB 2.x node writes and when, what "block", "level 0" or "L0" means, why recent writes aren't in storage yet, or when tuning rowsPerBlock or flushDuration. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
 ---
 
 # The write path (XTDB 2.x)
@@ -9,6 +9,22 @@ Written from `xtdb/xtdb` at tag `v2.2.0`. Each footnote cites the docs or
 source, or the xtdb-skills eval's `storage` command, which writes rows to a
 node that cuts a block every 50 rows and runs no compactor or collector,
 and lists the files it leaves; `citations.edn` lists them.
+
+## Versions
+
+Each footnote says since which `xtdb/xtdb` tag, betas and release
+candidates included, its cited span has read the same ("unchanged
+since"), or since which tag the eval saw its example hold ("holds on
+every tag the eval ran since"); "differs in" and "fails on" name later
+tags off that line, such as a patch release of an older minor version.
+`evals/<skill>/releases.edn` lists the result on every tag.
+
+Before relying on a claim, find the project's XTDB version: the
+`com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
+build file, or the `ghcr.io/xtdb/xtdb` image tag. If every footnote on a
+claim starts after that version, or names it under "differs in" or
+"fails on", the claim may not hold there: say so, and check that
+version's docs or source, rather than applying it.
 
 ## From submit to the live index
 
@@ -85,37 +101,37 @@ apply it from memory.
 - `xtdb-storage-gc`: which of the files a block writes the garbage collector deletes, and which, level-0 files and the logs among them, it never does.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
 - `xtdb-erase-and-history`: what each put, patch, delete and erase adds to a table's history.
-[^block-file]: [BlockCutter.kt line 242, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L242-L242)
-[^block-flusher]: [BlockFlusher.kt `data class BlockFlusher(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L18-L50)
-[^block-full]: [BlockCutter.kt line 124, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L124-L124)
-[^block-path]: [TableCatalog.kt line 346, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/catalog/TableCatalog.kt#L346-L346)
-[^boundary-order]: [BlockCutter.kt line 150, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L150-L150)
-[^clj-indexer]: [node.clj `(defmethod apply-config! :indexer`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/node.clj#L52-L59)
-[^data-path]: [TableSlug.kt line 21, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/table/TableSlug.kt#L21-L21)
-[^external-stores]: [dbs-in-xtdb.md § External stores, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L185-L208)
-[^finish-block]: [BlockCutter.kt line 183, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L183-L183)
-[^flush-changelog]: [config.md line 12, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L12-L12)
-[^indexer-config]: [IndexerConfig.kt `data class IndexerConfig(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/IndexerConfig.kt#L12-L31)
-[^indexer-docs]: [config.md § Indexer, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L244-L283)
-[^key-format]: [Trie.kt line 44, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L44-L44)
-[^l0-key]: [Trie.kt line 54, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L54-L54)
-[^leader-block]: [dbs-in-xtdb.md line 223, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L223-L223)
-[^live-table-l0]: [LiveTable.kt line 195, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveTable.kt#L195-L195)
-[^meta-path]: [TableSlug.kt line 25, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/table/TableSlug.kt#L25-L25)
+[^block-file]: [BlockCutter.kt line 242, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L242-L242), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^block-flusher]: [BlockFlusher.kt `data class BlockFlusher(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L18-L50), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^block-full]: [BlockCutter.kt line 124, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L124-L124), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^block-path]: [TableCatalog.kt line 346, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/catalog/TableCatalog.kt#L346-L346), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^boundary-order]: [BlockCutter.kt line 150, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L150-L150), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^clj-indexer]: [node.clj `(defmethod apply-config! :indexer`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/node.clj#L52-L59), unchanged since v2.1.0-rc0
+[^data-path]: [TableSlug.kt line 21, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/table/TableSlug.kt#L21-L21), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^external-stores]: [dbs-in-xtdb.md § External stores, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L185-L208), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^finish-block]: [BlockCutter.kt line 183, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L183-L183), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^flush-changelog]: [config.md line 12, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L12-L12), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^indexer-config]: [IndexerConfig.kt `data class IndexerConfig(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/IndexerConfig.kt#L12-L31), unchanged since v2.2.0-rc2; differs in v2.1.1
+[^indexer-docs]: [config.md § Indexer, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config.md?plain=1#L244-L283), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^key-format]: [Trie.kt line 44, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L44-L44), unchanged since v2.0.0-beta7
+[^l0-key]: [Trie.kt line 54, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L54-L54), unchanged since v2.0.0-beta7
+[^leader-block]: [dbs-in-xtdb.md line 223, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L223-L223), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^live-table-l0]: [LiveTable.kt line 195, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveTable.kt#L195-L195), unchanged since v2.0.0-beta7
+[^meta-path]: [TableSlug.kt line 25, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/table/TableSlug.kt#L25-L25), unchanged since v2.2.0-beta2; differs in v2.1.1
 [^next-block]: [LiveIndex.kt line 262, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveIndex.kt#L262-L262)
-[^no-rows]: [LiveTable.kt line 193, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveTable.kt#L193-L193)
-[^node-processing]: [dbs-in-xtdb.md § Node processing, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L210-L244)
-[^obs-below-block]: Observed on XTDB v2.2.0: example `wp-below-block` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command.
-[^obs-block-at-rows]: Observed on XTDB v2.2.0: example `wp-block-at-rows` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command.
-[^obs-l0-pair]: Observed on XTDB v2.2.0: example `wp-l0-pair` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command.
-[^obs-l0-per-table]: Observed on XTDB v2.2.0: example `wp-l0-per-table` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command.
-[^obs-tx-not-split]: Observed on XTDB v2.2.0: example `wp-tx-not-split` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command.
-[^signal-compactor]: [BlockCutter.kt line 295, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L295-L295)
-[^trie-writer-data]: [LiveTrieWriter.kt line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt#L14-L14)
-[^trie-writer-meta]: [LiveTrieWriter.kt line 15, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt#L15-L15)
-[^tx-rows]: [BlockCutter.kt line 141, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L141-L141)
-[^txs-atomic]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11)
-[^empty-block]: [BlockFlusher.kt line 15, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L15-L15)
-[^key-block]: [Trie.kt line 47, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L47-L47)
-[^key-recency]: [Trie.kt line 45, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L45-L45)
-[^quiet-flush]: [BlockFlusher.kt line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L11-L11)
+[^no-rows]: [LiveTable.kt line 193, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveTable.kt#L193-L193), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^node-processing]: [dbs-in-xtdb.md § Node processing, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L210-L244), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^obs-below-block]: Observed on XTDB v2.2.0: example `wp-below-block` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
+[^obs-block-at-rows]: Observed on XTDB v2.2.0: example `wp-block-at-rows` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
+[^obs-l0-pair]: Observed on XTDB v2.2.0: example `wp-l0-pair` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
+[^obs-l0-per-table]: Observed on XTDB v2.2.0: example `wp-l0-per-table` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
+[^obs-tx-not-split]: Observed on XTDB v2.2.0: example `wp-tx-not-split` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
+[^signal-compactor]: [BlockCutter.kt line 295, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L295-L295), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^trie-writer-data]: [LiveTrieWriter.kt line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt#L14-L14), unchanged since v2.1.0-rc0
+[^trie-writer-meta]: [LiveTrieWriter.kt line 15, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt#L15-L15), unchanged since v2.2.0-beta3; differs in v2.1.1
+[^tx-rows]: [BlockCutter.kt line 141, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L141-L141), unchanged since v2.2.0-beta3; differs in v2.1.1
+[^txs-atomic]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11), unchanged since v2.1.0-rc0
+[^empty-block]: [BlockFlusher.kt line 15, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L15-L15), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^key-block]: [Trie.kt line 47, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L47-L47), unchanged since v2.0.0-beta7
+[^key-recency]: [Trie.kt line 45, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L45-L45), unchanged since v2.0.0-beta7
+[^quiet-flush]: [BlockFlusher.kt line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L11-L11), unchanged since v2.2.0-beta2; differs in v2.1.1

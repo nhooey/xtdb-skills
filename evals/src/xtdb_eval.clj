@@ -10,7 +10,8 @@
     clojure -M:eval storage SUITE                run SUITE's storage checks on nodes of its own
 
   Connects with the XTDB client to localhost:15432 (XTDB_HOST and XTDB_PORT
-  override it). Column names compare with `-` and `_` alike and :xt/ keys as
+  override it). With a client too old for that and xtdb-core on the
+  classpath, it starts a node in its own process, and `examples` seeds it. Column names compare with `-` and `_` alike and :xt/ keys as
   `_` names; numbers compare as doubles and timestamps as instants.
 
   An example's :setup transactions run before its query. Keywords in the
@@ -32,10 +33,30 @@
            [java.time Instant OffsetDateTime ZonedDateTime]
            [java.util Date]))
 
-(defn- conn []
-  (xt/client {:host (or (System/getenv "XTDB_HOST") "localhost")
-              :port (parse-long (or (System/getenv "XTDB_PORT") "15432"))
-              :user "xtdb"}))
+(def ^:private in-process?
+  "Clients before XTDB v2.0.0-beta8.4 have no `xt/client`; with xtdb-core on
+  the classpath, those run against a node in this process instead."
+  (nil? (resolve 'xtdb.api/client)))
+
+(defn- client [host port]
+  ((resolve 'xtdb.api/client) {:host host :port port :user "xtdb"}))
+
+(def ^:private conn
+  (memoize
+   (fn []
+     (if in-process?
+       ((requiring-resolve 'xtdb.node/start-node) {})
+       (client (or (System/getenv "XTDB_HOST") "localhost")
+               (parse-long (or (System/getenv "XTDB_PORT") "15432")))))))
+
+(defn- execute!
+  "`xt/execute-tx`, throwing a transaction's error: before XTDB v2.0.0-beta8.4
+  a node returns an aborted transaction instead."
+  [c tx]
+  (let [r (xt/execute-tx c tx)]
+    (when (false? (:committed? r))
+      (throw (if (instance? Throwable (:error r)) (:error r) (ex-info (str (:error r)) {}))))
+    r))
 
 (defn- read-edn [file]
   (edn/read-string {:readers (merge default-data-readers *data-readers*)} (slurp (str file))))
@@ -45,12 +66,18 @@
 
 (defn- private-tables
   "Rewrite `:run/x` keywords, and the keywords in `extra`, to `:x-<run id>-<n>`,
-  n unique to one example."
+  n unique to one example; also where they're written inside a string, such
+  as the XTQL embedded in an [:sql ...] op."
   [n extra form]
-  (let [extra (set extra)]
-    (walk/postwalk #(if (and (keyword? %) (or (= "run" (namespace %)) (extra %)))
-                      (keyword (str (name %) "-" run-id "-" n))
-                      %)
+  (let [extra (set extra)
+        private (fn [k] (keyword (str (name k) "-" run-id "-" n)))
+        in-string (re-pattern (str ":(run/[\\w-]+"
+                                   (str/join (for [k extra] (str "|" (java.util.regex.Pattern/quote (name k)))))
+                                   ")(?![\\w/-])"))]
+    (walk/postwalk #(cond
+                      (and (keyword? %) (or (= "run" (namespace %)) (extra %))) (private %)
+                      (string? %) (str/replace % in-string (fn [[_ k]] (str (private (keyword k)))))
+                      :else %)
                    form)))
 
 ;; --- comparison ------------------------------------------------------------
@@ -79,64 +106,85 @@
 
 (defn- columns [expected] (set (map norm-key (mapcat keys expected))))
 
+(defn- error-text
+  "An exception's message and its XTDB error code, so an :expect-error can
+  name the code: messages change between releases, codes rarely do."
+  [e]
+  (let [code (some #(get (ex-data e) %) [:xtdb.error/code :xtdb.error/error-key])]
+    (str (or (ex-message e) (class e)) (when code (str " " code)))))
+
 (defn- run-query [c query args]
   (try
     {:rows (xt/q c (if (seq args) (into [query] args) query))}
     (catch Exception e
-      {:error (or (ex-message e) (str (class e)))})))
+      {:error (error-text e)})))
+
+(defn- compare-rows [rows {:keys [expected ordered? exact-keys?]}]
+  (let [cols (columns expected)
+        got-cols (set (mapcat #(map norm-key (keys %)) rows))]
+    (if (and (seq rows) (not (set/subset? got-cols cols)))
+      [:wrong (str "columns " (sort got-cols) ", expected " (sort cols))]
+      (let [got (norm-rows rows cols exact-keys?)
+            want (norm-rows expected cols exact-keys?)
+            same (if ordered? (= got want) (= (frequencies got) (frequencies want)))]
+        (if same
+          [:pass nil]
+          [:wrong (str "got " (pr-str got) ", expected " (pr-str want))])))))
+
+(defn- expected-error [error expect-error]
+  (if (and error (str/includes? error expect-error))
+    [:pass nil]
+    [:wrong (if error
+              (str "error " (pr-str error) ", expected one containing " (pr-str expect-error))
+              "no error, expected one")]))
 
 (defn- judge
-  "[status detail] for one query against an example or task spec."
-  [c query {:keys [args setup private expected expect-error ordered? exact-keys?]}]
+  "[status detail] for one example or task spec. Its :setup transactions run
+  first. With a :tx, that transaction must fail with :expect-error, or commit
+  if there's none, and the query, if any, is then compared with :expected.
+  Without one, the query's rows are compared with :expected, or its error
+  with :expect-error."
+  [c query {:keys [args setup tx private expect-error] :as spec}]
   (let [n (swap! example-count inc)
-        setup-error (try (doseq [tx (private-tables n private setup)] (xt/execute-tx c tx)) nil
-                         (catch Exception e (or (ex-message e) (str (class e)))))
-        {:keys [rows error]} (if setup-error
-                               {:error (str "setup failed: " setup-error)}
-                               (run-query c (private-tables n private query) args))]
+        setup-error (try (doseq [tx (private-tables n private setup)] (execute! c tx)) nil
+                         (catch Exception e (error-text e)))
+        query! #(run-query c (private-tables n private query) args)]
     (cond
-      setup-error [:error error]
-      expect-error (cond
-                     (and error (str/includes? error expect-error)) [:pass nil]
-                     error [:wrong (str "error " (pr-str error) ", expected one containing " (pr-str expect-error))]
-                     :else [:wrong (str "returned " (count rows) " rows, expected an error")])
-      error [:error error]
-      :else (let [cols (columns expected)
-                  got-cols (set (mapcat #(map norm-key (keys %)) rows))]
-              (if (and (seq rows) (not (set/subset? got-cols cols)))
-                [:wrong (str "columns " (sort got-cols) ", expected " (sort cols))]
-                (let [got (norm-rows rows cols exact-keys?)
-                      want (norm-rows expected cols exact-keys?)
-                      same (if ordered? (= got want) (= (frequencies got) (frequencies want)))]
-                  (if same
-                    [:pass nil]
-                    [:wrong (str "got " (pr-str got) ", expected " (pr-str want))])))))))
+      setup-error [:error (str "setup failed: " setup-error)]
+      tx (let [tx-error (try (execute! c (private-tables n private tx)) nil
+                             (catch Exception e (error-text e)))
+               [status :as tx-result] (if expect-error
+                                        (expected-error tx-error expect-error)
+                                        (if tx-error [:wrong (str "the transaction failed: " tx-error)] [:pass nil]))]
+           (if (or (not= :pass status) (nil? query))
+             tx-result
+             (let [{:keys [rows error]} (query!)]
+               (if error [:error error] (compare-rows rows spec)))))
+      :else (let [{:keys [rows error]} (query!)]
+              (cond
+                expect-error (if error
+                               (expected-error error expect-error)
+                               [:wrong (str "returned " (count rows) " rows, expected an error")])
+                error [:error error]
+                :else (compare-rows rows spec))))))
 
 (def ^:private observation-keys [:query :tx :absent-vars])
 
 (defn- observe
-  "[status detail] for one observation: a :query judged like an example, a
-  :tx expected to fail with :expect-error, or :absent-vars, symbols that must
-  not resolve in the client library."
-  [c {:keys [query tx absent-vars private expect-error] :as ex}]
-  (cond
-    tx (let [n (swap! example-count inc)
-             error (try (xt/execute-tx c (private-tables n private tx)) nil
-                        (catch Exception e (or (ex-message e) (str (class e)))))]
-         (cond
-           (and error (str/includes? error expect-error)) [:pass nil]
-           error [:wrong (str "error " (pr-str error) ", expected one containing " (pr-str expect-error))]
-           :else [:wrong "the transaction committed, expected an error"]))
-    absent-vars (if-let [found (seq (filter resolve absent-vars))]
-                  [:wrong (str "resolves " (pr-str (vec found)))]
-                  [:pass nil])
-    :else (judge c query ex)))
+  "[status detail] for one observation: a :query, a :tx or both, judged like
+  an example, or :absent-vars, symbols that must not resolve in the client
+  library."
+  [c {:keys [query absent-vars] :as ex}]
+  (if absent-vars
+    (if-let [found (seq (filter resolve absent-vars))]
+      [:wrong (str "resolves " (pr-str (vec found)))]
+      [:pass nil])
+    (judge c query ex)))
 
 ;; --- commands --------------------------------------------------------------
 
-(defn- seed! [suite]
-  (let [c (conn)
-        txs (read-edn (io/file suite "seed.edn"))]
+(defn- seed! [c suite]
+  (let [        txs (read-edn (io/file suite "seed.edn"))]
     (doseq [tx txs] (xt/execute-tx c tx))
     (println "seeded" (count txs) "transactions")))
 
@@ -193,6 +241,21 @@
             (recur (inc j) (conj out [(some-> marker second (str/split #"\s+")) forms (inc i)])))
           (recur (inc i) out))))))
 
+(def ^:private results
+  "{suite {example-id status}} from every `examples` run, for EVAL_RESULTS."
+  (atom {}))
+
+(defn- record-results! [suite statuses]
+  (swap! results assoc (.getName (io/file suite)) (into (sorted-map) statuses)))
+
+(defn- write-results!
+  "Merge this run's results into EVAL_RESULTS, which earlier runs against
+  the same node may have written."
+  []
+  (when-let [f (System/getenv "EVAL_RESULTS")]
+    (let [old (when (.exists (io/file f)) (edn/read-string (slurp f)))]
+      (spit f (pr-str (merge old @results))))))
+
 (defn- examples!
   "Run one suite's examples; returns the number that failed."
   [c suite]
@@ -217,6 +280,7 @@
         all (concat skill-results observations unused)]
     (println (str "== " suite))
     (doseq [[id status detail] all] (report status id detail))
+    (record-results! suite (for [[id status] all] [id status]))
     (let [failed (count (remove #(= :pass (second %)) all))]
       (println (str (- (count all) failed) "/" (count all) " passed\n"))
       failed)))
@@ -236,21 +300,26 @@
   [suite config {:keys [image port]} f]
   (let [data (.toFile (Files/createTempDirectory "xtdb-storage" (make-array FileAttribute 0)))
         container (str "xtdb-eval-storage-" run-id)]
-    (sh! "docker" "run" "-d" "--rm" "--name" container "-p" (str port ":5432")
+    (sh! "docker" "run" "-d" "--name" container "-p" (str port ":5432")
          "-v" (str (.getCanonicalPath (io/file suite)) ":/cfg")
          "-v" (str (.getCanonicalPath data) ":/var/lib/xtdb")
          "-e" (str "JAVA_TOOL_OPTIONS=-Dlogback.configurationFile=/cfg/logback.xml"
                    " -Dlog4j2.configurationFile=/cfg/log4j2.xml")
-         image "-f" (str "/cfg/" config))
+         (or (System/getenv "XTDB_IMAGE") image) "-f" (str "/cfg/" config))
     (try
-      (let [c (xt/client {:host "localhost" :port port :user "xtdb"})]
+      (let [c (client "localhost" port)]
         (loop [tries 60]
           (when-not (try (xt/q c '(rel [{:a 1}] [a])) (catch Exception _ nil))
+            (when (= "false\n" (sh! "docker" "inspect" "-f" "{{.State.Running}}" container))
+              (throw (ex-info (str "config refused: "
+                                   (some #(re-find #"\S*Exception: .*" %)
+                                         (str/split-lines (sh! "docker" "logs" container))))
+                              {:config-refused true})))
             (when (zero? tries) (throw (ex-info "node did not start" {})))
             (Thread/sleep 1000)
             (recur (dec tries))))
         (f c data container))
-      (finally (sh! "docker" "stop" container)))))
+      (finally (shell/sh "docker" "rm" "-f" container)))))
 
 (defn- data-files
   "Every file under `data`, as a path relative to it."
@@ -284,7 +353,7 @@
   (let [container (str "xtdb-eval-refused-" run-id)]
     (sh! "docker" "run" "-d" "--name" container
          "-v" (str (.getCanonicalPath (io/file suite)) ":/cfg")
-         image "-f" (str "/cfg/" config))
+         (or (System/getenv "XTDB_IMAGE") image) "-f" (str "/cfg/" config))
     (try
       (loop [tries 60]
         (cond
@@ -389,17 +458,28 @@
     (println (str "== " suite))
     (doseq [[id ok detail] results]
       (println (format "%-9s %s: %s" (if ok "pass" "wrong") id detail)))
+    (record-results! suite (for [[id ok] results] [id (if ok :pass :wrong)]))
     (let [failed (count (remove second results))]
       (println (str (- (count results) failed) "/" (count results) " passed\n"))
       failed)))
 
 (defn -main [& [cmd suite & args]]
   (let [failed (case cmd
-                 "seed" (do (seed! suite) 0)
-                 "storage" (storage! suite)
+                 "seed" (do (seed! (conn) suite) 0)
+                 "storage" (try (let [failed (storage! suite)] (write-results!) failed)
+                                (catch clojure.lang.ExceptionInfo e
+                                  (if (:config-refused (ex-data e))
+                                    (do (println (ex-message e)) 1)
+                                    (throw e))))
                  "prompt" (do (prompt! suite) 0)
                  "score" (do (score! suite args) 0)
-                 "examples" (let [c (conn)] (reduce + (map #(examples! c %) (cons suite args))))
+                 "examples" (let [c (conn)
+                                  _ (when in-process?
+                                      (doseq [s (cons suite args) :when (.exists (io/file s "seed.edn"))]
+                                        (seed! c s)))
+                                  failed (reduce + (map #(examples! c %) (cons suite args)))]
+                              (write-results!)
+                              failed)
                  (do (println (:doc (meta (find-ns 'xtdb-eval)))) 2))]
     (shutdown-agents)
     (System/exit (if (pos? failed) 1 0))))

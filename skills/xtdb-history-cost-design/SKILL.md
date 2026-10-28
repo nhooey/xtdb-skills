@@ -1,6 +1,6 @@
 ---
 name: xtdb-history-cost-design
-description: Keep XTDB 2.x history small by splitting a document's fast-changing fields into their own table, so a price or stock change doesn't store the whole document again. Use when designing XTDB 2.x tables for large documents with a few volatile fields, when storage grows faster than the data, or when reading a split entity back as of a time. Pinned to XTDB v2.2.0; every claim cites the docs or an example re-run against a live node.
+description: Keep XTDB 2.x history small by splitting a document's fast-changing fields into their own table, so a price or stock change doesn't store the whole document again. Use when designing XTDB 2.x tables for large documents with a few volatile fields, when storage grows faster than the data, or when reading a split entity back as of a time. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the docs or an example re-run against a live node.
 ---
 
 # Splitting volatile fields (XTDB 2.x)
@@ -9,6 +9,22 @@ Written from `xtdb/xtdb` at tag `v2.2.0`. Each claim's footnote points at
 the docs section it was read from or at an example in the xtdb-skills eval
 that shows it on a live node; `citations.edn` lists them. For what each
 write keeps, see the `xtdb-erase-and-history` skill.
+
+## Versions
+
+Each footnote says since which `xtdb/xtdb` tag, betas and release
+candidates included, its cited span has read the same ("unchanged
+since"), or since which tag the eval saw its example hold ("holds on
+every tag the eval ran since"); "differs in" and "fails on" name later
+tags off that line, such as a patch release of an older minor version.
+`evals/<skill>/releases.edn` lists the result on every tag.
+
+Before relying on a claim, find the project's XTDB version: the
+`com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
+build file, or the `ghcr.io/xtdb/xtdb` image tag. If every footnote on a
+claim starts after that version, or names it under "differs in" or
+"fails on", the claim may not hold there: say so, and check that
+version's docs or source, rather than applying it.
 
 ## Why a whole document costs history
 
@@ -72,15 +88,15 @@ apply it from memory.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
 - `xtdb-storage-gc`: what the garbage collector deletes, and what it never does.
 - `xtdb-write-path`: what a block and a level-0 file are, and what each block writes.
-[^atomic-txs]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11)
-[^joins]: [queries.md § Joins - join, left join, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L192-L213)
-[^obs-identical-put]: Observed on XTDB v2.2.0: example `identical-put-adds-version` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^obs-split-as-of]: Observed on XTDB v2.2.0: example `split-as-of` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^obs-split-left-join]: Observed on XTDB v2.2.0: example `split-left-join` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^obs-split-missing]: Observed on XTDB v2.2.0: example `split-missing-half` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^obs-split-stable]: Observed on XTDB v2.2.0: example `split-stable-versions` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^obs-split-volatile]: Observed on XTDB v2.2.0: example `split-volatile-versions` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^obs-whole-versions]: Observed on XTDB v2.2.0: example `whole-document-versions` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command.
-[^temporal-filters]: [queries.md § Temporal filters, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L162-L190)
-[^unify-clauses]: [queries.md § Unify clauses, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L62-L78)
-[^system-time]: [time-in-xtdb.md § System time, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/time-in-xtdb.md?plain=1#L35-L81)
+[^atomic-txs]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11), unchanged since v2.1.0-rc0
+[^joins]: [queries.md § Joins - join, left join, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L192-L213), unchanged since v2.1.0
+[^obs-identical-put]: Observed on XTDB v2.2.0: example `identical-put-adds-version` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^obs-split-as-of]: Observed on XTDB v2.2.0: example `split-as-of` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^obs-split-left-join]: Observed on XTDB v2.2.0: example `split-left-join` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^obs-split-missing]: Observed on XTDB v2.2.0: example `split-missing-half` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^obs-split-stable]: Observed on XTDB v2.2.0: example `split-stable-versions` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^obs-split-volatile]: Observed on XTDB v2.2.0: example `split-volatile-versions` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^obs-whole-versions]: Observed on XTDB v2.2.0: example `whole-document-versions` in [examples.edn](../../evals/xtdb-history-cost-design/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-history-cost-design/releases.edn) lists the tags.
+[^temporal-filters]: [queries.md § Temporal filters, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L162-L190), unchanged since v2.1.0-rc0
+[^unify-clauses]: [queries.md § Unify clauses, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L62-L78), unchanged since v2.1.0-rc0
+[^system-time]: [time-in-xtdb.md § System time, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/time-in-xtdb.md?plain=1#L35-L81), unchanged since v2.1.0-rc0
