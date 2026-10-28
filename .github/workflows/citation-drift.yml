@@ -57,7 +57,20 @@ jobs:
             echo "The diffs of each changed span are in [the run's log]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID), or from \`skill-citations drift <skill> --to latest\`."
             echo
             cat report.md
-          } | head -c 65000 > body.md
+          } > full.md
+          # GitHub caps an issue body at 65,536 characters by its own count,
+          # which rejects a 65,000-byte report, so cut well short of it, at a
+          # line boundary, and close the code block the cut leaves open.
+          if [ "$(wc -c < full.md)" -gt 50000 ]; then
+            {
+              head -c 50000 full.md | sed '$d'
+              echo '```'
+              echo
+              echo "Cut at 50,000 characters; the whole report is in the run's log."
+            } > body.md
+          else
+            cp full.md body.md
+          fi
           existing=$(gh issue list --state open --search "$ISSUE_TITLE in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             gh issue edit "$existing" --body-file body.md
