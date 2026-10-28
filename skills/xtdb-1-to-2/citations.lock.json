@@ -223,7 +223,7 @@
       "path" : "api/src/main/clojure/xtdb/api.clj",
       "lines" : [ 468, 481 ],
       "sha256" : "4ed76c4ff41875dcf6b7cc408c3ed76280901dcf616f63ca630aab38586425ea",
-      "since" : "v2.0.0-beta1",
+      "since" : "2.0.0-beta1",
       "differs" : [ ]
     },
     "subquery-forms" : {

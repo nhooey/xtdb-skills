@@ -18,6 +18,7 @@
                   "core/src/main/clojure/xtdb/xtql.clj"
                   "core/src/main/clojure/xtdb/sql.clj"]}
 
+ :observed-on "XTDB"
  :observations "../../evals/xtdb-xtql-queries/examples.edn"
 
  :cite
@@ -56,7 +57,9 @@
   {:id "src-subquery-forms" :path "core/src/main/clojure/xtdb/xtql.clj" :line "(exists? q pull pull*)"}
   {:id "boolean-fns" :path "docs/src/content/docs/reference/main/stdlib/predicates.md" :heading "Boolean functions"}
   {:id "src-recursive-cte" :path "core/src/main/clojure/xtdb/sql.clj" :line "(throw (err/unsupported ::recursive-ctes \"Recursive CTEs are not supported yet\")))"}
-  {:id "atomic-txs" :path "docs/src/content/docs/about/txs-in-xtdb.md" :line "it wraps up the transaction operations and sends them as an atomic message on a shared log."}]
+  {:id "atomic-txs" :path "docs/src/content/docs/about/txs-in-xtdb.md" :line "it wraps up the transaction operations and sends them as an atomic message on a shared log."}
+  {:id "q-snapshot-time" :path "api/src/main/clojure/xtdb/api.clj" :line "Providing a `:snapshot-time` sets an additional upper bound"}
+  {:id "current-time-valid-time" :path "docs/src/content/docs/reference/main/xtql/queries.md" :line "XTDB will also use this time as the valid-time to read the table at."}]
 
  :observed
  [{:id "obs-v1-map" :example "v1-query-map"}
@@ -91,4 +94,8 @@
   {:id "obs-two-hop" :example "two-hop"}
   {:id "obs-up-to-three-hops" :example "up-to-three-hops"}
   {:id "obs-frontier-step" :example "frontier-step"}
-  {:id "obs-union-all-unplanned" :example "union-all-unplanned"}]}
+  {:id "obs-union-all-unplanned" :example "union-all-unplanned"}
+  {:id "obs-snapshot-time" :example "snapshot-time-hides-later-txs"}
+  {:id "obs-current-time-valid-time" :example "current-time-sets-valid-time"}
+  {:id "obs-current-time-default" :example "current-time-default-valid-time"}
+  {:id "obs-current-time-not-system-time" :example "current-time-not-system-time"}]}

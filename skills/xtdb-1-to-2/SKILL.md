@@ -73,9 +73,11 @@ version's docs or source, rather than applying it.
   db snapshot, which could be taken as of a valid
   time.[^v1-db] XTDB 2 has no db value (`xtdb.api`
   has no `db` or `open-db`);[^obs-v1-api-gone] `xt/q` takes the node,
-  with `:snapshot-time` and `:current-time` as
+  with `:snapshot-token` (a transaction) or `:snapshot-time` (an instant)
+  to bound the transactions it sees, and `:current-time` as
   options,[^q-opts] and each `from` takes its own `:for-valid-time` and
-  `:for-system-time`.[^temporal-filters]
+  `:for-system-time`.[^temporal-filters] `xtdb-xtql-queries`' "Query
+  options" says how the two times combine.
 - **`entity-history`.** XTDB 1 read an entity's versions with
   `entity-history`;[^v1-history] XTDB 2 has none,[^obs-v1-api-gone] and
   a `from` with `:for-valid-time :all-time` returns every
@@ -213,7 +215,7 @@ apply it from memory.
 [^q-opts]: [api.clj `(defn q`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L120-L164), unchanged since v2.1.0-rc0
 [^subqueries]: [queries.md § Subqueries, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L487-L543), unchanged since v2.1.0-rc0
 [^subquery-forms]: [xtql.clj line 141, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L141-L141), unchanged since v2.2.0-rc0; differs in v2.1.1
-[^template]: [api.clj `(defmacro template`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L468-L481), unchanged since v2.0.0-beta1
+[^template]: [api.clj `(defmacro template`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L468-L481), unchanged since 2.0.0-beta1
 [^temporal-filters]: [queries.md § Temporal filters, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L162-L190), unchanged since v2.1.0-rc0
 [^tx-ops]: [txs.md § Transaction operations, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L10-L208), unchanged since v2.1.0-rc0
 [^unknown-query-op]: [xtql.clj line 45, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L45-L45), unchanged since v2.2.0-rc0; differs in v2.1.1

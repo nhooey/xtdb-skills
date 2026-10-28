@@ -379,6 +379,28 @@ basis see the same database; `:await-token` waits for a transaction to be
 indexed, and `:key-fn` controls the shape of result keys (default
 kebab-case keywords).[^query-options]
 
+Two of them place a query in time, and they move different axes:
+
+- **`:snapshot-time`** takes an instant, not a token. It hides every
+  transaction committed after that instant, as `:snapshot-token` does
+  after its transaction; a query given both sees neither's
+  later transactions.[^q-snapshot-time][^obs-snapshot-time] It doesn't
+  move the valid time a `from` reads at; `:current-time`
+  does.[^current-time-valid-time]
+- **`:current-time`** is the valid time every `from` reads at when it names
+  no `:for-valid-time`.[^current-time-valid-time] Without it that is the wall
+  clock, so a row valid only in 2020 is
+  missing,[^obs-current-time-default] and with `:current-time` in 2020 it's
+  there.[^obs-current-time-valid-time] It leaves system time alone: a row
+  written today, valid from 2020, shows at a 2020
+  `:current-time`.[^obs-current-time-not-system-time]
+
+So `{:snapshot-time t :current-time t}` reads every table as it was
+recorded by `t` and valid at `t`, with no temporal filter on any
+`from`.[^q-snapshot-time][^current-time-valid-time] A `from` with its own
+`:for-valid-time` or `:for-system-time` still overrides the default for that
+table.[^current-time-valid-time][^temporal-filters]
+
 ## Keeping this skill current
 
 In the xtdb-skills dev shell, from the repo root:
@@ -452,9 +474,9 @@ apply it from memory.
 [^src-array-length]: [expression.clj `(defmethod codegen-call [:array_length :list :i64]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2292-L2300), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^src-cardinality]: [expression.clj `(defmethod codegen-call [:cardinality :list]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2242-L2244), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^src-character-length]: [expression.clj `(defmethod codegen-call [:character_length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L1568-L1570), unchanged since v2.2.0-beta1; differs in v2.1.1
-[^src-length-list]: [expression.clj `(defmethod codegen-call [:length :list]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2252-L2253), unchanged since v2.0.0-beta1
+[^src-length-list]: [expression.clj `(defmethod codegen-call [:length :list]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2252-L2253), unchanged since 2.0.0-beta1
 [^src-length-set]: [expression.clj `(defmethod codegen-call [:length :set]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2255-L2257), unchanged since v2.2.0-beta1; differs in v2.1.1
-[^src-length-utf8]: [expression.clj `(defmethod codegen-call [:length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2246-L2247), unchanged since v2.0.0-beta1
+[^src-length-utf8]: [expression.clj `(defmethod codegen-call [:length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2246-L2247), unchanged since 2.0.0-beta1
 [^src-nth]: [expression.clj `(defmethod codegen-call [:nth :list :int]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2225-L2237), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^string-length]: [string.md line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/string.md?plain=1#L10-L10), unchanged since v2.1.0-rc0
 [^atomic-txs]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11), unchanged since v2.1.0-rc0
@@ -472,3 +494,9 @@ apply it from memory.
 [^obs-v1-rules]: Observed on XTDB v2.2.0: example `v1-rules` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
 [^src-subquery-forms]: [xtql.clj line 141, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L141-L141), unchanged since v2.2.0-rc0; differs in v2.1.1
 [^src-unknown-clause]: [xtql.clj `(defmethod parse-unify-clause :default`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L77-L78), unchanged since v2.2.0-rc0; differs in v2.1.1
+[^current-time-valid-time]: [queries.md line 679, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L679-L679), unchanged since v2.1.0-rc0
+[^obs-current-time-default]: Observed on XTDB v2.2.0: example `current-time-default-valid-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-current-time-not-system-time]: Observed on XTDB v2.2.0: example `current-time-not-system-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-current-time-valid-time]: Observed on XTDB v2.2.0: example `current-time-sets-valid-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-snapshot-time]: Observed on XTDB v2.2.0: example `snapshot-time-hides-later-txs` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^q-snapshot-time]: [api.clj line 156, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L156-L156), unchanged since v2.1.0-rc0

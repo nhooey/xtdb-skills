@@ -255,4 +255,40 @@
 
   {:id "v1-get-attr"
    :query (-> (from :customers [xt/id]) (with {:n (get-attr xt/id :customer-name)}))
-   :expect-error "get_attr not applicable"}]}
+   :expect-error "get_attr not applicable"}
+
+  ;; xt/q's :snapshot-time and :current-time, with :opts as its options map.
+  {:id "snapshot-time-hides-later-txs"
+   ;; The row's transaction commits after the snapshot time, so the query
+   ;; doesn't see it.
+   :private [:prices]
+   :setup [[[:put-docs :prices {:xt/id 1 :price 10}]]]
+   :query (from :prices [price])
+   :opts {:snapshot-time #inst "2000-01-01"}
+   :expected []}
+
+  {:id "current-time-default-valid-time"
+   ;; Valid only in 2020, so a query at the wall clock finds nothing.
+   :private [:prices]
+   :setup [[[:put-docs {:into :prices :valid-from #inst "2020-01-01" :valid-to #inst "2021-01-01"}
+             {:xt/id 1 :price 10}]]]
+   :query (from :prices [price])
+   :expected []}
+
+  {:id "current-time-sets-valid-time"
+   ;; :current-time moves the valid time every `from` reads at by default.
+   :private [:prices]
+   :setup [[[:put-docs {:into :prices :valid-from #inst "2020-01-01" :valid-to #inst "2021-01-01"}
+             {:xt/id 1 :price 10}]]]
+   :query (from :prices [price])
+   :opts {:current-time #inst "2020-06-01"}
+   :expected [{:price 10}]}
+
+  {:id "current-time-not-system-time"
+   ;; :current-time leaves system time alone: a row written now is still
+   ;; seen at a 2020 :current-time when its valid time covers 2020.
+   :private [:prices]
+   :setup [[[:put-docs {:into :prices :valid-from #inst "2020-01-01"} {:xt/id 1 :price 10}]]]
+   :query (from :prices [price])
+   :opts {:current-time #inst "2020-06-01"}
+   :expected [{:price 10}]}]}

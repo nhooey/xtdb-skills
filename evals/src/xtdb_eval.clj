@@ -113,9 +113,9 @@
   (let [code (some #(get (ex-data e) %) [:xtdb.error/code :xtdb.error/error-key])]
     (str (or (ex-message e) (class e)) (when code (str " " code)))))
 
-(defn- run-query [c query args]
+(defn- run-query [c query args opts]
   (try
-    {:rows (xt/q c (if (seq args) (into [query] args) query))}
+    {:rows (xt/q c (if (seq args) (into [query] args) query) (or opts {}))}
     (catch Exception e
       {:error (error-text e)})))
 
@@ -143,12 +143,12 @@
   first. With a :tx, that transaction must fail with :expect-error, or commit
   if there's none, and the query, if any, is then compared with :expected.
   Without one, the query's rows are compared with :expected, or its error
-  with :expect-error."
-  [c query {:keys [args setup tx private expect-error] :as spec}]
+  with :expect-error. :opts, if any, is the query's options map."
+  [c query {:keys [args opts setup tx private expect-error] :as spec}]
   (let [n (swap! example-count inc)
         setup-error (try (doseq [tx (private-tables n private setup)] (execute! c tx)) nil
                          (catch Exception e (error-text e)))
-        query! #(run-query c (private-tables n private query) args)]
+        query! #(run-query c (private-tables n private query) args opts)]
     (cond
       setup-error [:error (str "setup failed: " setup-error)]
       tx (let [tx-error (try (execute! c (private-tables n private tx)) nil
