@@ -237,4 +237,22 @@
    ;; The parser accepts union-all; the planner has no method for it.
    :query (union-all (-> (from :customers [customer-name]) (return customer-name))
                      (-> (from :customers [customer-name]) (return customer-name)))
-   :expect-error "No implementation of method: :plan-query"}]}
+   :expect-error "No implementation of method: :plan-query"}
+
+  {:id "v1-rules"
+   :query (rules [] (from :customers [customer-name]))
+   :expect-error "Unknown query op"}
+
+  {:id "v1-or-clause"
+   :query (unify (from :customers [customer-name city]) (or [(= city "Paris")]))
+   :expect-error "Unknown unify clause"}
+
+  {:id "not-exists-fn"
+   ;; Not a subquery form, so its argument is read as an ordinary expression.
+   :query (-> (from :customers [customer-id])
+              (where (not-exists? (from :orders [customer-id]))))
+   :expect-error "not applicable to types"}
+
+  {:id "v1-get-attr"
+   :query (-> (from :customers [xt/id]) (with {:n (get-attr xt/id :customer-name)}))
+   :expect-error "get_attr not applicable"}]}

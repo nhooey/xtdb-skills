@@ -1,0 +1,124 @@
+;; The spans of xtdb/xtdb this skill cites, one :cite per footnote id, and
+;; the eval examples it cites for behaviour no source states, one :observed
+;; per footnote id. A claim about XTDB 1 cites the last 1.x release, 1.24.5,
+;; through its own :source; every other claim cites :tag. `skill-citations
+;; lock` resolves each :cite anchor, records its lines and hash in
+;; citations.lock.json, and regenerates the footnote definitions in
+;; SKILL.md; `drift` resolves the 2.x ones again at a newer tag. :observed
+;; examples are re-run by the eval's `examples` command.
+;;
+;; Anchors: :heading (a Markdown heading's text), :form (the start of a
+;; top-level form in column 0) or :line (text on exactly one line). The 1.x
+;; docs are AsciiDoc, which :heading doesn't read, so they're cited by :line.
+
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.2.0"
+          ;; Changes under these paths that no citation covers are reported as gaps.
+          :watch ["api/src/main/clojure/xtdb/api.clj"
+                  "api/src/main/clojure/xtdb/tx_ops.clj"
+                  "core/src/main/clojure/xtdb/xtql.clj"
+                  "docs/src/content/docs/reference/main/xtql/"]}
+
+ :observations "../../evals/xtdb-1-to-2/examples.edn"
+
+ :cite
+ [;; --- XTDB 1.24.5 -----------------------------------------------------------
+  {:id "v1-q" :path "core/src/xtdb/api.clj" :form "(defn q"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-open-q" :path "core/src/xtdb/api.clj" :form "(defn open-q"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-pull" :path "core/src/xtdb/api.clj"
+   :line "Returns the requested data for the given entity ID, based on the projection spec"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-pull-many" :path "core/src/xtdb/api.clj"
+   :line "Returns the requested data for the given entity IDs, based on the projection spec"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-history" :path "core/src/xtdb/api.clj"
+   :line "Eagerly retrieves entity history for the given entity."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-with-tx" :path "core/src/xtdb/api.clj"
+   :line "Returns a new db value with the tx-ops speculatively applied."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-db" :path "core/src/xtdb/api.clj"
+   :line "Returns a DB snapshot at the given time. The snapshot is not thread-safe."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-rules" :path "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc"
+   :line "Rules are defined by a rule head and then clauses as you would find in a `:where` statement."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-recursive-rules" :path "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc"
+   :line "This allows for the recursive traversal of entities and more."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-or" :path "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc"
+   :line "An `or` clause is satisfied if any of its legs are satisfied."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-not" :path "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc"
+   :line "The `not` clause rejects a graph if all the clauses within it are true."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-get-attr" :path "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc"
+   :line "lookup function may be a useful substitute to consider instead of a triple clause."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-match" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
+   :line "Match checks the state of an entity - if the entity doesn't match the provided document, the transaction will not continue."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-evict" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
+   :line "Evicts a document from XTDB. Historical versions of the document will no longer be available."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-tx-fns" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
+   :line "Transaction functions are user-supplied functions, defined using Clojure"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-tx-fn-db" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
+   :line "The `context` parameter can be used to obtain a database value using `db` or `open-db`."
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-tx-fn-speculative" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
+   :line "The `context` reflects the speculative accumulation of all transaction operations"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+
+  ;; --- XTDB 2 queries -------------------------------------------------------
+  {:id "grammar" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Operators" :intro true}
+  {:id "unknown-query-type" :path "api/src/main/clojure/xtdb/api.clj" :line "(throw (err/incorrect :unknown-query-type"}
+  {:id "unknown-query-op" :path "core/src/main/clojure/xtdb/xtql.clj" :line "(throw (err/incorrect :xtql/unknown-query-op"}
+  {:id "unknown-unify-clause" :path "core/src/main/clojure/xtdb/xtql.clj" :line "(throw (err/incorrect :xtql/unknown-unify-clause"}
+  {:id "subquery-forms" :path "core/src/main/clojure/xtdb/xtql.clj" :line "(exists? q pull pull*)"}
+  {:id "subqueries" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Subqueries"}
+  {:id "boolean-fns" :path "docs/src/content/docs/reference/main/stdlib/predicates.md" :heading "Boolean functions"}
+  {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}
+  {:id "plan-q" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}
+  {:id "q-opts" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn q"}
+  {:id "xtql-sql" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn- xtql->sql"}
+  {:id "template" :path "api/src/main/clojure/xtdb/api.clj" :form "(defmacro template"}
+
+  ;; --- XTDB 2 transactions --------------------------------------------------
+  {:id "tx-ops" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "Transaction operations"}
+  {:id "erase-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`erase-docs`"}
+  {:id "unknown-tx-op" :path "api/src/main/clojure/xtdb/tx_ops.clj" :line "(throw (err/incorrect :xtql/unknown-tx-op"}
+  {:id "put-fn-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :put-fn"}
+  {:id "call-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :call"}
+  {:id "insert-into-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :insert-into"}
+  {:id "update-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :update ["}
+  {:id "delete-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :delete ["}
+  {:id "erase-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :erase ["}
+  {:id "assert-exists-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :assert-exists"}
+  {:id "assert-not-exists-removed" :path "api/src/main/clojure/xtdb/tx_ops.clj" :form "(defmethod parse-tx-op :assert-not-exists"}]
+
+ :observed
+ [{:id "obs-or-in-where" :example "or-in-where"}
+  {:id "obs-history-all-time" :example "history-all-time"}
+  {:id "obs-v1-datalog-map" :example "v1-datalog-map"}
+  {:id "obs-v1-rules" :example "v1-rules"}
+  {:id "obs-v1-or-clause" :example "v1-or-clause"}
+  {:id "obs-v1-not-clause" :example "v1-not-clause"}
+  {:id "obs-not-exists-fn" :example "not-exists-fn"}
+  {:id "obs-v1-get-attr" :example "v1-get-attr"}
+  {:id "obs-v1-api-gone" :example "v1-api-gone"}
+  {:id "obs-v1-put-op" :example "v1-put-op"}
+  {:id "obs-v1-match-op" :example "v1-match-op"}
+  {:id "obs-v1-evict-op" :example "v1-evict-op"}
+  {:id "obs-v1-fn-op" :example "v1-fn-op"}
+  {:id "obs-put-fn-removed" :example "put-fn-removed"}
+  {:id "obs-call-removed" :example "call-removed"}
+  {:id "obs-insert-into-removed" :example "insert-into-removed"}
+  {:id "obs-update-removed" :example "update-removed"}
+  {:id "obs-delete-removed" :example "delete-removed"}
+  {:id "obs-erase-removed" :example "erase-removed"}
+  {:id "obs-assert-exists-removed" :example "assert-exists-removed"}
+  {:id "obs-assert-not-exists-removed" :example "assert-not-exists-removed"}]}

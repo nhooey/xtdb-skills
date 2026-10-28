@@ -112,6 +112,26 @@
                     [:pass nil]
                     [:wrong (str "got " (pr-str got) ", expected " (pr-str want))])))))))
 
+(def ^:private observation-keys [:query :tx :absent-vars])
+
+(defn- observe
+  "[status detail] for one observation: a :query judged like an example, a
+  :tx expected to fail with :expect-error, or :absent-vars, symbols that must
+  not resolve in the client library."
+  [c {:keys [query tx absent-vars private expect-error] :as ex}]
+  (cond
+    tx (let [n (swap! example-count inc)
+             error (try (xt/execute-tx c (private-tables n private tx)) nil
+                        (catch Exception e (or (ex-message e) (str (class e)))))]
+         (cond
+           (and error (str/includes? error expect-error)) [:pass nil]
+           error [:wrong (str "error " (pr-str error) ", expected one containing " (pr-str expect-error))]
+           :else [:wrong "the transaction committed, expected an error"]))
+    absent-vars (if-let [found (seq (filter resolve absent-vars))]
+                  [:wrong (str "resolves " (pr-str (vec found)))]
+                  [:pass nil])
+    :else (judge c query ex)))
+
 ;; --- commands --------------------------------------------------------------
 
 (defn- seed! [suite]
@@ -190,9 +210,9 @@
                                       [id :unknown (str "SKILL.md:" line ": not in examples.edn")])))))
         skill-results (mapcat #(if (keyword? (first %)) [[(second %) (first %) (nth % 2)]] %) from-skill)
         used (set (map first skill-results))
-        observations (for [{:keys [id query]} example :when (contains? (by-id id) :query)]
-                       (into [id] (judge c query (by-id id))))
-        unused (for [{:keys [id] :as ex} example :when (and (not (contains? ex :query)) (not (contains? ex :check)) (not (used id)))]
+        observations (for [{:keys [id] :as ex} example :when (some #(contains? ex %) observation-keys)]
+                       (into [id] (observe c ex)))
+        unused (for [{:keys [id] :as ex} example :when (and (not-any? #(contains? ex %) (conj observation-keys :check)) (not (used id)))]
                  [id :unused "in examples.edn but not in the skill"])
         all (concat skill-results observations unused)]
     (println (str "== " suite))

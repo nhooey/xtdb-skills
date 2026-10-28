@@ -1,0 +1,122 @@
+;; Examples run by `clojure -M:eval examples xtdb-1-to-2` from evals/. They
+;; need no seed: each sets up its own private tables.
+;;
+;; An example without :query, :tx or :absent-vars is one of the skill's
+;; own: each ```clojure block in :skill is preceded by
+;; `<!-- xtql-example: id… -->`, one id per top-level form. The rest are
+;; observations the skill cites as :observed footnotes (see its
+;; citations.edn): a :query or a :tx that XTDB 2.x must reject with an
+;; error containing :expect-error, or :absent-vars, XTDB 1 API functions
+;; that must not resolve in the XTDB 2.x client. A new XTDB release that
+;; brings one of them back fails here.
+{:skill "../../skills/xtdb-1-to-2/SKILL.md"
+
+ :example
+ [;; --- the skill's examples ------------------------------------------------
+  {:id "or-in-where"
+   :private [:people]
+   :setup [[[:put-docs :people
+             {:xt/id 1 :name "Ada" :city "London"}
+             {:xt/id 2 :name "Brian" :city "Paris"}
+             {:xt/id 3 :name "Dana" :city "Berlin"}]]]
+   :expected [{:name "Brian"} {:name "Dana"}]}
+
+  {:id "history-all-time"
+   :private [:people]
+   :setup [[[:put-docs :people {:xt/id 1 :name "Ada" :city "London"}]]
+           [[:put-docs :people {:xt/id 1 :name "Ada" :city "Paris"}]]]
+   :expected [{:city "London"} {:city "Paris"}]}
+
+  ;; --- XTDB 1 queries ------------------------------------------------------
+  {:id "v1-datalog-map"
+   :query {:find [e] :where [[e :name n]]}
+   :expect-error "Unknown query type"}
+
+  {:id "v1-rules"
+   :private [:people]
+   :query (rules [] (from :people [name]))
+   :expect-error "Unknown query op"}
+
+  {:id "v1-or-clause"
+   :private [:people]
+   :query (unify (from :people [name]) (or [(= name "Ada")]))
+   :expect-error "Unknown unify clause"}
+
+  {:id "v1-not-clause"
+   :private [:people]
+   :query (unify (from :people [name]) (not (from :people [name])))
+   :expect-error "Unknown unify clause"}
+
+  {:id "not-exists-fn"
+   ;; Not a subquery form, so its argument is read as an ordinary expression.
+   :private [:people]
+   :setup [[[:put-docs :people {:xt/id 1 :name "Ada"}]]]
+   :query (-> (from :people [name]) (where (not-exists? (from :people [name]))))
+   :expect-error "not applicable to types"}
+
+  {:id "v1-get-attr"
+   :private [:people]
+   :setup [[[:put-docs :people {:xt/id 1 :name "Ada"}]]]
+   :query (-> (from :people [xt/id]) (with {:n (get-attr xt/id :name)}))
+   :expect-error "get_attr not applicable"}
+
+  {:id "v1-api-gone"
+   :absent-vars [xtdb.api/db xtdb.api/open-db xtdb.api/with-tx xtdb.api/entity-history
+                 xtdb.api/open-q xtdb.api/pull xtdb.api/pull-many]}
+
+  ;; --- XTDB 1 transaction operations ---------------------------------------
+  {:id "v1-put-op"
+   :private [:people]
+   :tx [[:xtdb.api/put {:xt/id 1 :name "Ada"}]]
+   :expect-error "Unknown tx-op"}
+
+  {:id "v1-match-op"
+   :tx [[:xtdb.api/match 1 {:xt/id 1 :name "Ada"}]]
+   :expect-error "Unknown tx-op"}
+
+  {:id "v1-evict-op"
+   :tx [[:xtdb.api/evict 1]]
+   :expect-error "Unknown tx-op"}
+
+  {:id "v1-fn-op"
+   :tx [[:xtdb.api/fn :increment 1]]
+   :expect-error "Unknown tx-op"}
+
+  ;; --- 2.x transaction functions and XTQL DML, removed in 2.0.0-beta7 -------
+  {:id "put-fn-removed"
+   :tx [[:put-fn :increment (fn [id] [])]]
+   :expect-error "tx-fns are no longer supported"}
+
+  {:id "call-removed"
+   :tx [[:call :increment 1]]
+   :expect-error "tx-fns are no longer supported"}
+
+  {:id "insert-into-removed"
+   :private [:people]
+   :tx [[:insert-into :people (from :people [name])]]
+   :expect-error "XTQL DML is no longer supported"}
+
+  {:id "update-removed"
+   :private [:people]
+   :tx [[:update {:table :people :set {:name "Bo"}}]]
+   :expect-error "XTQL DML is no longer supported"}
+
+  {:id "delete-removed"
+   :private [:people]
+   :tx [[:delete {:from :people :bind [{:xt/id 1}]}]]
+   :expect-error "XTQL DML is no longer supported"}
+
+  {:id "erase-removed"
+   :private [:people]
+   :tx [[:erase {:from :people :bind [{:xt/id 1}]}]]
+   :expect-error "XTQL DML is no longer supported"}
+
+  {:id "assert-exists-removed"
+   :private [:people]
+   :tx [[:assert-exists (from :people [name])]]
+   :expect-error "XTQL DML is no longer supported"}
+
+  {:id "assert-not-exists-removed"
+   :private [:people]
+   :tx [[:assert-not-exists (from :people [name])]]
+   :expect-error "XTQL DML is no longer supported"}]}

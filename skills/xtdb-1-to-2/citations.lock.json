@@ -1,0 +1,244 @@
+{
+  "repo" : "xtdb/xtdb",
+  "tag" : "v2.2.0",
+  "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
+  "files" : {
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701",
+    "api/src/main/clojure/xtdb/api.clj" : "b16685624979e87259780b9fb3ae9c6af58f040af81115d27ce8987e378acec0",
+    "core/src/main/clojure/xtdb/xtql.clj" : "8b16aba608098aa608ea1025fa216a78d5942be3b45056103afec804cd2e3040",
+    "docs/src/content/docs/reference/main/stdlib/predicates.md" : "5e42c091c5fbedfff041f10441e59c8e8d7934a4e7f83e17369bf7e73ee87f94",
+    "docs/src/content/docs/reference/main/xtql/txs.md" : "68c444c3aff1c1edfa66077a786588a49a814ad4e09ff6374b778bb60cdfe12a",
+    "api/src/main/clojure/xtdb/tx_ops.clj" : "b3d248ace6d5c89e89746e25bab6eb8c2b8505a6d25d6594a0e30f5c16539f04"
+  },
+  "citations" : {
+    "unknown-query-type" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 116, 116 ],
+      "sha256" : "e651c852ec6a5240fe4d8bc5eb8c347f906b1109d593cfd21100c46d9eac5bcb"
+    },
+    "v1-pull-many" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 220, 220 ],
+      "sha256" : "04a481ba161e9360415bcda48139cf0e8dd01f023c0c63e487e68f508489dfe8",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "temporal-filters" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 162, 190 ],
+      "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+    },
+    "v1-evict" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
+      "lines" : [ 196, 196 ],
+      "sha256" : "a2ba5ca89113cf9a45c093acd0c701aa041d05ef7c6a8e2343a23bfe48549e11",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "grammar" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 7, 36 ],
+      "sha256" : "8ca008fff36718cc4f272ea7d708b5b6198232796894d04e102657754107370d"
+    },
+    "xtql-sql" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 61, 71 ],
+      "sha256" : "dd7a00622e3b55e132b69c2f027e8e824234caa540de5ebb58a0937ee62c01bb"
+    },
+    "plan-q" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 94, 118 ],
+      "sha256" : "0cb498943600bd092a7151600458906aa8b6b04b20cf43affaaa02d17cdc5031"
+    },
+    "v1-open-q" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 416, 433 ],
+      "sha256" : "d340389d53c0ff492cab229c75ebddd0c415bb0c061b4cc2a83f2707a19cd3cd",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "q-opts" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 120, 164 ],
+      "sha256" : "f89bfc28496691ca63cc5ce1d0e2b52a0f9396bbd8efd6d6861fdb551b3f5ac0"
+    },
+    "v1-db" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 356, 356 ],
+      "sha256" : "e612bd55a669edbc681ab0e478468b37453975b8ef24a008229a47658898d7a0",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "erase-docs" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
+      "lines" : [ 180, 208 ],
+      "sha256" : "bf33fb871b4e994cee5b9e54f07a9c1c3e55e6f11f95c261e02e8b1c234d96bd"
+    },
+    "delete-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 106, 110 ],
+      "sha256" : "2971d95566e5ece5d4f4d021c27155a6ef74087e9baa4f8d50eab33aee984588"
+    },
+    "v1-tx-fns" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
+      "lines" : [ 226, 226 ],
+      "sha256" : "17c1eb1831d42effa82ed59a571ee4955b23b494baf856a227c47aa0c1ac6c68",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-get-attr" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc",
+      "lines" : [ 314, 314 ],
+      "sha256" : "0b7127cbe8902a1052ed1b38a5f12c35d0933a29f4cb53a2e357a5f73cba3ea1",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-not" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc",
+      "lines" : [ 436, 436 ],
+      "sha256" : "98cb32d8e8c80730803818dfea086ef5e973270d7ee265cb8a758a2159bf8e2d",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-match" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
+      "lines" : [ 155, 155 ],
+      "sha256" : "9305cc720da1bc97346608b9689bff392a01221fb3175310dbdab81c2395b25d",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-tx-fn-db" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
+      "lines" : [ 244, 244 ],
+      "sha256" : "e344edd11429c7fed8416d01eebfad20345e08868bb9fd3821d942677a2af66a",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "tx-ops" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/txs.md",
+      "lines" : [ 10, 208 ],
+      "sha256" : "53ef8129253d3fff219e4b150adf673c353a18b93ef370206f75dff00502382f"
+    },
+    "v1-history" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 230, 230 ],
+      "sha256" : "f01e33a8a8e07fa518707c754f96dc9c5a050b183c409b228edc772c8cb850b6",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-recursive-rules" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc",
+      "lines" : [ 668, 668 ],
+      "sha256" : "cb0bdb5f2567a2f988891a72d41757f196cafe5d7d306903619b4df5bf8c7ef7",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-tx-fn-speculative" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
+      "lines" : [ 251, 251 ],
+      "sha256" : "15dabf27d0704a6b0b81cf94b21e73e9595d74ea4c689072aac73ed3c10bacb9",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "erase-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 122, 126 ],
+      "sha256" : "6be8d6ceafd52b27a0f96b6188b65959cefede3c217e2fce9ed445aeca58b702"
+    },
+    "unknown-tx-op" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 27, 27 ],
+      "sha256" : "3760424a056f33c068c9f6c0f18b7994470f8dff34d8bfd3e2c1b2ffdeef7dde"
+    },
+    "subqueries" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 487, 543 ],
+      "sha256" : "ca5291c42f480fc867311395269ced1443e2b8ee17cbab6843d80df9193aff67"
+    },
+    "assert-not-exists-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 139, 143 ],
+      "sha256" : "e6386f4621c5accd003a5bda38326f6571be62a2621959db2a861394927663a7"
+    },
+    "unknown-query-op" : {
+      "path" : "core/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 45, 45 ],
+      "sha256" : "6f8b791a704221ac44e30512185fc366a62dc1fb00c4296f6fdd2cdb2c7c4684"
+    },
+    "insert-into-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 94, 98 ],
+      "sha256" : "8cd6b25ceaf7e64fd147da22deb25c586e5f38b64cb935e3bf691fdde8c33e7b"
+    },
+    "template" : {
+      "path" : "api/src/main/clojure/xtdb/api.clj",
+      "lines" : [ 468, 481 ],
+      "sha256" : "4ed76c4ff41875dcf6b7cc408c3ed76280901dcf616f63ca630aab38586425ea"
+    },
+    "subquery-forms" : {
+      "path" : "core/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 141, 141 ],
+      "sha256" : "33a9a59b4f927aee4b094c2a5b16349dd2bcefd93d2c9302bf8bc52a61516734"
+    },
+    "v1-pull" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 212, 212 ],
+      "sha256" : "22aebcc5c2e660aea18a8659a8bb285a2e53c78f6737944e73219ca04dc43a4d",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-rules" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc",
+      "lines" : [ 651, 651 ],
+      "sha256" : "0dfd9f4ec037312985e80aa204c921e593738b49b49d54c96a8554e8edf3506c",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "boolean-fns" : {
+      "path" : "docs/src/content/docs/reference/main/stdlib/predicates.md",
+      "lines" : [ 29, 50 ],
+      "sha256" : "ab72ae36bef43c2d87242af863fce0f0c280d00f1e28c0345dea77b597c03c24"
+    },
+    "assert-exists-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 133, 137 ],
+      "sha256" : "1fa94f995cffb2a2ace1765c464b860a1f89077fda46cb86441a7bb5c912018a"
+    },
+    "unknown-unify-clause" : {
+      "path" : "core/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 78, 78 ],
+      "sha256" : "c3197ba31c1ee7cab2e5235c16cfcbd0115bd2b888175ef4453713954774954d"
+    },
+    "v1-or" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc",
+      "lines" : [ 481, 481 ],
+      "sha256" : "f4313bbe45b4e2bc35439ac13ec9b30f1c769960427885fb11b59cd6c7547b28",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "v1-with-tx" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 278, 278 ],
+      "sha256" : "d66aa6265c69e650d60c647e3cbd9821405b03dfa66d7bda14520b5ffd97a3af",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
+    "update-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 100, 104 ],
+      "sha256" : "dca30c58ef8f467c1899b636de4d0632915c04fe5858e0dd0523e011090c3871"
+    },
+    "call-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 145, 149 ],
+      "sha256" : "3d2725344c620afd1b1de344813815994008ce2cc7390b7ab050f1762d30fa70"
+    },
+    "put-fn-removed" : {
+      "path" : "api/src/main/clojure/xtdb/tx_ops.clj",
+      "lines" : [ 75, 79 ],
+      "sha256" : "25336fabba14edae63a5bc014f68e876f21dca63881e0844e0c6cbcdf7a49cb1"
+    },
+    "v1-q" : {
+      "path" : "core/src/xtdb/api.clj",
+      "lines" : [ 405, 411 ],
+      "sha256" : "625681d2a1f6a3ae266687d03411f02c6e80e1c04cc7743df04b82dac33b1d5d",
+      "source" : "xtdb/xtdb@1.24.5"
+    }
+  },
+  "sources" : {
+    "xtdb/xtdb@1.24.5" : {
+      "repo" : "xtdb/xtdb",
+      "tag" : "1.24.5",
+      "commit" : "75dc0901e2e3b805463a4523e544d9594c627b01",
+      "files" : {
+        "core/src/xtdb/api.clj" : "d57869fdfbc096a1b4f779f36acf077aec7339a978d61a093564cccb61a7baae",
+        "docs/language-reference/modules/ROOT/pages/datalog-queries.adoc" : "ddbb44d123e9f6aa15220ccf1c341165ae0fed370e5d386649dda0710b07ec62",
+        "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc" : "e3e30e52f2c2feab3a5db5566e1fda18814c83341418ca205aaa3289308e4d62"
+      }
+    }
+  }
+}

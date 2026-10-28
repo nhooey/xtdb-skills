@@ -52,11 +52,18 @@
   {:id "src-xt-q":path "api/src/main/clojure/xtdb/api.clj" :form "(defn plan-q"}
   {:id "src-union-all" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defmethod parse-query 'union-all"}
   {:id "src-unknown-op" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defmethod parse-query :default"}
+  {:id "src-unknown-clause" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(defmethod parse-unify-clause :default"}
+  {:id "src-subquery-forms" :path "core/src/main/clojure/xtdb/xtql.clj" :line "(exists? q pull pull*)"}
+  {:id "boolean-fns" :path "docs/src/content/docs/reference/main/stdlib/predicates.md" :heading "Boolean functions"}
   {:id "src-recursive-cte" :path "core/src/main/clojure/xtdb/sql.clj" :line "(throw (err/unsupported ::recursive-ctes \"Recursive CTEs are not supported yet\")))"}
   {:id "atomic-txs" :path "docs/src/content/docs/about/txs-in-xtdb.md" :line "it wraps up the transaction operations and sends them as an atomic message on a shared log."}]
 
  :observed
  [{:id "obs-v1-map" :example "v1-query-map"}
+  {:id "obs-v1-rules" :example "v1-rules"}
+  {:id "obs-v1-or-clause" :example "v1-or-clause"}
+  {:id "obs-not-exists-fn" :example "not-exists-fn"}
+  {:id "obs-v1-get-attr" :example "v1-get-attr"}
   {:id "obs-star-in-unify" :example "star-in-unify"}
   {:id "obs-args-map-ignored" :example "args-map-ignored"}
   {:id "obs-q-in-with" :example "q-in-with"}

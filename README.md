@@ -53,6 +53,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 | Name | Description | Link |
 | --- | --- | --- |
+| xtdb-1-to-2 | What XTDB 1 offered that XTDB 2.x no longer has, and what to write instead: Datalog maps, rules, `or` and `not` clauses, the db value, history and speculative APIs, and transaction functions. | [skills/xtdb-1-to-2](skills/xtdb-1-to-2) |
 | xtdb-erase-and-history | What put, patch, delete and erase keep in XTDB 2.x history, and how to drop a row's history but keep the row. | [skills/xtdb-erase-and-history](skills/xtdb-erase-and-history) |
 | xtdb-history-cost-design | Split a document's volatile fields into their own table so history doesn't store the whole document per change. | [skills/xtdb-history-cost-design](skills/xtdb-history-cost-design) |
 | xtdb-storage-gc | Tune XTDB 2.x's storage garbage collector, on by default since v2.2.0, and what it never deletes. | [skills/xtdb-storage-gc](skills/xtdb-storage-gc) |
@@ -60,7 +61,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 | xtdb-write-path | How a write reaches storage in XTDB 2.x: the source log, the live index, blocks, and the level-0 files each block writes. | [skills/xtdb-write-path](skills/xtdb-write-path) |
 | xtdb-xtql-queries | Write, read and debug XTQL queries for XTDB 2.x. | [skills/xtdb-xtql-queries](skills/xtdb-xtql-queries) |
 
-Each is pinned to XTDB v2.2.0, except `xtdb-storage-growth`, which holds no facts and only routes to the others.
+Each is pinned to XTDB v2.2.0, except `xtdb-storage-growth`, which holds no facts and only routes to the others. `xtdb-1-to-2` also cites 1.24.5, the last XTDB 1 release, for what XTDB 1 did.
 
 ## Citing XTDB sources
 
@@ -94,12 +95,14 @@ cd evals
 clojure -M:eval seed xtdb-xtql-queries                 # load seed.edn
 clojure -M:eval prompt xtdb-xtql-queries > tasks.txt   # the sheet an answerer gets
 clojure -M:eval score xtdb-xtql-queries baseline.edn with-skill.edn   # {task-id query-string}
-clojure -M:eval examples xtdb-xtql-queries xtdb-erase-and-history xtdb-history-cost-design
+clojure -M:eval examples xtdb-xtql-queries xtdb-erase-and-history xtdb-history-cost-design xtdb-1-to-2
 clojure -M:eval storage xtdb-storage-gc                # about 2 minutes; needs Docker
 clojure -M:eval storage xtdb-write-path                # under a minute; needs Docker
 ```
 
 `storage` starts nodes of its own. For `xtdb-storage-gc` it starts two, one with the garbage collector on and one with it off, writes the same rows to both, and compares their storage directories. For `xtdb-write-path` it starts one that cuts a block every 50 rows, writes in three steps, and lists the files each step leaves.
+
+An example in `examples.edn` with `:tx` is a transaction that must fail with its `:expect-error`, and one with `:absent-vars` names client functions that must not resolve; `xtdb-1-to-2` uses both to show XTDB 2.2.0 rejecting XTDB 1 code.
 
 Every ```` ```clojure ```` block in the skill is preceded by `<!-- xtql-example: id… -->`, one id per top-level form; `examples` fails on an unmarked block, so a new example can't go untested. `skill-citations pairs` feeds a reviewer who checks each claim against only what it cites. That catches misreadings, while running queries catches errors in the sources themselves, such as the docs' `exists`.
 

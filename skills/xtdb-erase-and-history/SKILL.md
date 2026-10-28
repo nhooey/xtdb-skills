@@ -90,6 +90,7 @@ apply it from memory.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
 - `xtdb-history-cost-design`: splitting volatile fields into their own table, so each write's version is smaller.
 - `xtdb-write-path`: what a block and a level-0 file are, and what each block writes.
+- `xtdb-1-to-2`: XTDB 1 transaction operations, evict and transaction functions, and what 2.x has instead.
 [^system-time]: [time-in-xtdb.md § System time, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/time-in-xtdb.md?plain=1#L35-L81)
 [^delete-docs]: [txs.md § `delete-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L129-L178)
 [^erase-docs]: [txs.md § `erase-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208)

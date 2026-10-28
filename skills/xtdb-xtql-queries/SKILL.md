@@ -24,6 +24,21 @@ wrapped in `(fn [params] …)`. The grammar has no map form.[^grammar]
 query type and throws,[^src-xt-q][^obs-v1-map] so a map-shaped Datalog
 example has to be rewritten as XTQL, not copied.
 
+Other XTDB 1 habits XTQL rejects, and what to write instead
+(`xtdb-1-to-2` covers the rest of XTDB 1's API and transactions):
+
+- **`:rules`:** there's no rule operator, and an unknown operator fails
+  with "Unknown query op".[^src-unknown-op][^obs-v1-rules] "Graphs and
+  recursion" below shows what replaces a recursive rule.
+- **`or` and `not` clauses:** neither is a unify clause; both fail with
+  "Unknown unify clause".[^src-unknown-clause][^obs-v1-or-clause] Write
+  `(or …)` and `(not …)` inside `where`,[^boolean-fns] and "no matching
+  row" as `(not (exists? …))`.[^obs-exists-in-where]
+- **`not-exists?`:** the subquery forms are `exists?`, `q`, `pull` and
+  `pull*`,[^src-subquery-forms] so `not-exists?` is read as an ordinary
+  function and the query fails.[^obs-not-exists-fn]
+- **`get-attr`:** it fails;[^obs-v1-get-attr] bind the column in `from`.
+
 ## Query shape
 
 ```text
@@ -371,6 +386,7 @@ apply it from memory.
 
 - `xtdb-erase-and-history`: reading a row's history, and what delete and erase leave to query.
 - `xtdb-history-cost-design`: reading an entity split across two tables as of a time.
+- `xtdb-1-to-2`: XTDB 1 APIs, Datalog and transaction operations that 2.x rejects, and what replaces each.
 [^grammar]: [queries.md § Operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L7-L36)
 [^source-operators]: [queries.md § Source operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L38-L44)
 [^tail-operators]: [queries.md § Tail operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L47-L59)
@@ -433,3 +449,10 @@ apply it from memory.
 [^src-recursive-cte]: [sql.clj line 265, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/sql.clj#L265-L265)
 [^src-union-all]: [xtql.clj `(defmethod parse-query 'union-all`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L614-L617)
 [^src-unknown-op]: [xtql.clj `(defmethod parse-query :default`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L44-L45)
+[^boolean-fns]: [predicates.md § Boolean functions, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/predicates.md?plain=1#L29-L50)
+[^obs-not-exists-fn]: Observed on XTDB v2.2.0: example `not-exists-fn` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-v1-get-attr]: Observed on XTDB v2.2.0: example `v1-get-attr` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-v1-or-clause]: Observed on XTDB v2.2.0: example `v1-or-clause` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-v1-rules]: Observed on XTDB v2.2.0: example `v1-rules` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^src-subquery-forms]: [xtql.clj line 141, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L141-L141)
+[^src-unknown-clause]: [xtql.clj `(defmethod parse-unify-clause :default`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L77-L78)

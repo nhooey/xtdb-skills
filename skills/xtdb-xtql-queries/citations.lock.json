@@ -3,14 +3,15 @@
   "tag" : "v2.2.0",
   "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
   "files" : {
-    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701",
+    "api/src/main/clojure/xtdb/api.clj" : "b16685624979e87259780b9fb3ae9c6af58f040af81115d27ce8987e378acec0",
+    "docs/src/content/docs/reference/main/stdlib/predicates.md" : "5e42c091c5fbedfff041f10441e59c8e8d7934a4e7f83e17369bf7e73ee87f94",
     "core/src/main/clojure/xtdb/xtql.clj" : "8b16aba608098aa608ea1025fa216a78d5942be3b45056103afec804cd2e3040",
-    "docs/src/content/docs/reference/main/stdlib/string.md" : "e6654e3c1d98a1fa9ebe3d4e5f2200e0f87a45c02a42a89558f0a69e771a4790",
     "docs/src/content/docs/reference/main/stdlib/other.md" : "2cb1203e20719100fea8b36234c046020f009c2ae56e60c00fa875a3dfdf1c51",
     "core/src/main/clojure/xtdb/expression.clj" : "ee03eee26f16d63bc7bd27df80d675d3c65ce3b7db35e3d5d93aef872dc814f4",
-    "api/src/main/clojure/xtdb/api.clj" : "b16685624979e87259780b9fb3ae9c6af58f040af81115d27ce8987e378acec0",
+    "docs/src/content/docs/about/txs-in-xtdb.md" : "0b6454114048ecba211fb9895bf042877acc6e9999bf1281d0fc5d0a39b70424",
     "core/src/main/clojure/xtdb/sql.clj" : "1ace785e9d1b580b3144b33a915333a5977911f01258dc093b2c8f068a7c4e1a",
-    "docs/src/content/docs/about/txs-in-xtdb.md" : "0b6454114048ecba211fb9895bf042877acc6e9999bf1281d0fc5d0a39b70424"
+    "docs/src/content/docs/reference/main/xtql/queries.md" : "8d5836c622280ce7f041f4997735c1b930cd5b3d4b082de93d56e939b0dab701",
+    "docs/src/content/docs/reference/main/stdlib/string.md" : "e6654e3c1d98a1fa9ebe3d4e5f2200e0f87a45c02a42a89558f0a69e771a4790"
   },
   "citations" : {
     "src-recursive-cte" : {
@@ -22,6 +23,11 @@
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 162, 190 ],
       "sha256" : "8f1d04587176ec89b024c053d3548b11e7d98dc17c1ab5f3d924535ecc660b8f"
+    },
+    "src-unknown-clause" : {
+      "path" : "core/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 77, 78 ],
+      "sha256" : "3d9c1c2f6236df725b00d80a547c9fbd700e37e6801c744d6e634a76e9370659"
     },
     "binding-specs" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
@@ -83,6 +89,11 @@
       "lines" : [ 192, 213 ],
       "sha256" : "9448b67a7326dd7d51dcc49b27060ddf1b45295337207f7710439429bc916782"
     },
+    "src-subquery-forms" : {
+      "path" : "core/src/main/clojure/xtdb/xtql.clj",
+      "lines" : [ 141, 141 ],
+      "sha256" : "33a9a59b4f927aee4b094c2a5b16349dd2bcefd93d2c9302bf8bc52a61516734"
+    },
     "rel" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 298, 329 ],
@@ -92,6 +103,11 @@
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 105, 190 ],
       "sha256" : "7e2c79d7be2df408a034d1702f36ace986df232b18f911241e88d7dc261a8a27"
+    },
+    "boolean-fns" : {
+      "path" : "docs/src/content/docs/reference/main/stdlib/predicates.md",
+      "lines" : [ 29, 50 ],
+      "sha256" : "ab72ae36bef43c2d87242af863fce0f0c280d00f1e28c0345dea77b597c03c24"
     },
     "atomic-txs" : {
       "path" : "docs/src/content/docs/about/txs-in-xtdb.md",
