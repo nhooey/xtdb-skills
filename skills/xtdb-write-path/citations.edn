@@ -11,6 +11,7 @@
                   "core/src/main/kotlin/xtdb/trie/Trie.kt"
                   "core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt"
                   "core/src/main/kotlin/xtdb/table/TableSlug.kt"
+                  "core/src/main/kotlin/xtdb/api/storage/Storage.kt"
                   "docs/src/content/docs/about/dbs-in-xtdb.md"
                   "docs/src/content/docs/about/txs-in-xtdb.md"]}
 
@@ -46,6 +47,9 @@
   {:id "meta-path" :path "core/src/main/kotlin/xtdb/table/TableSlug.kt" :line "fun metaFilePath(trieKey: TrieKey): Path = metaFileDir().resolve(\"$trieKey.arrow\")"}
   {:id "block-file" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "bufferPool.putObject(TableCatalog.blockFilePath(blockIdx), ByteBuffer.wrap(block.toByteArray()))"}
   {:id "block-path" :path "core/src/main/kotlin/xtdb/catalog/TableCatalog.kt" :line "blocksPath.resolve(\"b${blockIndex.asLexHex}.binpb\")"}
+  {:id "storage-version" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "const val VERSION: StorageVersion = 6"}
+  {:id "storage-root" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "append(\"v${version.asLexHex}\")"}
+  {:id "lex-hex" :path "core/src/main/kotlin/xtdb/util/StringUtil.kt" :line "return \"${toUnsignedString(body.length - 1, 16)}$body\""}
   {:id "signal-compactor" :path "core/src/main/kotlin/xtdb/indexer/BlockCutter.kt" :line "compactor.signalBlock()"}]
 
  :observed

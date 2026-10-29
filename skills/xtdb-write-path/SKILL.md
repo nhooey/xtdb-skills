@@ -1,6 +1,6 @@
 ---
 name: xtdb-write-path
-description: How a write travels through XTDB 2.x, from the source log through the in-memory live index to the object store, and what it leaves there — what a block is, what decides where its boundary falls (rowsPerBlock rows, default 102400, or flushDuration, default 15 minutes), and what a level-0 file is (each block writes one data file and one meta file per table that took rows). Use when working out which files an XTDB 2.x node writes and when, what "block", "level 0" or "L0" means, why recent writes aren't in storage yet, or when tuning rowsPerBlock or flushDuration. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
+description: How a write travels through XTDB 2.x, from the source log through the in-memory live index to the object store, and what it leaves there — what a block is, what decides where its boundary falls (rowsPerBlock rows, default 102400, or flushDuration, default 15 minutes), and what a level-0 file is (each block writes one data file and one meta file per table that took rows). Use when working out which files an XTDB 2.x node writes and when, what "block", "level 0" or "L0" means, why recent writes aren't in storage yet, what the `v06` storage-version directory is and whether storage carries over to another release, or when tuning rowsPerBlock or flushDuration. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
 ---
 
 # The write path (XTDB 2.x)
@@ -91,6 +91,14 @@ and signals the compactor,[^signal-compactor] which re-sorts and
 re-partitions block files in the object store to make them faster to
 query.[^node-processing]
 
+All of these files go under a directory named for the storage version:
+`v`, then a hex digit giving the version's number of hex digits less
+one, then those digits,[^storage-root][^lex-hex] and the version is
+6,[^storage-version] so the directory is `v06`. The source says to bump
+the version if the storage format changes in a backwards-incompatible
+way,[^storage-version] so before moving a node's storage to another XTDB
+release, compare the two releases' versions.
+
 ## Related skills
 
 When one of these applies and it's in your skill listing, load it
@@ -135,3 +143,6 @@ apply it from memory.
 [^key-block]: [Trie.kt line 47, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L47-L47), unchanged since v2.0.0-beta7
 [^key-recency]: [Trie.kt line 45, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/Trie.kt#L45-L45), unchanged since v2.0.0-beta7
 [^quiet-flush]: [BlockFlusher.kt line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockFlusher.kt#L11-L11), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^storage-root]: [Storage.kt line 45, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/storage/Storage.kt#L45-L45), unchanged since v2.1.0-rc0
+[^storage-version]: [Storage.kt line 40, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/storage/Storage.kt#L40-L40), unchanged since v2.0.0-beta7
+[^lex-hex]: [StringUtil.kt line 167, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/util/StringUtil.kt#L167-L167), unchanged since v2.0.0-beta6
