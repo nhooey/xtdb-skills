@@ -4,7 +4,9 @@
 ;; with gc-off.yaml, writes the same rows to each, waits, and compares the
 ;; two storage directories; then it starts :image with gc-legacy.yaml, which
 ;; it should refuse, and with gc-idle.yaml, which it leaves without writes.
-;; Each example names one fact it checks.
+;; The checks `clj-interval-ignored` and `replica-log-per-open` instead
+;; start nodes of the classpath's xtdb-core in the eval's own process, from
+;; a Clojure node map. Each example names one fact it checks.
 {:skill "../../skills/xtdb-storage-gc/SKILL.md"
 
  :storage {:image "ghcr.io/xtdb/xtdb:2.2.0"
@@ -25,4 +27,6 @@
   {:id "gc-deletes-superseded" :check :deletes-superseded}
   {:id "gc-keeps-l0" :check :keeps-l0}
   {:id "gc-log-untouched" :check :log-untouched}
-  {:id "replica-log-idle" :check :replica-log-idle}]}
+  {:id "replica-log-idle" :check :replica-log-idle}
+  {:id "clj-interval-ignored" :check :clj-interval-ignored}
+  {:id "replica-log-per-open" :check :replica-log-per-open}]}

@@ -7,7 +7,8 @@
     clojure -M:eval prompt SUITE                 print SUITE/tasks.edn as a task sheet
     clojure -M:eval score SUITE ANSWERS.edn ...  score answer files ({task-id query-string})
     clojure -M:eval examples SUITE ...           run each suite's examples.edn
-    clojure -M:eval storage SUITE                run SUITE's storage checks on nodes of its own
+    clojure -M:eval storage SUITE [ID ...]       run SUITE's storage checks on nodes of its own,
+                                                 or only the examples named
 
   Connects with the XTDB client to localhost:15432 (XTDB_HOST and XTDB_PORT
   override it). With a client too old for that and xtdb-core on the
@@ -381,6 +382,50 @@
         (Thread/sleep idle-ms)
         {:before before :after (sizes) :idle-ms idle-ms}))))
 
+(def ^:private in-process-checks
+  "The storage checks that start a node of the classpath's xtdb-core in this
+  process, from a Clojure node map, instead of a container from YAML."
+  #{:clj-interval-ignored :replica-log-per-open})
+
+(defn- with-in-process-node
+  "Start a node in this process with a local log and storage under `dir`, no
+  server and no compactor, merged with `extra`; call `f` with it and close it."
+  [^File dir extra f]
+  (with-open [^java.lang.AutoCloseable node
+              ((requiring-resolve 'xtdb.node/start-node)
+               (merge {:log [:local {:path (str dir "/log")}]
+                       :storage [:local {:path (str dir "/storage")}]
+                       :server nil
+                       :compactor {:threads 0}}
+                      extra))]
+    (f node)))
+
+(defn- in-process-facts
+  "Each in-process check's [passed? detail]."
+  []
+  (let [dir #(.toFile (Files/createTempDirectory "xtdb-in-process" (make-array FileAttribute 0)))
+        attempt (fn [f] (try (f) (catch Exception e [false (str "failed: " (ex-message e))])))]
+    {:clj-interval-ignored
+     (attempt
+      #(let [rows (with-in-process-node (dir) {:garbage-collector {:enabled? true
+                                                                    :approx-run-interval (java.time.Duration/ofSeconds 3)}}
+                    (fn [node]
+                      (execute! node [[:put-docs :docs {:xt/id 1}]])
+                      (xt/q node '(from :docs [xt/id]))))]
+         [(= [{:xt/id 1}] rows)
+          (str "a node map with :approx-run-interval started, and a query returned " (pr-str rows))]))
+     :replica-log-per-open
+     (attempt
+      #(let [d (dir)
+             sizes (fn [] (vec (for [n ["LOG" "REPLICA_LOG"]] (.length (io/file d "log" n)))))
+             _ (with-in-process-node d {} (fn [node] (execute! node [[:put-docs :docs {:xt/id 1}]])))
+             runs (reductions (fn [_ _] (with-in-process-node d {} (fn [node] (xt/q node '(from :docs [xt/id]))))
+                                (sizes))
+                              (sizes) (range 3))]
+         [(and (apply = (map first runs)) (apply < (map second runs)))
+          (str "LOG and REPLICA_LOG bytes after one write, then after each of 3 opens that only query: "
+               (str/join ", " (map pr-str runs)))]))}))
+
 (defn- storage-facts
   "Each check's [passed? detail], from the runs with the GC on and off, and
   the idle run."
@@ -473,15 +518,21 @@
 
 (defn- storage!
   "Run one suite's storage checks; returns the number that failed."
-  [suite]
+  [suite ids]
   (let [{:keys [storage write-path example]} (read-edn (io/file suite "examples.edn"))
-        facts (if write-path
-                (write-path-facts (write-path-run suite write-path))
-                (storage-facts (storage-run suite "gc-on.yaml" storage)
-                               (storage-run suite "gc-off.yaml" storage)
-                               (storage-refused suite "gc-legacy.yaml" storage)
-                               (:blocks-to-keep storage)
-                               (storage-idle suite storage)))
+        example (cond->> example (seq ids) (filter (comp (set ids) :id)))
+        checks (set (keep :check example))
+        facts (merge
+               (when (some (complement in-process-checks) checks)
+                 (if write-path
+                   (write-path-facts (write-path-run suite write-path))
+                   (storage-facts (storage-run suite "gc-on.yaml" storage)
+                                  (storage-run suite "gc-off.yaml" storage)
+                                  (storage-refused suite "gc-legacy.yaml" storage)
+                                  (:blocks-to-keep storage)
+                                  (storage-idle suite storage))))
+               (when (some in-process-checks checks)
+                 (in-process-facts)))
         results (for [{:keys [id check]} example :when check]
                   (let [[ok detail] (get facts check [false (str "unknown check " check)])]
                     [id ok detail]))]
@@ -496,7 +547,7 @@
 (defn -main [& [cmd suite & args]]
   (let [failed (case cmd
                  "seed" (do (seed! (conn) suite) 0)
-                 "storage" (try (let [failed (storage! suite)] (write-results!) failed)
+                 "storage" (try (let [failed (storage! suite args)] (write-results!) failed)
                                 (catch clojure.lang.ExceptionInfo e
                                   (if (:config-refused (ex-data e))
                                     (do (println (ex-message e)) 1)

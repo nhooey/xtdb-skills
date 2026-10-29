@@ -118,4 +118,6 @@
   {:id "obs-legacy-refused" :example "gc-legacy-interval-refused"}
   {:id "obs-keeps-blocks" :example "gc-keeps-recent-blocks"}
   {:id "obs-keeps-l0" :example "gc-keeps-l0"}
-  {:id "obs-log-untouched" :example "gc-log-untouched"}]}
+  {:id "obs-log-untouched" :example "gc-log-untouched"}
+  {:id "obs-clj-interval" :example "clj-interval-ignored"}
+  {:id "obs-replica-per-open" :example "replica-log-per-open"}]}

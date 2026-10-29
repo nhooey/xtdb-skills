@@ -45,8 +45,8 @@ the one with the collector off kept 76 level-1+ files to the other's
 There is no `approxRunInterval` any more: nothing runs on a timer, only
 at block boundaries.[^gc-config][^block-signal] YAML that still sets it
 stops the node from starting.[^yaml-config][^obs-legacy-refused] A
-Clojure node map that still sets `:approx-run-interval` starts, and the
-key does nothing: only `:enabled?`, `:blocks-to-keep` and
+Clojure node map that still sets `:approx-run-interval`
+starts,[^obs-clj-interval] and the key does nothing: only `:enabled?`, `:blocks-to-keep` and
 `:garbage-lifetime` are read.[^clj-config]
 
 ## Configuring it
@@ -126,7 +126,7 @@ delete it.[^epoch]
 The replica log grows with no writes at all. Each time a node opens a
 database it isn't attached to read-only, it claims leadership by
 appending a record to the replica log,[^claim-leadership][^read-only-follows]
-so a node opened only to run queries still writes one. The leader then
+so a node opened only to run queries still writes one.[^obs-replica-per-open] The leader then
 appends a no-op whenever an assert interval passes with nothing else to
 append,[^assert-noop][^assert-timeout][^election-driver] 100 ms on a
 local or in-memory log and a second on any other, such as
@@ -321,3 +321,5 @@ apply it from memory.
 [^claim-leadership]: [LogProcessor.kt line 287, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L287-L287), unchanged since v2.2.0-beta3; differs in v2.1.1
 [^election-driver]: [LogProcessor.kt line 96, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L96-L96), unchanged since v2.2.0-beta2; differs in v2.1.1
 [^log-split-local]: [log.md line 23, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L23-L23), unchanged since v2.2.0-beta1; differs in v2.1.1
+[^obs-clj-interval]: Observed on XTDB v2.2.0: example `clj-interval-ignored` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-replica-per-open]: Observed on XTDB v2.2.0: example `replica-log-per-open` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
