@@ -1,13 +1,13 @@
 ---
 name: xtdb-erase-and-history
-description: What XTDB 2.x keeps when you put, patch, delete or erase a document — every write is a new version with the whole document, delete keeps history, erase-docs removes an id's entire history in one table, and there is no partial erase. Use when deleting or erasing data in XTDB 2.x, dropping old versions while keeping the current row, reading a row's history, or working out why history grows. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the docs or an example re-run against a live node.
+description: What XTDB 2.x keeps when you put, patch, delete or erase a document — every write is a new version with the whole document, delete keeps history, erase-docs removes an id's entire history in one table, and there is no partial erase. Use when deleting or erasing data in XTDB 2.x, dropping old versions while keeping the current row, reading a row's history, or working out why history grows; when a delete-docs or erase-docs fails with "Table not found", or when giving a transaction its own :system-time. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the docs, the source or an example re-run against a live node.
 ---
 
 # Erase, delete and history (XTDB 2.x)
 
 Written from `xtdb/xtdb` at tag `v2.2.0`. Each claim's footnote points at
-the docs section it was read from or at an example in the xtdb-skills eval
-that shows it on a live node; `citations.edn` lists them. For how erased
+the docs section or source it was read from or at an example in the
+xtdb-skills eval that shows it on a live node; `citations.edn` lists them. For how erased
 data leaves disk, see the `xtdb-storage-gc` skill.
 
 ## Versions
@@ -79,6 +79,19 @@ the id is left in that table, in any valid or system
 time.[^obs-erase-all-versions] It erases from one table only; the same id
 in another table is untouched.[^obs-erase-per-table]
 
+Both need a table that has been written to. The client and an in-process
+node both send `delete-docs` and `erase-docs` as SQL `DELETE` and `ERASE`
+statements,[^client-delete][^client-erase][^node-delete-erase] and on a
+table nothing has written, planning them fails with "Table not
+found".[^obs-delete-unwritten][^obs-erase-unwritten] Earlier tags,
+which the footnotes name, committed them instead. The whole
+transaction fails with it: a put in the same transaction isn't
+written either.[^obs-unwritten-whole-tx] An id the table doesn't hold is
+fine; deleting or erasing it commits and changes
+nothing.[^obs-absent-id] A query of a table never written returns no
+rows instead of failing,[^obs-from-unwritten] so when the table may not
+exist yet, read its ids with `from` first and delete only those found.
+
 There is no erase of only the old versions: `erase-docs` takes no time
 range.[^erase-docs] To drop a row's history but
 keep its current state, read the current document, erase the id, then put
@@ -94,6 +107,18 @@ the document again — in that order:
 That leaves one version, the re-put document.[^obs-erase-then-put]
 Erasing *after* re-putting under the same table and id erases the new
 version too, leaving nothing.[^obs-put-then-erase]
+
+## Setting a transaction's system time
+
+`submit-tx` and `execute-tx` take a `:system-time` that overrides the
+transaction's system time; their docstrings say it "mustn't be earlier
+than any previous system-time".[^submit-tx-opts] It must be later: a
+`:system-time` equal to the latest transaction's is rejected with
+`invalid-system-time`, as an earlier one
+is.[^resolver-system-time][^obs-system-time-equal] The source gives the
+reason: a read basis names a transaction by its system time, so two
+transactions can't share one.[^resolver-system-time] When writing with
+explicit times, give each transaction a later one than the last.
 
 ## Related skills
 
@@ -122,3 +147,14 @@ apply it from memory.
 [^obs-put-whole]: Observed on XTDB v2.2.0: example `put-stores-whole-document` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
 [^patch-docs]: [txs.md § `patch-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L68-L127), unchanged since v2.1.0-rc0
 [^temporal-filters]: [queries.md § Temporal filters, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L162-L190), unchanged since v2.1.0-rc0
+[^client-delete]: [api.clj `(defn- delete-docs!`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L203-L211), unchanged since v2.2.0-rc1; differs in v2.1.1
+[^client-erase]: [api.clj `(defn- erase-docs!`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L213-L216), unchanged since v2.2.0-rc1; differs in v2.1.1
+[^node-delete-erase]: [adbc.clj `(defn- op->tx-ops`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/adbc.clj#L97-L119), unchanged since v2.2.0-rc1; differs in v2.1.1
+[^obs-absent-id]: Observed on XTDB v2.2.0: example `delete-absent-id-commits` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-delete-unwritten]: Observed on XTDB v2.2.0: example `delete-unwritten-table-fails` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-erase-unwritten]: Observed on XTDB v2.2.0: example `erase-unwritten-table-fails` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-from-unwritten]: Observed on XTDB v2.2.0: example `from-unwritten-table-empty` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-system-time-equal]: Observed on XTDB v2.2.0: example `system-time-equal-rejected` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-beta3; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-unwritten-whole-tx]: Observed on XTDB v2.2.0: example `unwritten-table-fails-whole-tx` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^resolver-system-time]: [TxResolver.kt line 215, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/TxResolver.kt#L215-L215), unchanged since v2.2.0-beta3; differs in v2.1.1
+[^submit-tx-opts]: [api.clj `(defn submit-tx`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L258-L303), unchanged since v2.2.0-beta2; differs in v2.1.1

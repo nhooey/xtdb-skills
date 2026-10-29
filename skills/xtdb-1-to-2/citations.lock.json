@@ -177,6 +177,12 @@
       "since" : "v2.2.0-beta1",
       "differs" : [ "v2.1.1" ]
     },
+    "v1-delete" : {
+      "path" : "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc",
+      "lines" : [ 146, 146 ],
+      "sha256" : "5b50c5c67fb7d06f73450f16187f8c60a44c3b96a469a60814272b36046970bb",
+      "source" : "xtdb/xtdb@1.24.5"
+    },
     "xtql-in-sql" : {
       "path" : "core/src/main/antlr/xtdb/antlr/Sql.g4",
       "lines" : [ 704, 704 ],
@@ -341,6 +347,10 @@
     "obs-delete-removed" : {
       "since" : "v2.0.0-beta7",
       "fails" : [ ]
+    },
+    "obs-delete-unwritten-table" : {
+      "since" : "v2.2.0-rc0",
+      "fails" : [ "v2.1.1" ]
     },
     "obs-erase-removed" : {
       "since" : "v2.0.0-beta7",

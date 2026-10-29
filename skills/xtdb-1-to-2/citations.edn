@@ -63,6 +63,9 @@
   {:id "v1-match" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
    :line "Match checks the state of an entity - if the entity doesn't match the provided document, the transaction will not continue."
    :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
+  {:id "v1-delete" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
+   :line "<1> Document ID to be deleted"
+   :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
   {:id "v1-evict" :path "docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc"
    :line "Evicts a document from XTDB. Historical versions of the document will no longer be available."
    :source {:repo "xtdb/xtdb" :tag "1.24.5"}}
@@ -133,4 +136,5 @@
   {:id "obs-delete-removed" :example "delete-removed"}
   {:id "obs-erase-removed" :example "erase-removed"}
   {:id "obs-assert-exists-removed" :example "assert-exists-removed"}
-  {:id "obs-assert-not-exists-removed" :example "assert-not-exists-removed"}]}
+  {:id "obs-assert-not-exists-removed" :example "assert-not-exists-removed"}
+  {:id "obs-delete-unwritten-table" :example "delete-unwritten-table-fails"}]}

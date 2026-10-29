@@ -73,4 +73,37 @@
    :setup [[[:put-docs :run/docs {:xt/id 1, :stable "big", :volatile 1}]]
            [[:patch-docs :run/docs {:xt/id 1, :volatile 2}]]]
    :query (from :run/docs {:bind [stable volatile], :for-system-time :all-time})
-   :expected [{:stable "big", :volatile 1} {:stable "big", :volatile 2}]}]}
+   :expected [{:stable "big", :volatile 1} {:stable "big", :volatile 2}]}
+
+  ;; :run/never is a table nothing writes to.
+  {:id "delete-unwritten-table-fails"
+   :tx [[:delete-docs :run/never 1]]
+   :expect-error "Table not found"}
+
+  {:id "erase-unwritten-table-fails"
+   :tx [[:erase-docs :run/never 1]]
+   :expect-error "Table not found"}
+
+  {:id "unwritten-table-fails-whole-tx"
+   :tx [[:put-docs :run/docs {:xt/id 1}]
+        [:delete-docs :run/never 1]]
+   :expect-error "Table not found"
+   :query (from :run/docs [xt/id])
+   :expected []}
+
+  {:id "from-unwritten-table-empty"
+   :query (from :run/never [xt/id])
+   :expected []}
+
+  {:id "delete-absent-id-commits"
+   :setup [[[:put-docs :run/docs {:xt/id 1}]]]
+   :tx [[:delete-docs :run/docs 2]
+        [:erase-docs :run/docs 3]]
+   :query (from :run/docs [xt/id])
+   :expected [{:xt/id 1}]}
+
+  {:id "system-time-equal-rejected"
+   :setup [[[:put-docs :run/docs {:xt/id 1}]]]
+   :tx [[:put-docs :run/docs {:xt/id 2}]]
+   :same-system-time true
+   :expect-error "invalid-system-time"}]}

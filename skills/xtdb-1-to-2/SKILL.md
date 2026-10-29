@@ -103,6 +103,11 @@ version's docs or source, rather than applying it.
   `:xtql/unknown-tx-op`.[^unknown-tx-op][^obs-v1-put-op][^obs-v1-match-op][^obs-v1-evict-op][^obs-v1-fn-op]
   XTDB 2's operations are `:put-docs`, `:patch-docs`, `:delete-docs` and
   `:erase-docs`, each naming its table.[^tx-ops]
+- **Deleting by id alone.** XTDB 1's delete took a document id,[^v1-delete]
+  with no table to name. A 2.x `:delete-docs` names its table, and fails
+  with "Table not found" if nothing has written to that table
+  yet.[^tx-ops][^obs-delete-unwritten-table] `xtdb-erase-and-history`
+  says what to do instead.
 - **Evict.** XTDB 1's evict removed every version of a
   document;[^v1-evict] `:erase-docs` is its
   replacement.[^erase-docs] `xtdb-erase-and-history` covers it.
@@ -250,3 +255,5 @@ apply it from memory.
 [^sql-op]: [tx_ops.clj `(defmethod parse-tx-op :sql [`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/tx_ops.clj#L53-L57), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^txs-atomic]: [txs-in-xtdb.md line 34, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L34-L34), unchanged since v2.1.0-rc0
 [^xtql-in-sql]: [Sql.g4 line 704, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/antlr/xtdb/antlr/Sql.g4#L704-L704), unchanged since v2.0.0-beta8
+[^obs-delete-unwritten-table]: Observed on XTDB v2.2.0: example `delete-unwritten-table-fails` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
+[^v1-delete]: [datalog-transactions.adoc line 146, xtdb/xtdb 1.24.5](https://github.com/xtdb/xtdb/blob/1.24.5/docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc#L146-L146)

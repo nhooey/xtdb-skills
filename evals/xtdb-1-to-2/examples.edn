@@ -150,4 +150,8 @@
   {:id "assert-not-exists-removed"
    :private [:people]
    :tx [[:assert-not-exists (from :people [name])]]
-   :expect-error "xtql-dml-removed"}]}
+   :expect-error "xtql-dml-removed"}
+
+  {:id "delete-unwritten-table-fails"
+   :tx [[:delete-docs :run/never 1]]
+   :expect-error "Table not found"}]}

@@ -4,7 +4,9 @@
 {:source {:repo "xtdb/xtdb"
           :tag "v2.2.0"
           :watch ["docs/src/content/docs/reference/main/xtql/txs.md"
-                  "docs/src/content/docs/about/time-in-xtdb.md"]}
+                  "docs/src/content/docs/about/time-in-xtdb.md"
+                  "core/src/main/clojure/xtdb/adbc.clj"
+                  "core/src/main/kotlin/xtdb/indexer/TxResolver.kt"]}
 
  :observed-on "XTDB"
  :observations "../../evals/xtdb-erase-and-history/examples.edn"
@@ -14,7 +16,12 @@
   {:id "patch-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`patch-docs`"}
   {:id "delete-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`delete-docs`"}
   {:id "erase-docs" :path "docs/src/content/docs/reference/main/xtql/txs.md" :heading "`erase-docs`"}
-  {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}]
+  {:id "temporal-filters" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Temporal filters"}
+  {:id "client-delete" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn- delete-docs!"}
+  {:id "client-erase" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn- erase-docs!"}
+  {:id "node-delete-erase" :path "core/src/main/clojure/xtdb/adbc.clj" :form "(defn- op->tx-ops"}
+  {:id "submit-tx-opts" :path "api/src/main/clojure/xtdb/api.clj" :form "(defn submit-tx"}
+  {:id "resolver-system-time" :path "core/src/main/kotlin/xtdb/indexer/TxResolver.kt" :line "// Equal is rejected as well as older — a read basis names a tx by its system-time, so two txs"}]
 
  :observed
  [{:id "obs-identical-put" :example "identical-put-adds-version"}
@@ -26,4 +33,10 @@
   {:id "obs-erase-all-versions" :example "erase-removes-all-versions"}
   {:id "obs-erase-per-table" :example "erase-is-per-table"}
   {:id "obs-erase-then-put" :example "erase-then-put"}
-  {:id "obs-put-then-erase" :example "put-then-erase"}]}
+  {:id "obs-put-then-erase" :example "put-then-erase"}
+  {:id "obs-delete-unwritten" :example "delete-unwritten-table-fails"}
+  {:id "obs-erase-unwritten" :example "erase-unwritten-table-fails"}
+  {:id "obs-unwritten-whole-tx" :example "unwritten-table-fails-whole-tx"}
+  {:id "obs-absent-id" :example "delete-absent-id-commits"}
+  {:id "obs-from-unwritten" :example "from-unwritten-table-empty"}
+  {:id "obs-system-time-equal" :example "system-time-equal-rejected"}]}
