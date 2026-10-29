@@ -13,6 +13,8 @@
                   "dev/doc/gc.allium"
                   "docs/src/content/docs/ops/config.md"
                   "core/src/main/kotlin/xtdb/api/log/LocalLog.kt"
+                  "core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt"
+                  "core/src/main/kotlin/xtdb/indexer/ReplicaLogAppender.kt"
                   "core/src/main/clojure/xtdb/garbage_collector.clj"
                   "core/src/main/clojure/xtdb/trie_catalog.clj"
                   "core/src/main/kotlin/xtdb/database/DatabaseCatalog.kt"
@@ -73,6 +75,12 @@
   {:id "erase-disk" :path "docs/src/content/docs/quickstart/sql-overview.mdx" :heading "ERASE as 'hard' delete"}
   {:id "local-log" :path "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" :form "class LocalLog<M> @JvmOverloads constructor("}
   {:id "local-replica-log" :path "core/src/main/kotlin/xtdb/api/log/LocalLog.kt" :line "LocalLog(path, ReplicaMessage.Codec, instantSource"}
+  {:id "log-split-local" :path "docs/src/content/docs/ops/config/log.md" :line "The in-memory and local-disk log implementations are single-node only and unaffected."}
+  {:id "claim-leadership" :path "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt" :line "following.claimMsgId = logsDriver.appendToReplica(NoOp(termId = termId, termSeq = 0)).msgId"}
+  {:id "assert-noop" :path "core/src/main/kotlin/xtdb/indexer/ReplicaLogAppender.kt" :line "electionDriver.run { onAssertTimeout { ControlItem(NoOp(termId = leaderTerm)) } }"}
+  {:id "assert-timeout" :path "core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt" :line "onTimeout(assertInterval, body)"}
+  {:id "election-driver" :path "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt" :line "private val electionDriver: ElectionDriver = RealElectionDriver(partitionStorage.logs.replicaLog),"}
+  {:id "assert-interval" :path "core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt" :form "class RealElectionDriver("}
   {:id "log-split" :path "docs/src/content/docs/ops/config/log.md" :line "Each database now uses two logs under the hood"}
   {:id "log-local-disk" :path "docs/src/content/docs/ops/config/log.md" :heading "Local disk"}
   {:id "epoch" :path "docs/src/content/docs/ops/config/log.md" :heading "Bumping an Epoch"}

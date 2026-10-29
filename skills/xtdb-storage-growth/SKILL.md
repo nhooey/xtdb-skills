@@ -24,8 +24,9 @@ so go through every branch, not only the first that fits.
    was detached? Load `xtdb-storage-gc` for both.
 3. **Is it the logs?** Is the growth in the source or replica log, a
    local `LOG` or `REPLICA_LOG` file or a Kafka topic, not the object
-   store? Load `xtdb-storage-gc`, which covers what deletes the logs and
-   Kafka's retention.
+   store? Does it grow while the node takes no writes? Load
+   `xtdb-storage-gc`, which covers what deletes the logs, what the
+   replica log takes with no writes, and Kafka's retention.
 4. **Is it data that should have been erased?** Was the data deleted
    rather than erased, or erased but still on disk? Load
    `xtdb-erase-and-history` for delete against erase, and

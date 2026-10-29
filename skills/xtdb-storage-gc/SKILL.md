@@ -1,6 +1,6 @@
 ---
 name: xtdb-storage-gc
-description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and runs on each database's indexing leader at every block boundary, deleting files that compaction has superseded; and know what it never deletes — level-0 files and the source and replica logs. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, when a v2.1 config with approxRunInterval stops starting, or when asking whether erased data has left disk, what the disk or memory cache (diskCache, memoryCache, maxSizeRatio) holds, whether DETACH DATABASE frees space, or how to drop or truncate a table. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
+description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and runs on each database's indexing leader at every block boundary, deleting files that compaction has superseded; and know what it never deletes — level-0 files and the source and replica logs. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, when a v2.1 YAML config with approxRunInterval stops starting or a Clojure node map still sets :approx-run-interval, when an idle node's REPLICA_LOG keeps growing, or when asking whether erased data has left disk, what the disk or memory cache (diskCache, memoryCache, maxSizeRatio) holds, whether DETACH DATABASE frees space, or how to drop or truncate a table. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
 ---
 
 # Storage garbage collection (XTDB 2.x)
@@ -44,7 +44,10 @@ the one with the collector off kept 76 level-1+ files to the other's
 
 There is no `approxRunInterval` any more: nothing runs on a timer, only
 at block boundaries.[^gc-config][^block-signal] YAML that still sets it
-stops the node from starting.[^yaml-config][^obs-legacy-refused]
+stops the node from starting.[^yaml-config][^obs-legacy-refused] A
+Clojure node map that still sets `:approx-run-interval` starts, and the
+key does nothing: only `:enabled?`, `:blocks-to-keep` and
+`:garbage-lifetime` are read.[^clj-config]
 
 ## Configuring it
 
@@ -119,6 +122,18 @@ retention,[^kafka-topic][^kafka-replica-topic] and the docs leave
 `retention.ms` to the operator, for both topics.[^kafka-setup][^kafka-settings]
 Bumping the log's epoch makes nodes ignore the old log but doesn't
 delete it.[^epoch]
+
+The replica log grows with no writes at all. Each time a node opens a
+database it isn't attached to read-only, it claims leadership by
+appending a record to the replica log,[^claim-leadership][^read-only-follows]
+so a node opened only to run queries still writes one. The leader then
+appends a no-op whenever an assert interval passes with nothing else to
+append,[^assert-noop][^assert-timeout][^election-driver] 100 ms on a
+local or in-memory log and a second on any other, such as
+Kafka.[^assert-interval] Each database
+has its own replica log, so each grows this way.[^log-split] The log
+docs call the in-memory and local logs "unaffected" by the source and
+replica split;[^log-split-local] a local log still writes both files.
 
 A topic with no `retention.ms` takes the broker's: `log.retention.ms`,
 else `log.retention.minutes`, else
@@ -300,3 +315,9 @@ apply it from memory.
 [^disk-cache-ratio]: [DiskCache.kt line 33, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/cache/DiskCache.kt#L33-L33), unchanged since v2.1.0-beta1
 [^disk-cache-size]: [DiskCache.kt line 41, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/cache/DiskCache.kt#L41-L41), unchanged since v2.1.0-beta1
 [^memory-cache-ratio]: [MemoryCache.kt line 250, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/cache/MemoryCache.kt#L250-L250), unchanged since v2.1.0-beta1
+[^assert-interval]: [ElectionDriver.kt `class RealElectionDriver(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt#L30-L64), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^assert-noop]: [ReplicaLogAppender.kt line 65, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/ReplicaLogAppender.kt#L65-L65), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^assert-timeout]: [ElectionDriver.kt line 48, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt#L48-L48), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^claim-leadership]: [LogProcessor.kt line 287, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L287-L287), unchanged since v2.2.0-beta3; differs in v2.1.1
+[^election-driver]: [LogProcessor.kt line 96, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L96-L96), unchanged since v2.2.0-beta2; differs in v2.1.1
+[^log-split-local]: [log.md line 23, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L23-L23), unchanged since v2.2.0-beta1; differs in v2.1.1

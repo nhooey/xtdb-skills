@@ -3,10 +3,12 @@
   "tag" : "v2.2.0",
   "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
   "files" : {
+    "core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt" : "4e2faa1d8a00c61ff7d2fe503010c180aed59fdaa7a79a5c0e1d0f3d651907b5",
     "modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt" : "1c3e731b31a13ed417bb47c89f947c5643fa83191c73bd4244ebe223671ad0b1",
     "core/src/main/kotlin/xtdb/garbage_collector/BlockGarbageCollector.kt" : "5b2f41b24f278f385592f8e965b78bca2a9f34151b6a33a3d880b8052d6a4ff8",
     "core/src/main/kotlin/xtdb/indexer/LeaderLogProcessor.kt" : "ad6da8578c62e173e6a32e925a9dcab1446da6cb6d21c2ad6c2c5b08bbd7ab14",
     "core/src/main/clojure/xtdb/db_catalog.clj" : "24d072d93ca8149dcc5362d63ed6725a71d24f194e516eeceda350912ddafb37",
+    "core/src/main/kotlin/xtdb/indexer/ReplicaLogAppender.kt" : "2d90679cf07ec4aface9a98d839902e0d027c75f49354437a982b338a5ad00f1",
     "docs/src/content/docs/ops/config/log.md" : "3efbdaa952144ae19923873cf82a1bb29e8fcfd9e4b28a1e2a50a46e3f7d4c42",
     "core/src/main/kotlin/xtdb/util/SystemLogger.kt" : "8bf96dcea818b9cf7496a96862de40283ad6b49160792f66752d3900ca4d31a5",
     "core/src/main/kotlin/xtdb/api/CompactorConfig.kt" : "161279d29274a5803eca7fbb4d0cd44c0598618e92fd17a1a211726cf808e721",
@@ -42,6 +44,20 @@
     "core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt" : "1336cfc627fcc45c293691197c0b78d68ce977724ae2fe73631ff74b5f21f3f5"
   },
   "citations" : {
+    "election-driver" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt",
+      "lines" : [ 96, 96 ],
+      "sha256" : "41a07bb5de722b02151d50b4524d3cc487bd8b846d7e056f1665eb8246bfaaa6",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
+    },
+    "assert-interval" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt",
+      "lines" : [ 30, 64 ],
+      "sha256" : "2d9aedb9ed5031d4337088425170d5f7ce278bb3a469e5fa19f108eb07808ecf",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
+    },
     "gc-config" : {
       "path" : "core/src/main/kotlin/xtdb/api/GarbageCollectorConfig.kt",
       "lines" : [ 9, 21 ],
@@ -188,6 +204,13 @@
       "since" : "v2.2.0-beta1",
       "differs" : [ "v2.1.1" ]
     },
+    "assert-noop" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/ReplicaLogAppender.kt",
+      "lines" : [ 65, 65 ],
+      "sha256" : "e9aa3c19ed04d22d3f7c8c3b4790ce7cf9a91061ac24d79d2eca266a79ee0344",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
+    },
     "kafka-topic" : {
       "path" : "modules/kafka/src/main/kotlin/xtdb/api/log/KafkaCluster.kt",
       "lines" : [ 122, 474 ],
@@ -272,10 +295,24 @@
       "since" : "v2.1.0-rc0",
       "differs" : [ ]
     },
+    "log-split-local" : {
+      "path" : "docs/src/content/docs/ops/config/log.md",
+      "lines" : [ 23, 23 ],
+      "sha256" : "9102b5c358beff2bb4f29c4a7898ccf8bf419138414cc92c73819be9f76b7360",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
     "local-replica-log" : {
       "path" : "core/src/main/kotlin/xtdb/api/log/LocalLog.kt",
       "lines" : [ 350, 350 ],
       "sha256" : "b9eb7db9d20761bba8707ac9fd8dfeb632c3a314373b5e4f2af330267013db43",
+      "since" : "v2.2.0-beta2",
+      "differs" : [ "v2.1.1" ]
+    },
+    "assert-timeout" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/ElectionDriver.kt",
+      "lines" : [ 48, 48 ],
+      "sha256" : "771c24c2cf25dbf5243600a42144a89fcf84bfeda3a8da83a51283f3a640cefc",
       "since" : "v2.2.0-beta2",
       "differs" : [ "v2.1.1" ]
     },
@@ -332,6 +369,13 @@
       "sha256" : "734887a8bafc3b9648060fa205d52195f90fa178c020165f3973e57bbb5b7c73",
       "since" : "v2.0.0-beta7",
       "differs" : [ ]
+    },
+    "claim-leadership" : {
+      "path" : "core/src/main/kotlin/xtdb/indexer/LogProcessor.kt",
+      "lines" : [ 287, 287 ],
+      "sha256" : "0e717a5d4fc7a68feda079804b218903e11445e44d010eec78ffddf899f1ef0c",
+      "since" : "v2.2.0-beta3",
+      "differs" : [ "v2.1.1" ]
     },
     "dbs-attach" : {
       "path" : "docs/src/content/docs/about/dbs-in-xtdb.md",
