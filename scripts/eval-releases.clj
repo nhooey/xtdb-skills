@@ -16,6 +16,9 @@
 ;;
 ;; Writes evals/SUITE/releases.edn: {:tags [[tag status]...] :results
 ;; {id [[tag status]...]}}, in release order. `skill-citations lock` reads it.
+;; With --tags, it merges into the file instead: each tag run replaces that
+;; tag's status and results, unless the run left it untested and the file
+;; has it, and every other tag keeps what the file has.
 
 (require '[babashka.fs :as fs]
          '[babashka.process :as p]
@@ -113,11 +116,30 @@
           (result)
           (finally (sh "docker" "stop" container)))))))
 
+(defn merge-record
+  "`old`, a suite's releases.edn, with `new`'s tags put in: a tag `new`
+  tested, or whose node refused the config, replaces `old`'s; a tag `new`
+  left untested is added only if `old` lacks it. In the release order of
+  `ordered`, every tag's name."
+  [old new ordered]
+  (let [tested? #{:tested :config-refused}
+        old-tags (into {} (:tags old))
+        taken (into {} (filter (fn [[t st]] (or (tested? st) (not (old-tags t))))) (:tags new))
+        tags (merge old-tags taken)
+        pos (into {} (map-indexed (fn [i t] [t i]) ordered))
+        in-order #(vec (sort-by (comp pos first) %))
+        results (merge-with merge
+                            (update-vals (:results old) #(apply dissoc (into {} %) (keys taken)))
+                            (update-vals (:results new) #(into {} (filter (comp taken first)) %)))]
+    {:tags (in-order tags)
+     :results (into (sorted-map) (for [[id r] results :when (seq r)] [id (in-order r)]))}))
+
 (defn -main [args]
   (let [storage? (some #{"--storage"} args)
         tag-filter (some-> (second (drop-while #(not= "--tags" %) args)) re-pattern)
         suites (vec (remove #(or (str/starts-with? % "--") (and tag-filter (= (str tag-filter) %))) args))
-        all (cond->> (tags) tag-filter (filter #(re-find tag-filter (:tag %))))
+        every-tag (tags)
+        all (cond->> every-tag tag-filter (filter #(re-find tag-filter (:tag %))))
         record (atom (into {} (for [s suites] [s {:tags [] :results (sorted-map)}])))]
     (doseq [{:keys [tag version] :as t} all]
       (print (str tag ": ")) (flush)
@@ -141,8 +163,11 @@
                    (-> rec
                        (update :tags conj [tag st])
                        (update :results (fn [m] (reduce-kv (fn [m id v] (update m id (fnil conj []) [tag v])) m (when (map? r) r))))))))))
-    (doseq [[s {:keys [tags results]}] @record]
-      (let [f (str (fs/path evals s "releases.edn"))]
+    (doseq [[s rec] @record]
+      (let [f (str (fs/path evals s "releases.edn"))
+            {:keys [tags results]} (if (and tag-filter (fs/exists? f))
+                                     (merge-record (edn/read-string (slurp f)) rec (map :tag every-tag))
+                                     rec)]
         (spit f (str ";; Written by scripts/eval-releases.clj: each tag's status, and each example's\n"
                      ";; result on every tag it ran on. `skill-citations lock` reads it.\n"
                      (pr-str {:tags tags :results results})
