@@ -25,7 +25,8 @@
 (def root (str (fs/parent (fs/parent (fs/absolutize *file*)))))
 (def evals (str (fs/path root "evals")))
 (def tag-re #"^v(2\.\d+\.\d+)(?:-((?:beta|rc)\d+(?:\.\d+)?))?$")
-(def port 15432)
+;; XTDB_PORT, which the eval reads too, moves it off a port already in use.
+(def port (parse-long (or (System/getenv "XTDB_PORT") "15432")))
 
 (defn sh [& args] (apply p/shell {:out :string :err :string :continue true} args))
 

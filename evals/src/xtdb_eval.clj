@@ -52,8 +52,8 @@
 (defn- execute!
   "`xt/execute-tx`, throwing a transaction's error: before XTDB v2.0.0-beta8.4
   a node returns an aborted transaction instead."
-  [c tx]
-  (let [r (xt/execute-tx c tx)]
+  [c tx & [opts]]
+  (let [r (xt/execute-tx c tx (or opts {}))]
     (when (false? (:committed? r))
       (throw (if (instance? Throwable (:error r)) (:error r) (ex-info (str (:error r)) {}))))
     r))
@@ -143,15 +143,21 @@
   first. With a :tx, that transaction must fail with :expect-error, or commit
   if there's none, and the query, if any, is then compared with :expected.
   Without one, the query's rows are compared with :expected, or its error
-  with :expect-error. :opts, if any, is the query's options map."
-  [c query {:keys [args opts setup tx private expect-error] :as spec}]
+  with :expect-error. :opts, if any, is the query's options map. With
+  :same-system-time, the last :setup transaction and the :tx both give one
+  :system-time, a second from now."
+  [c query {:keys [args opts setup tx same-system-time private expect-error] :as spec}]
   (let [n (swap! example-count inc)
-        setup-error (try (doseq [tx (private-tables n private setup)] (execute! c tx)) nil
+        tx-opts (if same-system-time {:system-time (.plusSeconds (Instant/now) 1)} {})
+        setup (private-tables n private setup)
+        setup-error (try (doseq [[i tx] (map-indexed vector setup)]
+                           (execute! c tx (if (= i (dec (count setup))) tx-opts {})))
+                         nil
                          (catch Exception e (error-text e)))
         query! #(run-query c (private-tables n private query) args opts)]
     (cond
       setup-error [:error (str "setup failed: " setup-error)]
-      tx (let [tx-error (try (execute! c (private-tables n private tx)) nil
+      tx (let [tx-error (try (execute! c (private-tables n private tx) tx-opts) nil
                              (catch Exception e (error-text e)))
                [status :as tx-result] (if expect-error
                                         (expected-error tx-error expect-error)
@@ -363,9 +369,22 @@
           :else (do (Thread/sleep 1000) (recur (dec tries)))))
       (finally (shell/sh "docker" "rm" "-f" container)))))
 
+(defn- storage-idle
+  "Start `image` with SUITE/gc-idle.yaml, write nothing, and return the
+  sizes of its LOG and REPLICA_LOG files `idle-ms` apart."
+  [suite {:keys [idle-ms] :as opts}]
+  (with-storage-node suite "gc-idle.yaml" opts
+    (fn [_ data _]
+      (Thread/sleep 5000)
+      (let [sizes #(vec (for [n ["LOG" "REPLICA_LOG"]] (.length (io/file data "log" n))))
+            before (sizes)]
+        (Thread/sleep idle-ms)
+        {:before before :after (sizes) :idle-ms idle-ms}))))
+
 (defn- storage-facts
-  "Each check's [passed? detail], from the runs with the GC on and off."
-  [on off legacy keep]
+  "Each check's [passed? detail], from the runs with the GC on and off, and
+  the idle run."
+  [on off legacy keep idle]
   (let [count-of (fn [run re] (count (filter #(re-find re %) (:files run))))
         global-blocks #"^buffers/v\d+/blocks/"
         l0 #"/(data|meta)/l00-"
@@ -387,6 +406,11 @@
                           (str "level-1+ files: " (both l1+))]
      :keeps-l0 [(and (pos? (count-of on l0)) (= (count-of on l0) (count-of off l0)))
                 (str "level-0 files: " (both l0))]
+     :replica-log-idle (let [{[log0 rep0] :before [log1 rep1] :after ms :idle-ms} idle]
+                         [(and (= log0 log1) (> rep1 rep0))
+                          (str "with no writes for " (quot ms 1000) " s, LOG " log0 " -> " log1
+                               " bytes, REPLICA_LOG " rep0 " -> " rep1 " bytes, "
+                               (long (/ (- rep1 rep0) (/ ms 1000.0))) " bytes a second")])
      :log-untouched [(and (pos? (:log-after-writes on)) (>= (:log-bytes on) (:log-after-writes on)))
                      (str "GC on, LOG + REPLICA_LOG bytes after the writes " (:log-after-writes on)
                           ", after the collector ran " (:log-bytes on) "; GC off, " (:log-bytes off))]}))
@@ -428,6 +452,11 @@
                    (str "after 10 rows: " (count (matching below blocks)) " block files, "
                         (count (matching below (l0-data "docs"))) " level-0 files, LOG "
                         (:log-bytes below) " bytes, and a query counts " (:docs below) " rows")]
+     :storage-root [(and (seq (matching reached blocks))
+                         (every? #(str/starts-with? % "buffers/v06/") (filter #(str/starts-with? % "buffers/") (:files reached))))
+                    (str "after the first block, the directories under buffers/: "
+                         (str/join ", " (sort (set (for [p (:files reached) :when (str/starts-with? p "buffers/")]
+                                                      (str/join "/" (take 2 (str/split p #"/"))))))))]
      :block-at-rows [(= 1 (count (matching reached blocks)))
                      (str "after 60 rows: block files " (names (matching reached blocks)))]
      :l0-pair [(and (= 1 (count (matching reached (l0-data "docs"))))
@@ -451,7 +480,8 @@
                 (storage-facts (storage-run suite "gc-on.yaml" storage)
                                (storage-run suite "gc-off.yaml" storage)
                                (storage-refused suite "gc-legacy.yaml" storage)
-                               (:blocks-to-keep storage)))
+                               (:blocks-to-keep storage)
+                               (storage-idle suite storage)))
         results (for [{:keys [id check]} example :when check]
                   (let [[ok detail] (get facts check [false (str "unknown check " check)])]
                     [id ok detail]))]

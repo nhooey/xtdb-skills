@@ -13,6 +13,7 @@
 
  :example
  [{:id "wp-below-block" :check :below-block}
+  {:id "wp-storage-root" :check :storage-root}
   {:id "wp-block-at-rows" :check :block-at-rows}
   {:id "wp-l0-pair" :check :l0-pair}
   {:id "wp-tx-not-split" :check :tx-not-split}

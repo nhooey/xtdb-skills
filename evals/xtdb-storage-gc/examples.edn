@@ -3,7 +3,8 @@
 ;; :image twice on a fresh data directory, once with gc-on.yaml and once
 ;; with gc-off.yaml, writes the same rows to each, waits, and compares the
 ;; two storage directories; then it starts :image with gc-legacy.yaml, which
-;; it should refuse. Each example names one fact it checks.
+;; it should refuse, and with gc-idle.yaml, which it leaves without writes.
+;; Each example names one fact it checks.
 {:skill "../../skills/xtdb-storage-gc/SKILL.md"
 
  :storage {:image "ghcr.io/xtdb/xtdb:2.2.0"
@@ -12,7 +13,9 @@
            ;; 12 transactions rewriting the same 60 ids, with 50 rows per block
            :rounds 12
            :rows 60
-           :settle-ms 40000}
+           :settle-ms 40000
+           ;; how long gc-idle.yaml's node is left with no writes
+           :idle-ms 20000}
 
  :example
  [{:id "gc-yaml-starts" :check :gc-starts}
@@ -21,4 +24,5 @@
   {:id "gc-keeps-recent-blocks" :check :keeps-recent-blocks}
   {:id "gc-deletes-superseded" :check :deletes-superseded}
   {:id "gc-keeps-l0" :check :keeps-l0}
-  {:id "gc-log-untouched" :check :log-untouched}]}
+  {:id "gc-log-untouched" :check :log-untouched}
+  {:id "replica-log-idle" :check :replica-log-idle}]}

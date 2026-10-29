@@ -1,0 +1,16 @@
+# A node left idle, for the replica-log observation: no compactor, no
+# collector, and no time-cut block within the run, so nothing but the
+# node itself has cause to write to its logs.
+server:
+  host: '*'
+  port: 5432
+log: !Local
+  path: "/var/lib/xtdb/log"
+storage: !Local
+  path: "/var/lib/xtdb/buffers"
+indexer:
+  flushDuration: PT1H
+compactor:
+  threads: 0
+garbageCollector:
+  enabled: false
