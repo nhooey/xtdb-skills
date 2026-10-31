@@ -1,0 +1,339 @@
+{
+  "repo" : "xtdb/xtdb",
+  "tag" : "v2.2.0",
+  "commit" : "c6c19623d90c658c15400fb46dc056f3735ed57b",
+  "files" : {
+    "core/src/main/clojure/xtdb/pgwire.clj" : "b5189f1fa27e644d609b549ce7b323b92dccf3eda43a8c79a05adf7c83d9f853",
+    "core/src/main/kotlin/xtdb/api/storage/Storage.kt" : "827018e0dc48337b8869ef7c2f4cf66c8cc24d36d37b952b1c14bf47e0ae99f2",
+    "core/src/main/kotlin/xtdb/api/ServerConfig.kt" : "221ed9d565a715314d50a334f6ed7d7df38ecdd3c605fef7f3c1b6fda2708797",
+    "core/src/main/clojure/xtdb/flight_sql.clj" : "3ef8aede846c770a0192d893d400928433f3ce0aeb8dc9e195305337498464dd",
+    "docs/src/content/docs/drivers/clojure.md" : "a85045e00caaf460373ad41d46052cb00f74e3838af9a7f564eda0157ec6a2d5",
+    "gradle/libs.versions.toml" : "5821ded748c3a3415dfcba2995871de80c962e0b3a5351645089087f4656749d",
+    "core/src/main/java/org/apache/arrow/memory/BufferLedger.java" : "b066f02660d8f1475ff191019f7b08031aab164b942672e1e6908b25a0eb6ca1",
+    "core/src/main/kotlin/xtdb/api/Xtdb.kt" : "b45623d110421c444bed0e14060094417d68c5f29346a4c4251536a34dcaf440",
+    "core/src/main/clojure/xtdb/buffer_pool.clj" : "39771a40952cdb10badcd78c7efca4e2246b46ee4502827476f32f82d14d71c4",
+    "core/build.gradle.kts" : "246af2ebdd9ac6c1b5517ba98b2bdd441e5e39d8dc11ddf89002f527a90d9ebe",
+    "core/src/main/clojure/xtdb/node.clj" : "2b4fff0beb7cf8d1c5cf82c80d7152568e25f2d6fbce4b707b02b598df434f93",
+    "core/src/main/kotlin/xtdb/api/FlightSqlConfig.kt" : "b41eb31053035b299126d33ba9891430c9fe4098f8e7d0e9f98467e23a1576b5",
+    "core/src/main/clojure/xtdb/log.clj" : "9fbc14acf10355792b27b917c42bc05dfad6d465ff1d6674750cc30781d3d344"
+  },
+  "citations" : {
+    "flight-sql-lib" : {
+      "path" : "gradle/libs.versions.toml",
+      "lines" : [ 45, 45 ],
+      "sha256" : "3ebe3c76a4ef84eb2b9f378e244b21ba349b565706e4799bb065f12d2a95aae0",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "flight-port-doc" : {
+      "path" : "core/src/main/kotlin/xtdb/api/FlightSqlConfig.kt",
+      "lines" : [ 30, 30 ],
+      "sha256" : "0fbd81d01d0863983742fcfbf08667b536d2f86b51e242bde1d9fcd2fb47b395",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "server-nil" : {
+      "path" : "core/src/main/clojure/xtdb/pgwire.clj",
+      "lines" : [ 1893, 1909 ],
+      "sha256" : "ef9ecd68e0a0d9b1c7471ee9f93e3a4c3547f8ad97e353919d89cb7b84961d59",
+      "since" : "v2.2.0-rc0",
+      "differs" : [ "v2.1.1" ]
+    },
+    "xtdb-closeable" : {
+      "path" : "core/src/main/kotlin/xtdb/api/Xtdb.kt",
+      "lines" : [ 80, 80 ],
+      "sha256" : "240a6fa7a670074a06b4dbffcb3494a71b27c55162860b13b9b04b6e2c811b20",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "uber-default-ignore" : {
+      "path" : "src/main/clojure/clojure/tools/build/tasks/uber.clj",
+      "lines" : [ 258, 258 ],
+      "sha256" : "01618136c4ef60836f940cee3ab69aa3d915e44f2ab7ca7750ea923a3221329b",
+      "source" : "clojure/tools.build@v0.10.10"
+    },
+    "ledger-retain-xtdb" : {
+      "path" : "core/src/main/java/org/apache/arrow/memory/BufferLedger.java",
+      "lines" : [ 179, 179 ],
+      "sha256" : "c2dcaafd8a3fab5b5f1083f7cf8392f9d387a29b96762badd652a88fb22de0ec",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "arrow-version" : {
+      "path" : "gradle/libs.versions.toml",
+      "lines" : [ 3, 3 ],
+      "sha256" : "e46c164c39a2c9e860252830fb707d202d5afaa2cf29bb6bb490eddf31b1862b",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "config-server-default" : {
+      "path" : "core/src/main/kotlin/xtdb/api/Xtdb.kt",
+      "lines" : [ 1629, 1629 ],
+      "sha256" : "fbf5324ac2b36e88117db9d54f0743dc9ac50895cd8d02085232f0c5d4bb06bd",
+      "since" : "v2.0.0-beta3",
+      "differs" : [ ]
+    },
+    "log-in-memory" : {
+      "path" : "core/src/main/clojure/xtdb/log.clj",
+      "lines" : [ 81, 81 ],
+      "sha256" : "fe5dca39e500354129586278a69d602b1bb5d055b238e3ce646e12a964b6d10b",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "config-flight-default" : {
+      "path" : "core/src/main/kotlin/xtdb/api/Xtdb.kt",
+      "lines" : [ 1630, 1630 ],
+      "sha256" : "0329593824ac18744b660aadd1d1d25847d417c6a84e428adbf9ee264b580300",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "core-artifact" : {
+      "path" : "docs/src/content/docs/drivers/clojure.md",
+      "lines" : [ 65, 65 ],
+      "sha256" : "0b8b9b4cc7d2a328e4b0a4ebcf3f629dc0ff7f28493d6a110030d2d471351ce4",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "jvm-opts-why" : {
+      "path" : "docs/src/content/docs/drivers/clojure.md",
+      "lines" : [ 85, 85 ],
+      "sha256" : "add2008df8e5ab85d56c710930d81c1ad49fc396b6f2c478520534c3b870c5ec",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "clj-compactor" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 61, 63 ],
+      "sha256" : "413bb880c67bea2fc8e26a70bfd3f3a8a85b3c9c13ffa6365528355be6adeaf4",
+      "since" : "v2.0.0-beta6",
+      "differs" : [ ]
+    },
+    "storage-version" : {
+      "path" : "core/src/main/kotlin/xtdb/api/storage/Storage.kt",
+      "lines" : [ 40, 40 ],
+      "sha256" : "1bdb21af483574ff849e163c5963a8beced23147b1d4b071160fafe019fa041a",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
+    },
+    "single-partition-layout" : {
+      "path" : "core/src/main/kotlin/xtdb/api/storage/Storage.kt",
+      "lines" : [ 67, 67 ],
+      "sha256" : "de4ff0db2479ef316f9fd70a87e2090e41de155e232c8cddc343a4e4c36a8265",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "single-partition-keys" : {
+      "path" : "core/src/main/kotlin/xtdb/api/storage/Storage.kt",
+      "lines" : [ 66, 66 ],
+      "sha256" : "9658b8cf4d1eafc333228adb7a6aca5012a3f500ab0076f24959c2299a439c90",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "flight-core-tcnative" : {
+      "path" : "flight/flight-core/pom.xml",
+      "lines" : [ 72, 72 ],
+      "sha256" : "45bc1479daa80af725f1fce04bd68c1db009d7ebff3117364011fff5dedd4789",
+      "source" : "apache/arrow-java@v19.0.0"
+    },
+    "clj-gc" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 84, 85 ],
+      "sha256" : "d0e441fada6c70486a8d6e20bfab71e22ff4ba2340b16ae935eb0865dee6a94c",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
+    },
+    "storage-root" : {
+      "path" : "core/src/main/kotlin/xtdb/api/storage/Storage.kt",
+      "lines" : [ 45, 45 ],
+      "sha256" : "0be92f117136f1c6cf666503dea53460b4b95d3019bc49551eeaa9323f350188",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "clj-flight" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 72, 73 ],
+      "sha256" : "e803f918331e4bbb28f2c66be53e72c7092fc297b66f44fe641201e6ea260101",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "unknown-key" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 87, 88 ],
+      "sha256" : "27e913a2105a36c34eb1dd35d43f82566878f3dc6d3ab3eb30e5fafa5267d1a3",
+      "since" : "v2.0.0-beta3",
+      "differs" : [ ]
+    },
+    "config-storage-default" : {
+      "path" : "core/src/main/kotlin/xtdb/api/Xtdb.kt",
+      "lines" : [ 1634, 1634 ],
+      "sha256" : "fff8caa8d8f95f4519f0d1f9b3ce3f2c6ce8d6fe4228d448349e0b6c3ddd67e6",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "jvm-opts-alias" : {
+      "path" : "docs/src/content/docs/drivers/clojure.md",
+      "lines" : [ 69, 69 ],
+      "sha256" : "4aa540a6f503b2871aa3ad1143630dea7eccc8da4be0945a1525718990299134",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "log-factory" : {
+      "path" : "core/src/main/clojure/xtdb/log.clj",
+      "lines" : [ 75, 79 ],
+      "sha256" : "c9253660719bb805a8e50310590f4094dbb523f129a5c26ac9148015541dd8f5",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "config-log-default" : {
+      "path" : "core/src/main/kotlin/xtdb/api/Xtdb.kt",
+      "lines" : [ 1633, 1633 ],
+      "sha256" : "aec47b4548beb17b0a3af96c348041b23004e0bf7ba6fa7a02e9c07188c42a6d",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "clj-server" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 75, 76 ],
+      "sha256" : "6407745bc9d37042eacd3b45adc0636f93417c676f6192063e18c36bfd8388b5",
+      "since" : "v2.0.0-beta2",
+      "differs" : [ ]
+    },
+    "jvm-opts-jdk25" : {
+      "path" : "docs/src/content/docs/drivers/clojure.md",
+      "lines" : [ 89, 89 ],
+      "sha256" : "1600d451c6f2f0f8c49cda4048b5a51ccd55426e19876304206dbf2a4090fc75",
+      "since" : "v2.2.0-beta3",
+      "differs" : [ "v2.1.1" ]
+    },
+    "ledger-retain-arrow" : {
+      "path" : "memory/memory-core/src/main/java/org/apache/arrow/memory/BufferLedger.java",
+      "lines" : [ 177, 177 ],
+      "sha256" : "6521c28d8253f028f8631720416f5fd0b2273e81709c4ac7043767339f7101e5",
+      "source" : "apache/arrow-java@v19.0.0"
+    },
+    "server-host" : {
+      "path" : "core/src/main/kotlin/xtdb/api/ServerConfig.kt",
+      "lines" : [ 12, 12 ],
+      "sha256" : "f796524585e5e4a0821659f4014fa8362beabdd70d1f9db04e8f5b8d89d5932b",
+      "since" : "v2.1.0-beta1",
+      "differs" : [ ]
+    },
+    "core-flight-sql" : {
+      "path" : "core/build.gradle.kts",
+      "lines" : [ 47, 47 ],
+      "sha256" : "312f75b5dbf17edbb21674367a9d862e878eab92cd77940ac2aa52cd694d247a",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "clj-indexer" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 52, 59 ],
+      "sha256" : "a6488c255ba5d462198f804ebbdfc520dacbdacc6314b5e40981ca3deff2e1b7",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "flight-clj" : {
+      "path" : "core/src/main/clojure/xtdb/flight_sql.clj",
+      "lines" : [ 34, 41 ],
+      "sha256" : "ff876a5d9686ea455cfbc814c014db72cba7ad82fb76a14d3a8920316b90a69c",
+      "since" : "v2.2.0-rc2",
+      "differs" : [ "v2.1.1" ]
+    },
+    "ledger-package" : {
+      "path" : "core/src/main/java/org/apache/arrow/memory/BufferLedger.java",
+      "lines" : [ 17, 17 ],
+      "sha256" : "a625573a0d8c5db5f625647dca9041997ed98d4bee1f642e2a3bf3fc636fdd90",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "clj-log" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 40, 41 ],
+      "sha256" : "a0cc35bd68953e6a8f2ffd4bc6ce87eb55ee9c1e8de2625e949cbdda52a4072d",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "server-port" : {
+      "path" : "core/src/main/kotlin/xtdb/api/ServerConfig.kt",
+      "lines" : [ 30, 30 ],
+      "sha256" : "d65a95ac18ee6718ce609236ab9b551b072e24e7713adda79a36db2383a27377",
+      "since" : "v2.0.0-beta5",
+      "differs" : [ ]
+    },
+    "ledger-check-arrow" : {
+      "path" : "memory/memory-core/src/main/java/org/apache/arrow/memory/BufferLedger.java",
+      "lines" : [ 178, 178 ],
+      "sha256" : "082a4453bf666e0105d6030ae2f3565b26cf596fe109eebf856a772a69ef74b7",
+      "source" : "apache/arrow-java@v19.0.0"
+    },
+    "clj-storage" : {
+      "path" : "core/src/main/clojure/xtdb/buffer_pool.clj",
+      "lines" : [ 40, 46 ],
+      "sha256" : "cf0911b97264c4bfbeea52afec1ede1ce4bebe0e8390621ef323a052c8472649",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "log-kafka" : {
+      "path" : "core/src/main/clojure/xtdb/log.clj",
+      "lines" : [ 83, 83 ],
+      "sha256" : "2e1c363520544fbcb166ed24acf699878f390bf6fc99427d48d49af43bfbadc1",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "start-node" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 102, 119 ],
+      "sha256" : "abd25b80ab5ba66cd22516aeab2f6a0b6e54a1dab7a82919c6b823b7f477aa96",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
+    "to-config" : {
+      "path" : "core/src/main/clojure/xtdb/node.clj",
+      "lines" : [ 90, 100 ],
+      "sha256" : "0a06a811505065f46896a3f5721b7afbeac91d5cfdcb286c903602a2ca1d55ed",
+      "since" : "v2.0.0-beta7",
+      "differs" : [ ]
+    },
+    "storage-bump" : {
+      "path" : "core/src/main/kotlin/xtdb/api/storage/Storage.kt",
+      "lines" : [ 39, 39 ],
+      "sha256" : "bc480aa0c752bc9547cd3009a48c87f14964c55b8db62838fa7756c4c906c122",
+      "since" : "v2.0.0-beta6",
+      "differs" : [ ]
+    },
+    "flight-host" : {
+      "path" : "core/src/main/kotlin/xtdb/api/FlightSqlConfig.kt",
+      "lines" : [ 12, 12 ],
+      "sha256" : "785f83d9742906f399d114ceaf3f6f60c796d40ae7d6d818be8b4b3670678f5a",
+      "since" : "v2.2.0-beta1",
+      "differs" : [ "v2.1.1" ]
+    },
+    "rollback-reads" : {
+      "path" : "core/src/main/kotlin/xtdb/api/storage/Storage.kt",
+      "lines" : [ 68, 68 ],
+      "sha256" : "47c3d78077d22e4ec3fa9322974604622580f352638b1e19d35925a8f192ea98",
+      "since" : "v2.2.0-rc1",
+      "differs" : [ "v2.1.1" ]
+    }
+  },
+  "sources" : {
+    "apache/arrow-java@v19.0.0" : {
+      "repo" : "apache/arrow-java",
+      "tag" : "v19.0.0",
+      "commit" : "b410fb26d01c7cefc4c6e3443a53562164001371",
+      "files" : {
+        "flight/flight-core/pom.xml" : "abc45333d2974e7537707d18e20548a7ca2e7575fb99b466a3559b4ba0737582",
+        "memory/memory-core/src/main/java/org/apache/arrow/memory/BufferLedger.java" : "e9f1f78a83b9180a3bcfa2f4153f0a9a4bfc711900d586014131a24d10286a91"
+      }
+    },
+    "clojure/tools.build@v0.10.10" : {
+      "repo" : "clojure/tools.build",
+      "tag" : "v0.10.10",
+      "commit" : "deedd623574e3712687a657691c6b79f5026b3a1",
+      "files" : {
+        "src/main/clojure/clojure/tools/build/tasks/uber.clj" : "9436724a841362ff47db5e7901af217e412213ff0f3b32a6331e08ef5e0dd761"
+      }
+    }
+  },
+  "observed" : { }
+}

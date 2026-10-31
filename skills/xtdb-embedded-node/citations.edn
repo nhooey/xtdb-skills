@@ -1,0 +1,103 @@
+;; Spans of xtdb/xtdb this skill cites (:cite) and eval checks it cites for
+;; behaviour no source states (:observed), made by the eval's `storage`
+;; command without a container. The Arrow citations name their own :source,
+;; the arrow-java version XTDB v2.2.0 builds against, and the tools.build
+;; ones the version the eval builds uberjars with. See the README's "Citing
+;; XTDB sources" for the anchor kinds.
+{:source {:repo "xtdb/xtdb"
+          :tag "v2.2.0"
+          :watch ["core/src/main/clojure/xtdb/node.clj"
+                  "core/src/main/clojure/xtdb/log.clj"
+                  "core/src/main/clojure/xtdb/buffer_pool.clj"
+                  "core/src/main/clojure/xtdb/pgwire.clj"
+                  "core/src/main/clojure/xtdb/flight_sql.clj"
+                  "core/src/main/kotlin/xtdb/api/Xtdb.kt"
+                  "core/src/main/kotlin/xtdb/api/ServerConfig.kt"
+                  "core/src/main/kotlin/xtdb/api/FlightSqlConfig.kt"
+                  "core/src/main/kotlin/xtdb/api/storage/Storage.kt"
+                  "core/src/main/java/org/apache/arrow/memory/BufferLedger.java"
+                  "core/build.gradle.kts"
+                  "gradle/libs.versions.toml"
+                  "build.gradle.kts"
+                  "docs/src/content/docs/drivers/clojure.md"]}
+
+ :observed-on "XTDB"
+ :observations "../../evals/xtdb-embedded-node/examples.edn"
+ :observed-by "storage"
+
+ :cite
+ [;; starting and closing a node
+  {:id "core-artifact" :path "docs/src/content/docs/drivers/clojure.md" :line ";; xtdb-core for running an in-process (test) node"}
+  {:id "start-node" :path "core/src/main/clojure/xtdb/node.clj" :form "(defn start-node"}
+  {:id "xtdb-closeable" :path "core/src/main/kotlin/xtdb/api/Xtdb.kt" :line "interface Xtdb : DataSource, AdbcDatabase, AutoCloseable {"}
+  {:id "to-config" :path "core/src/main/clojure/xtdb/node.clj" :form "(defn ->config"}
+  {:id "unknown-key" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! ::default"}
+  {:id "config-log-default" :path "core/src/main/kotlin/xtdb/api/Xtdb.kt" :line "var log: Log.Factory = Log.inMemoryLog,"}
+  {:id "config-storage-default" :path "core/src/main/kotlin/xtdb/api/Xtdb.kt" :line "var storage: Storage.Factory = Storage.inMemory(),"}
+  {:id "config-server-default" :path "core/src/main/kotlin/xtdb/api/Xtdb.kt" :line "var server: ServerConfig? = ServerConfig(),"}
+  {:id "config-flight-default" :path "core/src/main/kotlin/xtdb/api/Xtdb.kt" :line "var flightSql: FlightSqlConfig? = FlightSqlConfig(),"}
+  {:id "clj-log" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :log "}
+  {:id "log-in-memory" :path "core/src/main/clojure/xtdb/log.clj" :line "(defmethod ->log-factory :in-memory [_ opts]"}
+  {:id "log-kafka" :path "core/src/main/clojure/xtdb/log.clj" :line "(defmethod ->log-factory :kafka [_ opts]"}
+  {:id "log-factory" :path "core/src/main/clojure/xtdb/log.clj" :form "(defmethod ->log-factory ::local "}
+  {:id "clj-storage" :path "core/src/main/clojure/xtdb/buffer_pool.clj" :form "(defmethod xtn/apply-config! ::storage"}
+  {:id "clj-compactor" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :compactor"}
+  {:id "clj-gc" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :garbage-collector"}
+  {:id "clj-indexer" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :indexer"}
+  {:id "clj-server" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :server"}
+  {:id "server-nil" :path "core/src/main/clojure/xtdb/pgwire.clj" :form "(defmethod xtn/apply-config! ::server"}
+  {:id "server-port" :path "core/src/main/kotlin/xtdb/api/ServerConfig.kt" :line "* Default is 0, to have the server choose an available port."}
+  {:id "server-host" :path "core/src/main/kotlin/xtdb/api/ServerConfig.kt" :line "var host: InetAddress? = InetAddress.getLoopbackAddress(),"}
+  {:id "clj-flight" :path "core/src/main/clojure/xtdb/node.clj" :form "(defmethod apply-config! :flight-sql"}
+  {:id "flight-clj" :path "core/src/main/clojure/xtdb/flight_sql.clj" :form "(defmethod xtn/apply-config! :flight-sql"}
+  {:id "flight-host" :path "core/src/main/kotlin/xtdb/api/FlightSqlConfig.kt" :line "var host: String = \"127.0.0.1\","}
+  {:id "flight-port-doc" :path "core/src/main/kotlin/xtdb/api/FlightSqlConfig.kt" :line "* Set to -1 to not start a Flight SQL server."}
+
+  ;; JVM options
+  {:id "jvm-opts-alias" :path "docs/src/content/docs/drivers/clojure.md" :line ":aliases {:xtdb {:jvm-opts [\"--add-opens=java.base/java.nio=ALL-UNNAMED\""}
+  {:id "jvm-opts-why" :path "docs/src/content/docs/drivers/clojure.md" :line "You'll also need to add the following JVM arguments to run Apache Arrow"}
+  {:id "jvm-opts-jdk25" :path "docs/src/content/docs/drivers/clojure.md" :line "required on JDK 25+, where Netty otherwise turns off the `sun.misc.Unsafe` access Arrow's allocator depends on."}
+
+  ;; dependencies
+  {:id "core-flight-sql" :path "core/build.gradle.kts" :line "api(libs.arrow.flight.sql)"}
+  {:id "arrow-version" :path "gradle/libs.versions.toml" :line "arrow = \"19.0.0\""}
+  {:id "flight-sql-lib" :path "gradle/libs.versions.toml" :line "arrow-flight-sql = { group = \"org.apache.arrow\", name = \"flight-sql\", version.ref = \"arrow\" }"}
+  {:id "flight-core-tcnative" :source {:repo "apache/arrow-java" :tag "v19.0.0"}
+   :path "flight/flight-core/pom.xml" :line "<artifactId>netty-tcnative-boringssl-static</artifactId>"}
+
+  ;; BufferLedger
+  {:id "ledger-package" :path "core/src/main/java/org/apache/arrow/memory/BufferLedger.java" :line "package org.apache.arrow.memory;"}
+  {:id "ledger-retain-xtdb" :path "core/src/main/java/org/apache/arrow/memory/BufferLedger.java" :line "if (bufRefCnt.compareAndSet(currentRefCount, currentRefCount + increment)) {"}
+  {:id "ledger-retain-arrow" :source {:repo "apache/arrow-java" :tag "v19.0.0"}
+   :path "memory/memory-core/src/main/java/org/apache/arrow/memory/BufferLedger.java" :line "final int originalReferenceCount = BUF_REF_CNT_UPDATER.getAndAdd(this, increment);"}
+  {:id "ledger-check-arrow" :source {:repo "apache/arrow-java" :tag "v19.0.0"}
+   :path "memory/memory-core/src/main/java/org/apache/arrow/memory/BufferLedger.java" :line "Preconditions.checkArgument(originalReferenceCount > 0);"}
+  {:id "uber-default-ignore" :source {:repo "clojure/tools.build" :tag "v0.10.10"}
+   :path "src/main/clojure/clojure/tools/build/tasks/uber.clj" :line ":default :ignore})"}
+
+  ;; storage across releases
+  {:id "storage-version" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "const val VERSION: StorageVersion = 6"}
+  {:id "storage-bump" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "// bump this if the storage format changes in a backwards-incompatible way"}
+  {:id "storage-root" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "append(\"v${version.asLexHex}\")"}
+  {:id "single-partition-keys" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "* The `totalPartitions == 1` branch produces the same key-space as the pre-multi-partition layout,"}
+  {:id "single-partition-layout" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "* and must keep doing so — do not unify the two branches. An older version resolves against the"}
+  {:id "rollback-reads" :path "core/src/main/kotlin/xtdb/api/storage/Storage.kt" :line "* unmarked root, so a single-partition database writing under `parts/0/` would leave a rollback with"}]
+
+ :observed
+ [{:id "obs-autocloseable" :example "node-autocloseable"}
+  {:id "obs-default-servers" :example "default-servers"}
+  {:id "obs-server-nil" :example "server-nil"}
+  {:id "obs-flight-nil" :example "flight-sql-nil-ignored"}
+  {:id "obs-flight-port-refused" :example "flight-sql-port-refused"}
+  {:id "obs-flight-first-map" :example "flight-sql-first-map-ignored"}
+  {:id "obs-flight-require-first" :example "flight-sql-require-first"}
+  {:id "obs-flight-off" :example "flight-sql-off"}
+  {:id "obs-storage-v06" :example "storage-v06"}
+  {:id "obs-block-without-opts" :example "block-without-jvm-opts"}
+  {:id "obs-add-opens-only" :example "block-add-opens-only"}
+  {:id "obs-ledger-from-core" :example "ledger-from-core"}
+  {:id "obs-license-dir" :example "license-dir-and-file"}
+  {:id "obs-tcnative" :example "tcnative-from-flight-sql"}
+  {:id "obs-uber-collision" :example "uber-license-collision"}
+  {:id "obs-uber-default-ledger" :example "uber-default-ledger"}
+  {:id "obs-uber-fixed" :example "uber-fixed-runs"}]}

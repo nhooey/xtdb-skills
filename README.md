@@ -54,6 +54,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 | Name | Description | Link |
 | --- | --- | --- |
 | xtdb-1-to-2 | What XTDB 1 offered that XTDB 2.x no longer has, and what to write instead: Datalog maps, rules, `or` and `not` clauses, the db value, history and speculative APIs, and transaction functions. | [skills/xtdb-1-to-2](skills/xtdb-1-to-2) |
+| xtdb-embedded-node | Run XTDB 2.x in-process from Clojure: the node map, the JVM options it needs, turning off its servers, building an uberjar of xtdb-core, and storage across releases. | [skills/xtdb-embedded-node](skills/xtdb-embedded-node) |
 | xtdb-erase-and-history | What put, patch, delete and erase keep in XTDB 2.x history, and how to drop a row's history but keep the row. | [skills/xtdb-erase-and-history](skills/xtdb-erase-and-history) |
 | xtdb-history-cost-design | Split a document's volatile fields into their own table so history doesn't store the whole document per change. | [skills/xtdb-history-cost-design](skills/xtdb-history-cost-design) |
 | xtdb-storage-gc | Tune XTDB 2.x's storage garbage collector, on by default since v2.2.0, and what it never deletes. | [skills/xtdb-storage-gc](skills/xtdb-storage-gc) |
@@ -98,9 +99,10 @@ clojure -M:eval score xtdb-xtql-queries baseline.edn with-skill.edn   # {task-id
 clojure -M:eval examples xtdb-xtql-queries xtdb-erase-and-history xtdb-history-cost-design xtdb-1-to-2
 clojure -M:eval storage xtdb-storage-gc                # about 2 minutes; needs Docker
 clojure -M:eval storage xtdb-write-path                # under a minute; needs Docker
+clojure -M:eval storage xtdb-embedded-node             # about a minute; no Docker
 ```
 
-`storage` starts nodes of its own. For `xtdb-storage-gc` it starts two, one with the garbage collector on and one with it off, writes the same rows to both, and compares their storage directories. For `xtdb-write-path` it starts one that cuts a block every 50 rows, writes in three steps, and lists the files each step leaves.
+`storage` starts nodes of its own. For `xtdb-storage-gc` it starts two, one with the garbage collector on and one with it off, writes the same rows to both, and compares their storage directories. For `xtdb-write-path` it starts one that cuts a block every 50 rows, writes in three steps, and lists the files each step leaves. For `xtdb-embedded-node` it starts nodes in its own JVM and in new ones, from Clojure node maps, and runs `clojure -M:uber` (`evals/src/xtdb_eval/uber.clj`), which builds uberjars of xtdb-core with tools.build in a JVM of its own. The `:eval` alias gives the JVM the options XTDB's docs give for an in-process node.
 
 `bb scripts/eval-releases.clj SUITE...` runs suites against every XTDB 2.x tag that has an image and a client on Maven Central, betas and release candidates included (`--storage` for the storage suites, `--tags REGEX` to narrow it), and writes `evals/SUITE/releases.edn`. `skill-citations lock` turns that, and each cited span's history across tags, into the footnotes: "unchanged since v2.0.0-beta7", "holds on every tag the eval ran since …", and "differs in" or "fails on" for later tags off that line. Each skill's "Versions" section tells the agent to check the project's XTDB version against them.
 
