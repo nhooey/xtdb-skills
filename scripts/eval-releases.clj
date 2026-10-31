@@ -88,8 +88,7 @@
         eval! (fn [env & args]
                 (apply p/shell {:dir evals :out :string :err :string :continue true
                                 :extra-env (merge {"EVAL_RESULTS" out} env)}
-                       "clojure" "-Sdeps" (deps version)
-                       "-J--add-opens=java.base/java.nio=ALL-UNNAMED" "-M:eval" args))
+                       "clojure" "-Sdeps" (deps version) "-M:eval" args))
         report! #(println (str/join " " (re-seq #"\d+/\d+ passed" (:out %))))
         result #(if (fs/exists? out) (edn/read-string (slurp out)) {})]
     (cond
