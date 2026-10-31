@@ -2,7 +2,8 @@
 ;; `clojure -M:eval storage xtdb-embedded-node` from evals/. Every check runs
 ;; against the classpath's xtdb-core, with no container:
 ;; - most start a node in the eval's own process from a Clojure node map;
-;; - `flight-sql-first-map-ignored`, `storage-v06` and the `block-` checks
+;; - `flight-sql-first-map-ignored`, `flight-sql-require-first`,
+;;   `storage-v06` and the `block-` checks
 ;;   start one in a new JVM on the same classpath, with all, none or one of
 ;;   the JVM options XTDB's docs give;
 ;; - `ledger-from-core` and `license-dir-and-file` read the classpath;
@@ -19,6 +20,7 @@
   {:id "flight-sql-nil-ignored" :check :flight-sql-nil-ignored}
   {:id "flight-sql-port-refused" :check :flight-sql-port-refused}
   {:id "flight-sql-first-map-ignored" :check :flight-sql-first-map-ignored}
+  {:id "flight-sql-require-first" :check :flight-sql-require-first}
   {:id "flight-sql-off" :check :flight-sql-off}
   {:id "storage-v06" :check :storage-v06}
   {:id "block-without-jvm-opts" :check :block-without-jvm-opts}

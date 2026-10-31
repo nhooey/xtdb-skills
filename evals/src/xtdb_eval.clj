@@ -396,7 +396,7 @@
   look at the classpath itself."
   (into #{:clj-interval-ignored :replica-log-per-open
           :node-autocloseable :default-servers :server-nil :flight-sql-nil-ignored
-          :flight-sql-port-refused :flight-sql-first-map-ignored :flight-sql-off
+          :flight-sql-port-refused :flight-sql-first-map-ignored :flight-sql-require-first :flight-sql-off
           :storage-v06 :block-without-jvm-opts :block-add-opens-only :ledger-from-core :license-dir-and-file}
         uber-checks))
 
@@ -550,6 +550,14 @@
             [(and (int? p1) (not= 45678 p1) (= 45679 p2))
              (str "in a new JVM, a first node asking for Flight SQL port 45678 gets " p1
                   ", a second asking for 45679 gets " p2)])
+         :flight-sql-require-first
+         #(let [out (fresh-jvm
+                     '(do (require 'xtdb.flight-sql)
+                          (with-open [n ((requiring-resolve 'xtdb.node/start-node) {:server nil :flight-sql {:port 45680}})]
+                            (prn (.getFlightSqlPort n)))
+                          (shutdown-agents)))]
+            [(= "45680" out)
+             (str "in a new JVM that requires xtdb.flight-sql first, a first node asking for Flight SQL port 45680 gets " out)])
          :flight-sql-off
          #(let [cfg (doto ^xtdb.api.Xtdb$Config ((requiring-resolve 'xtdb.node/->config) {:server nil})
                       (.setFlightSql nil))]
