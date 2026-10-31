@@ -1,0 +1,31 @@
+;; Observations for the xtdb-embedded-node skill, made by
+;; `clojure -M:eval storage xtdb-embedded-node` from evals/. Every check runs
+;; against the classpath's xtdb-core, with no container:
+;; - most start a node in the eval's own process from a Clojure node map;
+;; - `flight-sql-first-map-ignored`, `storage-v06` and the `block-` checks
+;;   start one in a new JVM on the same classpath, with all, none or one of
+;;   the JVM options XTDB's docs give;
+;; - `ledger-from-core` and `license-dir-and-file` read the classpath;
+;; - the `uber-` checks and `tcnative-from-flight-sql` run `clojure -M:uber`
+;;   (xtdb-eval.uber), which builds uberjars of that xtdb-core with
+;;   tools.build in a JVM of its own and starts a node from one.
+;; Each example names one fact it checks.
+{:skill "../../skills/xtdb-embedded-node/SKILL.md"
+
+ :example
+ [{:id "node-autocloseable" :check :node-autocloseable}
+  {:id "default-servers" :check :default-servers}
+  {:id "server-nil" :check :server-nil}
+  {:id "flight-sql-nil-ignored" :check :flight-sql-nil-ignored}
+  {:id "flight-sql-port-refused" :check :flight-sql-port-refused}
+  {:id "flight-sql-first-map-ignored" :check :flight-sql-first-map-ignored}
+  {:id "flight-sql-off" :check :flight-sql-off}
+  {:id "storage-v06" :check :storage-v06}
+  {:id "block-without-jvm-opts" :check :block-without-jvm-opts}
+  {:id "block-add-opens-only" :check :block-add-opens-only}
+  {:id "ledger-from-core" :check :ledger-from-core}
+  {:id "license-dir-and-file" :check :license-dir-and-file}
+  {:id "tcnative-from-flight-sql" :check :tcnative-from-flight-sql}
+  {:id "uber-license-collision" :check :uber-license-collision}
+  {:id "uber-default-ledger" :check :uber-default-ledger}
+  {:id "uber-fixed-runs" :check :uber-fixed-runs}]}

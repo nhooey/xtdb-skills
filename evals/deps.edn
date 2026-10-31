@@ -12,4 +12,7 @@
                              "--enable-native-access=ALL-UNNAMED"
                              "-Dio.netty.tryReflectionSetAccessible=true"
                              "-Dio.netty.noUnsafe=false"]
-                  :main-opts ["-m" "xtdb-eval"]}}}
+                  :main-opts ["-m" "xtdb-eval"]}
+           ;; Uberjar checks, which `storage` runs in a JVM of their own.
+           :uber {:extra-deps {io.github.clojure/tools.build {:mvn/version "0.10.10"}}
+                  :main-opts ["-m" "xtdb-eval.uber"]}}}

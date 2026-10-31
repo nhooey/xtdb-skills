@@ -29,6 +29,7 @@
             [clojure.walk :as walk]
             [xtdb.api :as xt])
   (:import [java.io File PushbackReader StringReader]
+           [java.lang AutoCloseable]
            [java.nio.file Files]
            [java.nio.file.attribute FileAttribute]
            [java.time Instant OffsetDateTime ZonedDateTime]
@@ -382,10 +383,22 @@
         (Thread/sleep idle-ms)
         {:before before :after (sizes) :idle-ms idle-ms}))))
 
+(defn- docs-rows [table from n]
+  (into [:put-docs table] (for [i (range from (+ from n))] {:xt/id i, :pad (apply str (repeat 200 "x"))})))
+
+(def ^:private uber-checks
+  "The checks `clojure -M:uber` makes, in a JVM of its own (xtdb-eval.uber)."
+  #{:tcnative-from-flight-sql :uber-license-collision :uber-default-ledger :uber-fixed-runs})
+
 (def ^:private in-process-checks
   "The storage checks that start a node of the classpath's xtdb-core in this
-  process, from a Clojure node map, instead of a container from YAML."
-  #{:clj-interval-ignored :replica-log-per-open})
+  process, from a Clojure node map, instead of a container from YAML, or that
+  look at the classpath itself."
+  (into #{:clj-interval-ignored :replica-log-per-open
+          :node-autocloseable :default-servers :server-nil :flight-sql-nil-ignored
+          :flight-sql-port-refused :flight-sql-first-map-ignored :flight-sql-off
+          :storage-v06 :block-without-jvm-opts :block-add-opens-only :ledger-from-core :license-dir-and-file}
+        uber-checks))
 
 (defn- with-in-process-node
   "Start a node in this process with a local log and storage under `dir`, no
@@ -400,31 +413,191 @@
                       extra))]
     (f node)))
 
-(defn- in-process-facts
-  "Each in-process check's [passed? detail]."
+(def ^:private in-process-jvm-opts
+  "The JVM options XTDB's docs give for an in-process node, for the JVMs the
+  checks start."
+  ["--add-opens=java.base/java.nio=ALL-UNNAMED"
+   "--enable-native-access=ALL-UNNAMED"
+   "-Dio.netty.tryReflectionSetAccessible=true"
+   "-Dio.netty.noUnsafe=false"])
+
+(defn- fresh-jvm
+  "Evaluate `form` in a new JVM on this one's classpath, with the JVM options
+  `jvm-opts` (by default XTDB's), and return the last line it printed."
+  ([form] (fresh-jvm in-process-jvm-opts form))
+  ([jvm-opts form]
+   (let [{:keys [out err]} (apply shell/sh (str (System/getProperty "java.home") "/bin/java")
+                                  (concat jvm-opts
+                                          ["-cp" (System/getProperty "java.class.path")
+                                           "clojure.main" "-e" (pr-str form)]))]
+     (or (last (str/split-lines (str/trim out))) (str/trim err)))))
+
+(defn- block-roots-form
+  "A form that starts a node with local storage in `dir`, cutting a block
+  every 10 rows, writes 20 rows, and prints the directories under the
+  storage path once there are any, or the error that stopped it."
+  [dir]
+  `(let [dir# ~(str dir)
+         roots# (fn [] (sort (distinct (map #(.getName ^java.io.File %)
+                                            (.listFiles (java.io.File. (str dir# "/storage")))))))]
+     (try
+       (with-open [node# ((requiring-resolve 'xtdb.node/start-node)
+                          {:log [:local {:path (str dir# "/log")}]
+                           :storage [:local {:path (str dir# "/storage")}]
+                           :server nil
+                           :compactor {:threads 0}
+                           :indexer {:rows-per-block 10}})]
+         ((requiring-resolve 'xtdb.api/execute-tx) node#
+          [(into [:put-docs :docs] (for [i# (range 20)] {:xt/id i#}))])
+         (loop [tries# 30]
+           (if (or (seq (roots#)) (zero? tries#))
+             (prn (vec (roots#)))
+             (do (Thread/sleep 1000) (recur (dec tries#))))))
+       (catch Exception e# (prn (ex-message e#))))
+     (shutdown-agents)))
+
+(defn- classpath-jars []
+  (vec (filter #(str/ends-with? % ".jar")
+               (str/split (System/getProperty "java.class.path") (re-pattern File/pathSeparator)))))
+
+(defn- jar-name [path] (last (str/split path #"/")))
+
+(defn- core-version
+  "The version of the classpath's xtdb-core."
   []
+  (second (re-find #"xtdb-core-([^/!]+)\.jar" (str (io/resource "xtdb/node.clj")))))
+
+(defn- uber-facts
+  "Run `clojure -M:uber` for the classpath's xtdb-core version in a temporary
+  directory, read its facts, and delete the jars it built."
+  []
+  (let [^File d (.toFile (Files/createTempDirectory "xtdb-uber" (make-array FileAttribute 0)))
+        {:keys [exit out err]} (shell/sh "clojure" "-M:uber" (core-version) (str d))]
+    (doseq [n ["plain.jar" "excluded.jar" "fixed.jar"]] (.delete (io/file d n)))
+    (.delete d)
+    (if (zero? exit)
+      (edn/read-string (last (str/split-lines (str/trim out))))
+      (zipmap uber-checks (repeat [false (str "clojure -M:uber failed: " (last (str/split-lines (str/trim err))))])))))
+
+(defn- in-process-facts
+  "Each requested in-process check's [passed? detail]."
+  [checks]
   (let [dir #(.toFile (Files/createTempDirectory "xtdb-in-process" (make-array FileAttribute 0)))
-        attempt (fn [f] (try (f) (catch Exception e [false (str "failed: " (ex-message e))])))]
-    {:clj-interval-ignored
-     (attempt
-      #(let [rows (with-in-process-node (dir) {:garbage-collector {:enabled? true
-                                                                    :approx-run-interval (java.time.Duration/ofSeconds 3)}}
-                    (fn [node]
-                      (execute! node [[:put-docs :docs {:xt/id 1}]])
-                      (xt/q node '(from :docs [xt/id]))))]
-         [(= [{:xt/id 1}] rows)
-          (str "a node map with :approx-run-interval started, and a query returned " (pr-str rows))]))
-     :replica-log-per-open
-     (attempt
-      #(let [d (dir)
-             sizes (fn [] (vec (for [n ["LOG" "REPLICA_LOG"]] (.length (io/file d "log" n)))))
-             _ (with-in-process-node d {} (fn [node] (execute! node [[:put-docs :docs {:xt/id 1}]])))
-             runs (reductions (fn [_ _] (with-in-process-node d {} (fn [node] (xt/q node '(from :docs [xt/id]))))
-                                (sizes))
-                              (sizes) (range 3))]
-         [(and (apply = (map first runs)) (apply < (map second runs)))
-          (str "LOG and REPLICA_LOG bytes after one write, then after each of 3 opens that only query: "
-               (str/join ", " (map pr-str runs)))]))}))
+        attempt (fn [f] (try (f) (catch Exception e [false (str "failed: " (ex-message e))])))
+        start (requiring-resolve 'xtdb.node/start-node)
+        uber (delay (uber-facts))
+        one-row '(rel [{:a 1}] [a])
+        thunks
+        {:clj-interval-ignored
+         #(let [rows (with-in-process-node (dir) {:garbage-collector {:enabled? true
+                                                                       :approx-run-interval (java.time.Duration/ofSeconds 3)}}
+                       (fn [node]
+                         (execute! node [[:put-docs :docs {:xt/id 1}]])
+                         (xt/q node '(from :docs [xt/id]))))]
+            [(= [{:xt/id 1}] rows)
+             (str "a node map with :approx-run-interval started, and a query returned " (pr-str rows))])
+         :replica-log-per-open
+         #(let [d (dir)
+                sizes (fn [] (vec (for [n ["LOG" "REPLICA_LOG"]] (.length (io/file d "log" n)))))
+                _ (with-in-process-node d {} (fn [node] (execute! node [[:put-docs :docs {:xt/id 1}]])))
+                runs (reductions (fn [_ _] (with-in-process-node d {} (fn [node] (xt/q node '(from :docs [xt/id]))))
+                                   (sizes))
+                                 (sizes) (range 3))]
+            [(and (apply = (map first runs)) (apply < (map second runs)))
+             (str "LOG and REPLICA_LOG bytes after one write, then after each of 3 opens that only query: "
+                  (str/join ", " (map pr-str runs)))])
+         :node-autocloseable
+         #(let [node (start {:server nil})
+                closeable? (instance? AutoCloseable node)
+                before (xt/q node one-row)
+                _ (.close ^AutoCloseable node)
+                after (try (xt/q node one-row) (catch Exception e (str "throws " (.getSimpleName (class e)))))]
+            [(and closeable? (= [{:a 1}] before) (string? after))
+             (str "start-node returns " (.getName (class node)) ", an AutoCloseable: " closeable?
+                  "; a query before close returns " (pr-str before) ", after close " after)])
+         :default-servers
+         #(with-open [^AutoCloseable node (start {})]
+            (let [ports [(.getServerPort node) (.getFlightSqlPort node)]]
+              [(every? pos? ports)
+               (str "a node from {} listens with Postgres wire on port " (first ports)
+                    " and Flight SQL on port " (second ports))]))
+         :server-nil
+         #(with-open [^AutoCloseable node (start {:server nil})]
+            (let [port (.getServerPort node) rows (xt/q node one-row)]
+              [(and (= -1 port) (= [{:a 1}] rows))
+               (str "with :server nil the node's server port is " port " and a query returns " (pr-str rows))]))
+         :flight-sql-nil-ignored
+         #(with-open [^AutoCloseable node (start {:server nil :flight-sql nil})]
+            (let [port (.getFlightSqlPort node)]
+              [(pos? port) (str "with :flight-sql nil the node's Flight SQL port is " port)]))
+         :flight-sql-port-refused
+         #(do (require 'xtdb.flight-sql)
+              (let [error (try (with-open [_ ^AutoCloseable (start {:server nil :flight-sql {:port -1}})] nil)
+                               (catch Exception e (ex-message e)))]
+                [(some? error)
+                 (str "with :flight-sql {:port -1}, start-node "
+                      (if error (str "throws: " error) "starts"))]))
+         :flight-sql-first-map-ignored
+         #(let [out (fresh-jvm
+                     '(let [start (requiring-resolve 'xtdb.node/start-node)
+                            port (fn [cfg] (with-open [n (start cfg)] (.getFlightSqlPort n)))
+                            first-port (port {:server nil :flight-sql {:port 45678}})
+                            second-port (port {:server nil :flight-sql {:port 45679}})]
+                        (require 'xtdb.flight-sql)
+                        (prn [first-port second-port])
+                        (shutdown-agents)))
+                [p1 p2] (try (edn/read-string out) (catch Exception _ nil))]
+            [(and (int? p1) (not= 45678 p1) (= 45679 p2))
+             (str "in a new JVM, a first node asking for Flight SQL port 45678 gets " p1
+                  ", a second asking for 45679 gets " p2)])
+         :flight-sql-off
+         #(let [cfg (doto ^xtdb.api.Xtdb$Config ((requiring-resolve 'xtdb.node/->config) {:server nil})
+                      (.setFlightSql nil))]
+            (with-open [^AutoCloseable node (start cfg)]
+              (let [port (.getFlightSqlPort node) rows (xt/q node one-row)]
+                [(and (= -1 port) (= [{:a 1}] rows))
+                 (str "with .setFlightSql nil on the Xtdb$Config, the Flight SQL port is " port
+                      " and a query returns " (pr-str rows))])))
+         :storage-v06
+         #(let [out (fresh-jvm (block-roots-form (dir)))]
+            [(= "[\"v06\"]" out)
+             (str "in a new JVM with XTDB's JVM options, after a block the directories under the local storage path: " out)])
+         :block-without-jvm-opts
+         #(let [out (fresh-jvm [] (block-roots-form (dir)))]
+            [(str/includes? out "not available")
+             (str "in a new JVM without XTDB's JVM options, on Java " (System/getProperty "java.version")
+                  ", a node that reaches a block prints: " out)])
+         :block-add-opens-only
+         #(let [opts (take 1 in-process-jvm-opts)
+                out (fresh-jvm opts (block-roots-form (dir)))]
+            [(= "[\"v06\"]" out)
+             (str "in a new JVM with only " (first opts) ", on Java " (System/getProperty "java.version")
+                  ", a node that reaches a block prints: " out)])
+         :ledger-from-core
+         #(let [jars (classpath-jars)
+                pos (fn [re] (some (fn [[i j]] (when (re-find re j) i)) (map-indexed vector jars)))
+                from (str (.getLocation (.getCodeSource (.getProtectionDomain (Class/forName "org.apache.arrow.memory.BufferLedger")))))]
+            [(boolean (re-find #"xtdb-core-[^/]+\.jar$" from))
+             (str "org.apache.arrow.memory.BufferLedger loads from " (jar-name from)
+                  "; on the classpath xtdb-core is jar " (pos #"/xtdb-core-") " and arrow-memory-core jar "
+                  (pos #"/arrow-memory-core-"))])
+         :license-dir-and-file
+         #(let [holding (fn [pred]
+                          (sort (for [j (classpath-jars)
+                                      :when (with-open [z (java.util.zip.ZipFile. ^String j)]
+                                              (some (fn [^java.util.zip.ZipEntry e] (pred (.getName e)))
+                                                    (enumeration-seq (.entries z))))]
+                                  (jar-name j))))
+                dirs (holding #{"META-INF/license/"})
+                files (holding #{"META-INF/LICENSE"})]
+            [(and (seq dirs) (every? (fn [j] (str/starts-with? j "netty-tcnative-boringssl-static-")) dirs)
+                  (seq files))
+             (str "jars with a META-INF/license/ directory: " (str/join ", " dirs)
+                  "; jars with a META-INF/LICENSE file: " (count files) ", such as " (first files))])}
+        uber-thunks (zipmap uber-checks (map (fn [k] #(get @uber k [false "missing"])) uber-checks))]
+    (into {}
+          (for [[k f] (merge thunks uber-thunks) :when (checks k)]
+            [k (attempt f)]))))
 
 (defn- storage-facts
   "Each check's [passed? detail], from the runs with the GC on and off, and
@@ -459,9 +632,6 @@
      :log-untouched [(and (pos? (:log-after-writes on)) (>= (:log-bytes on) (:log-after-writes on)))
                      (str "GC on, LOG + REPLICA_LOG bytes after the writes " (:log-after-writes on)
                           ", after the collector ran " (:log-bytes on) "; GC off, " (:log-bytes off))]}))
-
-(defn- docs-rows [table from n]
-  (into [:put-docs table] (for [i (range from (+ from n))] {:xt/id i, :pad (apply str (repeat 200 "x"))})))
 
 (defn- write-path-run
   "Start `image` with SUITE/node.yaml (50 rows per block, no compactor, no
@@ -532,7 +702,7 @@
                                   (:blocks-to-keep storage)
                                   (storage-idle suite storage))))
                (when (some in-process-checks checks)
-                 (in-process-facts)))
+                 (in-process-facts checks)))
         results (for [{:keys [id check]} example :when check]
                   (let [[ok detail] (get facts check [false (str "unknown check " check)])]
                     [id ok detail]))]
