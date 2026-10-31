@@ -108,15 +108,17 @@ An example in `examples.edn` with `:tx` is a transaction that must fail with its
 
 Every ```` ```clojure ```` block in the skill is preceded by `<!-- xtql-example: id… -->`, one id per top-level form; `examples` fails on an unmarked block, so a new example can't go untested. `skill-citations pairs` feeds a reviewer who checks each claim against only what it cites. That catches misreadings, while running queries catches errors in the sources themselves, such as the docs' `exists`.
 
-On 2026-10-19, fresh answerers took all 60 tasks, three runs per model, each run either from memory or with the skill. None could read other files or run queries:
+On 2026-10-31, fresh answerers took all 60 tasks, three runs per model, each run either from memory or with the skill as of `9d2be2c`. None could read other files or run queries. Their answer files and the scores are in [`evals/xtdb-xtql-queries/answers-2026-10-31/`](evals/xtdb-xtql-queries/answers-2026-10-31/):
 
 | Model | From memory, per run | With the skill, per run | Held-out tasks, from memory | Held-out tasks, with the skill |
 |---|---|---|---|---|
-| Claude Opus 5.5 | 42, 42, 42 | 60, 60, 60 | 6, 5, 6 of 9 | 9, 9, 9 of 9 |
-| Claude Sonnet 5.5 | 40, 41, 40 | 59, 59, 59 | 5, 5, 6 of 9 | 9, 9, 9 of 9 |
-| Claude Haiku 5.5 | 17, 18, 34 | 59, 59, 60 | 1, 1, 3 of 9 | 9, 9, 9 of 9 |
+| Claude Opus 5.5 | 40, 40, 43 | 60, 60, 60 | 5, 5, 6 of 9 | 9, 9, 9 of 9 |
+| Claude Sonnet 5.5 | 35, 40, 40 | 58, 60, 59 | 5, 5, 5 of 9 | 9, 9, 9 of 9 |
+| Claude Haiku 5.5 | 26, 22, 34 | 48, 60, 60 | 3, 2, 5 of 9 | 6, 9, 9 of 9 |
 
-The 5 misses with the skill were 3 extra returned columns, a `||` concatenation of 4 strings, and a malformed `left-join`. From memory, all 9 runs failed both `pull` tasks, all 5 nested-field tasks and the subquery tasks t09, t10, t31–t37 and t40, while Haiku also missed joins, aggregates and time travel.
+Of the 15 misses with the skill, 12 were one Haiku run wrapping every `aggregate`'s specs in a vector, which the skill had no grouped example to rule out; it has one now. The other 3 were 2 extra returned columns and a call to `starts-with?`, which XTDB v2.2.0 rejects for two strings ("not applicable to types utf8 and utf8"). From memory, all 9 runs failed the subquery tasks t09, t10, t31–t37 and t40, the nested-field tasks t22, t33, t41–t43, the parameter task t49 and `pull` task t59.
+
+The run before it, on 2026-10-19 with the skill as it was then, scored 42, 42, 42 from memory and 60, 60, 60 with it on Opus; 40, 41, 40 and 59, 59, 59 on Sonnet; and 17, 18, 34 and 59, 59, 60 on Haiku. Its answer files weren't kept.
 
 Earlier, on 2026-10-15, fresh answerers on Claude Opus 5.5 scored 27/35 from memory and 35/35 with the skill. All 8 misses were subqueries (`exists?`, argument passing, `q` in `return`) and nested-field access, and 4 of those tasks were held out from the skill's revision. A reviewer subagent then checked the skill's claims against only what they cite: 15 of 68 went beyond their citations, and after rewording and observed footnotes, 7 of 62 still did. Those 7 were fixed in turn, and haven't been reviewed a third time.
 

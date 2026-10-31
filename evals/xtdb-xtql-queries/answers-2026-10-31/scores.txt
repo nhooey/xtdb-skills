@@ -1,0 +1,298 @@
+task                       haiku-memory-1haiku-memory-2haiku-memory-3haiku-skill-1haiku-skill-2haiku-skill-3opus-memory-1opus-memory-2opus-memory-3opus-skill-1opus-skill-2opus-skill-3sonnet-memory-1sonnet-memory-2sonnet-memory-3sonnet-skill-1sonnet-skill-2sonnet-skill-3
+t01-project                pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t02-literal-filter         pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t03-where                  pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t04-order-limit            pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t05-offset                 pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t06-aggregate-count        pass        pass        pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t07-join-sum               error       error       pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t08-left-join              error       error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        error       pass        pass        wrong       pass        pass        
+t09-not-exists             wrong       wrong       error       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        error       wrong       wrong       pass        pass        pass        
+t10-exists                 wrong       error       error       error       pass        pass        wrong       wrong       wrong       pass        pass        pass        error       wrong       wrong       pass        pass        pass        
+t11-unify-where-or         error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t12-concat                 pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t13-star-without           pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        error       pass        pass        pass        pass        pass        
+t14-unnest                 pass        pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t15-rel                    pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t16-current-version        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t17-valid-time-at          error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t18-all-time-history       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t19-valid-time-in          error       error       pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t20-join-rename            error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        wrong       pass        pass        
+t21-count-with-zero        error       error       error       error       pass        pass        wrong       wrong       pass        pass        pass        pass        error       wrong       pass        pass        pass        pass        
+t22-nested-field           error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t23-siblings-left-join     error       error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        error       pass        pass        pass        pass        pass        
+t24-avg                    error       error       pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t25-order-desc             pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t26-max-no-group           pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t27-count-distinct         pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t28-array-contains         pass        error       error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t29-arithmetic             pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t30-like                   pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        error       
+t31-scalar-subquery        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t32-exists-filtered        wrong       wrong       error       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        error       wrong       wrong       pass        pass        pass        
+t33-nested-compare         error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t34-subquery-count-filter  error       wrong       wrong       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        
+t35-subquery-max           error       error       error       pass        pass        pass        wrong       wrong       error       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        
+t36-not-exists-filtered    wrong       wrong       error       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        error       wrong       wrong       pass        pass        pass        
+t37-exists-two-args        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t38-count-zero             error       error       error       pass        pass        pass        wrong       wrong       pass        pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        
+t39-above-average          error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t40-argmax-per-group       error       error       error       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        
+t41-with-without-nested    error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t42-nested-group           error       error       error       error       pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t43-nested-employee        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t44-vector-first           pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t45-vector-length          pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t46-unnest-count           pass        pass        error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t47-unnest-employees       pass        pass        error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t48-rel-literal-join       pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t49-parameter              error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+t50-valid-time-from        error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t51-current-since          pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        wrong       pass        wrong       pass        pass        pass        
+t52-min-ever               pass        pass        pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t53-salary-at              error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t54-system-time-all        error       error       pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t55-top-salaries           pass        error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t56-left-join-manager      error       error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        error       pass        pass        pass        pass        pass        
+t57-grand-manager          error       error       pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        pass        
+t58-all-reports            error       error       error       pass        pass        pass        error       error       pass        pass        pass        pass        error       error       error       pass        pass        pass        
+t59-pull-many              wrong       error       error       pass        pass        pass        wrong       wrong       error       pass        pass        pass        wrong       wrong       wrong       pass        pass        pass        
+t60-pull-one               error       error       pass        pass        pass        pass        error       error       error       pass        pass        pass        error       error       error       pass        pass        pass        
+passed                     26/60       22/60       34/60       48/60       60/60       60/60       40/60       40/60       43/60       60/60       60/60       60/60       35/60       40/60       40/60       58/60       60/60       59/60       
+
+haiku-memory-1 t07-join-sum error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t08-left-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+haiku-memory-1 t10-exists wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+haiku-memory-1 t11-unify-where-or error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t17-valid-time-at error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-1 t19-valid-time-in error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-1 t20-join-rename error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t21-count-with-zero error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t22-nested-field error: Malformed get :xtql/malformed-get
+haiku-memory-1 t23-siblings-left-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t24-avg error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t31-scalar-subquery error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-1 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+haiku-memory-1 t33-nested-compare error: Malformed get :xtql/malformed-get
+haiku-memory-1 t34-subquery-count-filter error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-1 t35-subquery-max error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-1 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+haiku-memory-1 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-1 t38-count-zero error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-1 t39-above-average error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-1 t40-argmax-per-group error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t41-with-without-nested error: Malformed get :xtql/malformed-get
+haiku-memory-1 t42-nested-group error: Malformed get :xtql/malformed-get
+haiku-memory-1 t43-nested-employee error: Malformed get :xtql/malformed-get
+haiku-memory-1 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+haiku-memory-1 t50-valid-time-from error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-1 t53-salary-at error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-1 t54-system-time-all error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-1 t56-left-join-manager error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t57-grand-manager error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-1 t58-all-reports error: No implementation of method: :plan-query of protocol: #'xtdb.xtql.plan/PlanQuery found for class: xtdb.xtql.UnionAll :xtdb.error/illegal-arg
+haiku-memory-1 t59-pull-many wrong: got [{"title" "Quiet", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]} {"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]}], expected [{"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "super", :rating 4}]} {"title" "Quiet", "comments" nil}]
+haiku-memory-1 t60-pull-one error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+haiku-memory-2 t07-join-sum error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t08-left-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+haiku-memory-2 t10-exists error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-memory-2 t11-unify-where-or error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t15-rel error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t17-valid-time-at error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-2 t19-valid-time-in error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-2 t20-join-rename error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t21-count-with-zero error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t22-nested-field error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-2 t23-siblings-left-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t24-avg error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t28-array-contains error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-memory-2 t31-scalar-subquery error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+haiku-memory-2 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+haiku-memory-2 t33-nested-compare error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-2 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+haiku-memory-2 t35-subquery-max error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+haiku-memory-2 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+haiku-memory-2 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-2 t38-count-zero error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t40-argmax-per-group error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t41-with-without-nested error: Unknown symbol: 'lang' :xtdb.expression/unknown-symbol
+haiku-memory-2 t42-nested-group error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-2 t43-nested-employee error: Not all variables in expression are in scope :xtql/invalid-expression
+haiku-memory-2 t45-vector-length error: array_length not applicable to types list :xtdb.expression/function-type-mismatch
+haiku-memory-2 t48-rel-literal-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+haiku-memory-2 t50-valid-time-from error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-2 t53-salary-at error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-2 t54-system-time-all error: Malformed temporal filter :xtql/malformed-temporal-filter
+haiku-memory-2 t55-top-salaries error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t56-left-join-manager error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t57-grand-manager error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t58-all-reports error: Unknown unify clause :xtql/unknown-unify-clause
+haiku-memory-2 t59-pull-many error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-2 t60-pull-one error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-3 t08-left-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-3 t09-not-exists error: Malformed subquery :xtql/malformed-subquery
+haiku-memory-3 t10-exists error: Malformed subquery :xtql/malformed-subquery
+haiku-memory-3 t14-unnest error: Attribute in col spec must be keyword :xtql/malformed-col-spec
+haiku-memory-3 t21-count-with-zero error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-3 t22-nested-field error: Malformed get :xtql/malformed-get
+haiku-memory-3 t23-siblings-left-join error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-3 t28-array-contains error: in not applicable to types utf8 and list :xtdb.expression/function-type-mismatch
+haiku-memory-3 t31-scalar-subquery error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+haiku-memory-3 t32-exists-filtered error: Malformed subquery :xtql/malformed-subquery
+haiku-memory-3 t33-nested-compare error: Malformed get :xtql/malformed-get
+haiku-memory-3 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+haiku-memory-3 t35-subquery-max error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+haiku-memory-3 t36-not-exists-filtered error: Malformed subquery :xtql/malformed-subquery
+haiku-memory-3 t37-exists-two-args error: Malformed subquery :xtql/malformed-subquery
+haiku-memory-3 t38-count-zero error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+haiku-memory-3 t40-argmax-per-group error: Variables outside of aggregate expressions must be grouping columns :xtql/invalid-expression
+haiku-memory-3 t41-with-without-nested error: Malformed get :xtql/malformed-get
+haiku-memory-3 t42-nested-group error: Malformed get :xtql/malformed-get
+haiku-memory-3 t43-nested-employee error: Malformed get :xtql/malformed-get
+haiku-memory-3 t46-unnest-count error: Attribute in col spec must be keyword :xtql/malformed-col-spec
+haiku-memory-3 t47-unnest-employees error: Attribute in col spec must be keyword :xtql/malformed-col-spec
+haiku-memory-3 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+haiku-memory-3 t56-left-join-manager error: Unknown query tail :xtql/unknown-query-tail
+haiku-memory-3 t58-all-reports error: Unknown query op :xtql/unknown-query-op
+haiku-memory-3 t59-pull-many error: Unknown query tail :xtql/unknown-query-tail
+haiku-skill-1 t06-aggregate-count error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t07-join-sum error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t10-exists error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t19-valid-time-in error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t21-count-with-zero error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t24-avg error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t28-array-contains error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t42-nested-group error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t46-unnest-count error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t47-unnest-employees error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t52-min-ever error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+haiku-skill-1 t54-system-time-all error: Short form of col spec must be a symbol :xtql/malformed-col-spec
+opus-memory-1 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+opus-memory-1 t10-exists wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+opus-memory-1 t21-count-with-zero wrong: got [{"n" 3.0, "title" "Quiet"} {"n" 3.0, "title" "Hello"} {"n" 3.0, "title" "Bonjour"}], expected [{"n" 2.0, "title" "Hello"} {"n" 1.0, "title" "Bonjour"} {"n" 0.0, "title" "Quiet"}]
+opus-memory-1 t22-nested-field error: Malformed get :xtql/malformed-get
+opus-memory-1 t31-scalar-subquery error: Scalar subquery must only return a single column :xtql/invalid-scalar-subquery
+opus-memory-1 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+opus-memory-1 t33-nested-compare error: Malformed get :xtql/malformed-get
+opus-memory-1 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+opus-memory-1 t35-subquery-max wrong: got [{"top" 1200.0, "customer_name" "Brian"} {"top" 1200.0, "customer_name" "Ada"} {"top" 1200.0, "customer_name" "Dana"} {"top" 1200.0, "customer_name" "Chen"}], expected [{"top" 1200.0, "customer_name" "Ada"} {"top" 610.0, "customer_name" "Brian"} {"top" 400.0, "customer_name" "Chen"} {"top" nil, "customer_name" "Dana"}]
+opus-memory-1 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+opus-memory-1 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+opus-memory-1 t38-count-zero wrong: got [{"n" 3.0, "customer_name" "Brian"} {"n" 3.0, "customer_name" "Ada"} {"n" 3.0, "customer_name" "Dana"} {"n" 3.0, "customer_name" "Chen"}], expected [{"n" 1.0, "customer_name" "Ada"} {"n" 2.0, "customer_name" "Brian"} {"n" 0.0, "customer_name" "Chen"} {"n" 0.0, "customer_name" "Dana"}]
+opus-memory-1 t40-argmax-per-group wrong: got [{"order_id" 102.0, "customer_name" "Ada"}], expected [{"order_id" 102.0, "customer_name" "Ada"} {"order_id" 105.0, "customer_name" "Brian"} {"order_id" 104.0, "customer_name" "Chen"}]
+opus-memory-1 t41-with-without-nested error: Malformed get :xtql/malformed-get
+opus-memory-1 t42-nested-group error: Malformed get :xtql/malformed-get
+opus-memory-1 t43-nested-employee error: Malformed get :xtql/malformed-get
+opus-memory-1 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+opus-memory-1 t58-all-reports error: No implementation of method: :plan-query of protocol: #'xtdb.xtql.plan/PlanQuery found for class: xtdb.xtql.UnionAll :xtdb.error/illegal-arg
+opus-memory-1 t59-pull-many wrong: got [{"title" "Quiet", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]} {"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]}], expected [{"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "super", :rating 4}]} {"title" "Quiet", "comments" nil}]
+opus-memory-1 t60-pull-one error: cardinality violation :xtdb.single-join/cardinality-violation
+opus-memory-2 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+opus-memory-2 t10-exists wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+opus-memory-2 t21-count-with-zero wrong: got [{"n" 3.0, "title" "Quiet"} {"n" 3.0, "title" "Hello"} {"n" 3.0, "title" "Bonjour"}], expected [{"n" 2.0, "title" "Hello"} {"n" 1.0, "title" "Bonjour"} {"n" 0.0, "title" "Quiet"}]
+opus-memory-2 t22-nested-field error: Malformed get :xtql/malformed-get
+opus-memory-2 t31-scalar-subquery error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+opus-memory-2 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+opus-memory-2 t33-nested-compare error: Malformed get :xtql/malformed-get
+opus-memory-2 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+opus-memory-2 t35-subquery-max wrong: got [{"top" 1200.0, "customer_name" "Brian"} {"top" 1200.0, "customer_name" "Ada"} {"top" 1200.0, "customer_name" "Dana"} {"top" 1200.0, "customer_name" "Chen"}], expected [{"top" 1200.0, "customer_name" "Ada"} {"top" 610.0, "customer_name" "Brian"} {"top" 400.0, "customer_name" "Chen"} {"top" nil, "customer_name" "Dana"}]
+opus-memory-2 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+opus-memory-2 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+opus-memory-2 t38-count-zero wrong: got [{"n" 3.0, "customer_name" "Brian"} {"n" 3.0, "customer_name" "Ada"} {"n" 3.0, "customer_name" "Dana"} {"n" 3.0, "customer_name" "Chen"}], expected [{"n" 1.0, "customer_name" "Ada"} {"n" 2.0, "customer_name" "Brian"} {"n" 0.0, "customer_name" "Chen"} {"n" 0.0, "customer_name" "Dana"}]
+opus-memory-2 t40-argmax-per-group wrong: got [{"order_id" 102.0, "customer_name" "Ada"}], expected [{"order_id" 102.0, "customer_name" "Ada"} {"order_id" 105.0, "customer_name" "Brian"} {"order_id" 104.0, "customer_name" "Chen"}]
+opus-memory-2 t41-with-without-nested error: Malformed get :xtql/malformed-get
+opus-memory-2 t42-nested-group error: Malformed get :xtql/malformed-get
+opus-memory-2 t43-nested-employee error: Malformed get :xtql/malformed-get
+opus-memory-2 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+opus-memory-2 t58-all-reports error: No implementation of method: :plan-query of protocol: #'xtdb.xtql.plan/PlanQuery found for class: xtdb.xtql.UnionAll :xtdb.error/illegal-arg
+opus-memory-2 t59-pull-many wrong: got [{"title" "Quiet", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]} {"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "nice", :rating 5} {:body "super", :rating 4} {:body "meh", :rating 2}]}], expected [{"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "super", :rating 4}]} {"title" "Quiet", "comments" nil}]
+opus-memory-2 t60-pull-one error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+opus-memory-3 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+opus-memory-3 t10-exists wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+opus-memory-3 t22-nested-field error: Malformed get :xtql/malformed-get
+opus-memory-3 t31-scalar-subquery error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+opus-memory-3 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+opus-memory-3 t33-nested-compare error: Malformed get :xtql/malformed-get
+opus-memory-3 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+opus-memory-3 t35-subquery-max error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+opus-memory-3 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+opus-memory-3 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+opus-memory-3 t40-argmax-per-group wrong: got [{"order_id" 102.0, "customer_name" "Ada"}], expected [{"order_id" 102.0, "customer_name" "Ada"} {"order_id" 105.0, "customer_name" "Brian"} {"order_id" 104.0, "customer_name" "Chen"}]
+opus-memory-3 t41-with-without-nested error: Malformed get :xtql/malformed-get
+opus-memory-3 t42-nested-group error: Malformed get :xtql/malformed-get
+opus-memory-3 t43-nested-employee error: Malformed get :xtql/malformed-get
+opus-memory-3 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+opus-memory-3 t59-pull-many error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+opus-memory-3 t60-pull-one error: TODO subqueries not bound, subquery not allowed in expr here :xtdb.error/unsupported
+sonnet-memory-1 t08-left-join error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t09-not-exists error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t10-exists error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t13-star-without error: Columns must be keywords in without :xtql/malformed-without
+sonnet-memory-1 t21-count-with-zero error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t22-nested-field error: Malformed get :xtql/malformed-get
+sonnet-memory-1 t23-siblings-left-join error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t31-scalar-subquery error: Scalar subquery must only return a single column :xtql/invalid-scalar-subquery
+sonnet-memory-1 t32-exists-filtered error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t33-nested-compare error: Malformed get :xtql/malformed-get
+sonnet-memory-1 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+sonnet-memory-1 t35-subquery-max wrong: got [{"top" 1200.0, "customer_name" "Brian"} {"top" 1200.0, "customer_name" "Ada"} {"top" 1200.0, "customer_name" "Dana"} {"top" 1200.0, "customer_name" "Chen"}], expected [{"top" 1200.0, "customer_name" "Ada"} {"top" 610.0, "customer_name" "Brian"} {"top" 400.0, "customer_name" "Chen"} {"top" nil, "customer_name" "Dana"}]
+sonnet-memory-1 t36-not-exists-filtered error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+sonnet-memory-1 t38-count-zero wrong: got [{"n" 3.0, "customer_name" "Brian"} {"n" 3.0, "customer_name" "Ada"} {"n" 3.0, "customer_name" "Dana"} {"n" 3.0, "customer_name" "Chen"}], expected [{"n" 1.0, "customer_name" "Ada"} {"n" 2.0, "customer_name" "Brian"} {"n" 0.0, "customer_name" "Chen"} {"n" 0.0, "customer_name" "Dana"}]
+sonnet-memory-1 t40-argmax-per-group wrong: got [{"order_id" 102.0, "customer_name" "Ada"}], expected [{"order_id" 102.0, "customer_name" "Ada"} {"order_id" 105.0, "customer_name" "Brian"} {"order_id" 104.0, "customer_name" "Chen"}]
+sonnet-memory-1 t41-with-without-nested error: Malformed get :xtql/malformed-get
+sonnet-memory-1 t42-nested-group error: Malformed get :xtql/malformed-get
+sonnet-memory-1 t43-nested-employee error: Malformed get :xtql/malformed-get
+sonnet-memory-1 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+sonnet-memory-1 t51-current-since wrong: columns ("price" "product" "since"), expected ("product" "since")
+sonnet-memory-1 t56-left-join-manager error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t58-all-reports error: Unknown query tail :xtql/unknown-query-tail
+sonnet-memory-1 t59-pull-many wrong: got [{"title" "Quiet", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]} {"title" "Hello", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]}], expected [{"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "super", :rating 4}]} {"title" "Quiet", "comments" nil}]
+sonnet-memory-1 t60-pull-one error: cardinality violation :xtdb.single-join/cardinality-violation
+sonnet-memory-2 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+sonnet-memory-2 t10-exists wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+sonnet-memory-2 t21-count-with-zero wrong: got [{"n" 3.0, "title" "Quiet"} {"n" 3.0, "title" "Hello"} {"n" 3.0, "title" "Bonjour"}], expected [{"n" 2.0, "title" "Hello"} {"n" 1.0, "title" "Bonjour"} {"n" 0.0, "title" "Quiet"}]
+sonnet-memory-2 t22-nested-field error: Malformed get :xtql/malformed-get
+sonnet-memory-2 t31-scalar-subquery error: Scalar subquery must only return a single column :xtql/invalid-scalar-subquery
+sonnet-memory-2 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+sonnet-memory-2 t33-nested-compare error: Malformed get :xtql/malformed-get
+sonnet-memory-2 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+sonnet-memory-2 t35-subquery-max wrong: got [{"top" 1200.0, "customer_name" "Brian"} {"top" 1200.0, "customer_name" "Ada"} {"top" 1200.0, "customer_name" "Dana"} {"top" 1200.0, "customer_name" "Chen"}], expected [{"top" 1200.0, "customer_name" "Ada"} {"top" 610.0, "customer_name" "Brian"} {"top" 400.0, "customer_name" "Chen"} {"top" nil, "customer_name" "Dana"}]
+sonnet-memory-2 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+sonnet-memory-2 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+sonnet-memory-2 t38-count-zero wrong: got [{"n" 3.0, "customer_name" "Brian"} {"n" 3.0, "customer_name" "Ada"} {"n" 3.0, "customer_name" "Dana"} {"n" 3.0, "customer_name" "Chen"}], expected [{"n" 1.0, "customer_name" "Ada"} {"n" 2.0, "customer_name" "Brian"} {"n" 0.0, "customer_name" "Chen"} {"n" 0.0, "customer_name" "Dana"}]
+sonnet-memory-2 t40-argmax-per-group wrong: got [{"order_id" 102.0, "customer_name" "Ada"}], expected [{"order_id" 102.0, "customer_name" "Ada"} {"order_id" 105.0, "customer_name" "Brian"} {"order_id" 104.0, "customer_name" "Chen"}]
+sonnet-memory-2 t41-with-without-nested error: Malformed get :xtql/malformed-get
+sonnet-memory-2 t42-nested-group error: Malformed get :xtql/malformed-get
+sonnet-memory-2 t43-nested-employee error: Malformed get :xtql/malformed-get
+sonnet-memory-2 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+sonnet-memory-2 t58-all-reports error: No implementation of method: :plan-query of protocol: #'xtdb.xtql.plan/PlanQuery found for class: xtdb.xtql.UnionAll :xtdb.error/illegal-arg
+sonnet-memory-2 t59-pull-many wrong: got [{"title" "Quiet", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]} {"title" "Hello", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]}], expected [{"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "super", :rating 4}]} {"title" "Quiet", "comments" nil}]
+sonnet-memory-2 t60-pull-one error: cardinality violation :xtdb.single-join/cardinality-violation
+sonnet-memory-3 t09-not-exists wrong: got [], expected [{"customer_name" "Dana"}]
+sonnet-memory-3 t10-exists wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+sonnet-memory-3 t22-nested-field error: Malformed get :xtql/malformed-get
+sonnet-memory-3 t31-scalar-subquery error: Scalar subquery must only return a single column :xtql/invalid-scalar-subquery
+sonnet-memory-3 t32-exists-filtered wrong: got [{"title" "Quiet"} {"title" "Hello"} {"title" "Bonjour"}], expected [{"title" "Hello"}]
+sonnet-memory-3 t33-nested-compare error: Malformed get :xtql/malformed-get
+sonnet-memory-3 t34-subquery-count-filter wrong: got [{"customer_name" "Brian"} {"customer_name" "Ada"} {"customer_name" "Dana"} {"customer_name" "Chen"}], expected [{"customer_name" "Ada"} {"customer_name" "Brian"}]
+sonnet-memory-3 t35-subquery-max wrong: got [{"top" 1200.0, "customer_name" "Brian"} {"top" 1200.0, "customer_name" "Ada"} {"top" 1200.0, "customer_name" "Dana"} {"top" 1200.0, "customer_name" "Chen"}], expected [{"top" 1200.0, "customer_name" "Ada"} {"top" 610.0, "customer_name" "Brian"} {"top" 400.0, "customer_name" "Chen"} {"top" nil, "customer_name" "Dana"}]
+sonnet-memory-3 t36-not-exists-filtered wrong: got [], expected [{"customer_name" "Brian"} {"customer_name" "Chen"} {"customer_name" "Dana"}]
+sonnet-memory-3 t37-exists-two-args error: Not all variables in expression are in scope :xtql/invalid-expression
+sonnet-memory-3 t38-count-zero wrong: got [{"n" 3.0, "customer_name" "Brian"} {"n" 3.0, "customer_name" "Ada"} {"n" 3.0, "customer_name" "Dana"} {"n" 3.0, "customer_name" "Chen"}], expected [{"n" 1.0, "customer_name" "Ada"} {"n" 2.0, "customer_name" "Brian"} {"n" 0.0, "customer_name" "Chen"} {"n" 0.0, "customer_name" "Dana"}]
+sonnet-memory-3 t40-argmax-per-group wrong: got [{"order_id" 102.0, "customer_name" "Ada"}], expected [{"order_id" 102.0, "customer_name" "Ada"} {"order_id" 105.0, "customer_name" "Brian"} {"order_id" 104.0, "customer_name" "Chen"}]
+sonnet-memory-3 t41-with-without-nested error: Malformed get :xtql/malformed-get
+sonnet-memory-3 t42-nested-group error: Malformed get :xtql/malformed-get
+sonnet-memory-3 t43-nested-employee error: Malformed get :xtql/malformed-get
+sonnet-memory-3 t49-parameter error: The column index is out of range: 1, number of columns: 0. :psql/invalid-parameter-value
+sonnet-memory-3 t51-current-since wrong: columns ("price" "product" "since"), expected ("product" "since")
+sonnet-memory-3 t58-all-reports error: No implementation of method: :plan-query of protocol: #'xtdb.xtql.plan/PlanQuery found for class: xtdb.xtql.UnionAll :xtdb.error/illegal-arg
+sonnet-memory-3 t59-pull-many wrong: got [{"title" "Quiet", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]} {"title" "Hello", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:/pid "p1", :body "nice", :rating 5} {:/pid "p2", :body "super", :rating 4} {:/pid "p1", :body "meh", :rating 2}]}], expected [{"title" "Hello", "comments" [{:body "nice", :rating 5} {:body "meh", :rating 2}]} {"title" "Bonjour", "comments" [{:body "super", :rating 4}]} {"title" "Quiet", "comments" nil}]
+sonnet-memory-3 t60-pull-one error: cardinality violation :xtdb.single-join/cardinality-violation
+sonnet-skill-1 t08-left-join wrong: columns ("cid" "customer_name" "order_id"), expected ("customer_name" "order_id")
+sonnet-skill-1 t20-join-rename wrong: columns ("cid" "customer_name" "title"), expected ("customer_name" "title")
+sonnet-skill-3 t30-like error: starts_with? not applicable to types utf8 and utf8 :xtdb.expression/function-type-mismatch
