@@ -74,6 +74,17 @@ Inside `unify`, the valid clauses are `from`, `join`, `left-join`, `rel`,
 appear in neither the source nor the tail operators, so they exist only
 there.[^source-operators][^tail-operators]
 
+`aggregate` takes its specs as separate arguments, never in a vector:
+each is a bare symbol to group by, or a map from new column to
+aggregate expression.[^aggregate] Grouping by a column means naming it
+alongside the map:
+
+<!-- xtql-example: aggregate-group -->
+```clojure
+(-> (from :orders [status])
+    (aggregate status {:n (row-count)}))
+```
+
 ## Binding specs
 
 <!-- xtql-example: bind-project bind-rename bind-literal bind-param -->
@@ -500,3 +511,4 @@ apply it from memory.
 [^obs-current-time-valid-time]: Observed on XTDB v2.2.0: example `current-time-sets-valid-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^obs-snapshot-time]: Observed on XTDB v2.2.0: example `snapshot-time-hides-later-txs` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
 [^q-snapshot-time]: [api.clj line 156, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L156-L156), unchanged since v2.1.0-rc0
+[^aggregate]: [queries.md § Aggregate, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L81-L103), unchanged since v2.1.0-rc0

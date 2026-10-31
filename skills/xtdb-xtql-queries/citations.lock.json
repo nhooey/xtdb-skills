@@ -91,6 +91,13 @@
       "since" : "v2.1.0-rc0",
       "differs" : [ ]
     },
+    "aggregate" : {
+      "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
+      "lines" : [ 81, 103 ],
+      "sha256" : "3f98d8c38add32c68f9b2575dab419046da654bed39733d8448d83c846bddc0f",
+      "since" : "v2.1.0-rc0",
+      "differs" : [ ]
+    },
     "query-options" : {
       "path" : "docs/src/content/docs/reference/main/xtql/queries.md",
       "lines" : [ 650, 698 ],

@@ -33,6 +33,9 @@
               {:customer-id 3, :customer-name "Chen", :order-id 104, :order-value 400}
               {:customer-id 2, :customer-name "Brian", :order-id 105, :order-value 610}]}
 
+  {:id "aggregate-group"
+   :expected [{:status "shipped", :n 3} {:status "pending", :n 1} {:status "cancelled", :n 1}]}
+
   {:id "rel-ids"
    :args [[{:id 1} {:id 3}]]
    :expected [{:id 1, :customer-name "Ada"} {:id 3, :customer-name "Chen"}]}

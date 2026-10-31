@@ -27,6 +27,7 @@
   {:id "source-operators" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Source operators"}
   {:id "tail-operators" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Tail operators"}
   {:id "unify-clauses" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Unify clauses"}
+  {:id "aggregate" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Aggregate"}
   {:id "binding-specs" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "Binding specs"}
   {:id "from" :path "docs/src/content/docs/reference/main/xtql/queries.md" :heading "From"}
   {:id "src-from-opt-keys" :path "core/src/main/clojure/xtdb/xtql.clj" :form "(def from-opt-keys"}
