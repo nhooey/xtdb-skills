@@ -8,7 +8,7 @@ description: How a write travels through XTDB 2.x, from the source log through t
 Written from `xtdb/xtdb` at tag `v2.2.0`. Each footnote cites the docs or
 source, or the xtdb-skills eval's `storage` command, which writes rows to a
 node that cuts a block every 50 rows and runs no compactor or collector,
-and lists the files it leaves; `citations.edn` lists them.
+and lists the files it leaves.
 
 ## Versions
 
@@ -17,7 +17,6 @@ candidates included, its cited span has read the same ("unchanged
 since"), or since which tag the eval saw its example hold ("holds on
 every tag the eval ran since"); "differs in" and "fails on" name later
 tags off that line, such as a patch release of an older minor version.
-`evals/<skill>/releases.edn` lists the result on every tag.
 
 Before relying on a claim, find the project's XTDB version: the
 `com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
@@ -129,11 +128,11 @@ apply it from memory.
 [^next-block]: [LiveIndex.kt line 262, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveIndex.kt#L262-L262)
 [^no-rows]: [LiveTable.kt line 193, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LiveTable.kt#L193-L193), unchanged since v2.2.0-beta2; differs in v2.1.1
 [^node-processing]: [dbs-in-xtdb.md § Node processing, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/dbs-in-xtdb.md?plain=1#L210-L244), unchanged since v2.2.0-beta2; differs in v2.1.1
-[^obs-below-block]: Observed on XTDB v2.2.0: example `wp-below-block` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
-[^obs-block-at-rows]: Observed on XTDB v2.2.0: example `wp-block-at-rows` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
-[^obs-l0-pair]: Observed on XTDB v2.2.0: example `wp-l0-pair` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
-[^obs-l0-per-table]: Observed on XTDB v2.2.0: example `wp-l0-per-table` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
-[^obs-tx-not-split]: Observed on XTDB v2.2.0: example `wp-tx-not-split` in [examples.edn](../../evals/xtdb-write-path/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-write-path/releases.edn) lists the tags.
+[^obs-below-block]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-block-at-rows]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-l0-pair]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-l0-per-table]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-tx-not-split]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
 [^signal-compactor]: [BlockCutter.kt line 295, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/BlockCutter.kt#L295-L295), unchanged since v2.2.0-beta2; differs in v2.1.1
 [^trie-writer-data]: [LiveTrieWriter.kt line 14, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt#L14-L14), unchanged since v2.1.0-rc0
 [^trie-writer-meta]: [LiveTrieWriter.kt line 15, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/trie/LiveTrieWriter.kt#L15-L15), unchanged since v2.2.0-beta3; differs in v2.1.1

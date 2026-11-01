@@ -305,6 +305,18 @@
       "since" : "v2.0.0-beta2",
       "fails" : [ ]
     },
+    "obs-current-time-default" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-current-time-not-system-time" : {
+      "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-current-time-valid-time" : {
+      "since" : "v2.0.0-beta4",
+      "fails" : [ ]
+    },
     "obs-exists-in-where" : {
       "since" : "v2.0.0-beta8",
       "fails" : [ ]
@@ -371,6 +383,10 @@
     },
     "obs-set-length" : {
       "since" : "v2.0.0-beta2",
+      "fails" : [ ]
+    },
+    "obs-snapshot-time" : {
+      "since" : "v2.0.0-beta4",
       "fails" : [ ]
     },
     "obs-star-in-unify" : {

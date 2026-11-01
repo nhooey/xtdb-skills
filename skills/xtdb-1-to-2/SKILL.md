@@ -9,7 +9,6 @@ Written from `xtdb/xtdb` at tag `v2.2.0`, and at `1.24.5`, the last 1.x
 release, for what XTDB 1 did. Each footnote cites a span of one of them,
 or an example in the xtdb-skills eval that a live 2.2.0 node rejects; a
 release that brings a feature back fails that example.
-`citations.edn` lists them.
 
 A model's memory of XTDB is mostly XTDB 1, whose API and query language
 2.x replaced. Check each XTDB call against this list before writing it,
@@ -22,7 +21,6 @@ candidates included, its cited span has read the same ("unchanged
 since"), or since which tag the eval saw its example hold ("holds on
 every tag the eval ran since"); "differs in" and "fails on" name later
 tags off that line, such as a patch release of an older minor version.
-`evals/<skill>/releases.edn` lists the result on every tag.
 
 Before relying on a claim, find the project's XTDB version: the
 `com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
@@ -194,27 +192,27 @@ apply it from memory.
 [^erase-removed]: [tx_ops.clj `(defmethod parse-tx-op :erase [`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/tx_ops.clj#L122-L126), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^grammar]: [queries.md § Operators, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L7-L36), unchanged since v2.1.0-rc0
 [^insert-into-removed]: [tx_ops.clj `(defmethod parse-tx-op :insert-into`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/tx_ops.clj#L94-L98), unchanged since v2.2.0-beta1; differs in v2.1.1
-[^obs-assert-exists-removed]: Observed on XTDB v2.2.0: example `assert-exists-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-assert-not-exists-removed]: Observed on XTDB v2.2.0: example `assert-not-exists-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-call-removed]: Observed on XTDB v2.2.0: example `call-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-delete-removed]: Observed on XTDB v2.2.0: example `delete-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-erase-removed]: Observed on XTDB v2.2.0: example `erase-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-history-all-time]: Observed on XTDB v2.2.0: example `history-all-time` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-insert-into-removed]: Observed on XTDB v2.2.0: example `insert-into-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-not-exists-fn]: Observed on XTDB v2.2.0: example `not-exists-fn` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-or-in-where]: Observed on XTDB v2.2.0: example `or-in-where` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-put-fn-removed]: Observed on XTDB v2.2.0: example `put-fn-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-update-removed]: Observed on XTDB v2.2.0: example `update-removed` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta7; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-api-gone]: Observed on XTDB v2.2.0: example `v1-api-gone` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-datalog-map]: Observed on XTDB v2.2.0: example `v1-datalog-map` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-evict-op]: Observed on XTDB v2.2.0: example `v1-evict-op` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-fn-op]: Observed on XTDB v2.2.0: example `v1-fn-op` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-get-attr]: Observed on XTDB v2.2.0: example `v1-get-attr` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-match-op]: Observed on XTDB v2.2.0: example `v1-match-op` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-not-clause]: Observed on XTDB v2.2.0: example `v1-not-clause` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-or-clause]: Observed on XTDB v2.2.0: example `v1-or-clause` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-put-op]: Observed on XTDB v2.2.0: example `v1-put-op` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-v1-rules]: Observed on XTDB v2.2.0: example `v1-rules` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
+[^obs-assert-exists-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-assert-not-exists-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-call-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-delete-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-erase-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-history-all-time]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-insert-into-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-not-exists-fn]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-or-in-where]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-put-fn-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-update-removed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta7.
+[^obs-v1-api-gone]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-datalog-map]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-evict-op]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-fn-op]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-get-attr]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-match-op]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-not-clause]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-or-clause]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-put-op]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-rules]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^plan-q]: [api.clj `(defn plan-q`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L94-L118), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^put-fn-removed]: [tx_ops.clj `(defmethod parse-tx-op :put-fn`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/tx_ops.clj#L75-L79), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^q-opts]: [api.clj `(defn q`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L120-L164), unchanged since v2.1.0-rc0
@@ -247,13 +245,13 @@ apply it from memory.
 [^v1-with-tx]: [api.clj line 278, xtdb/xtdb 1.24.5](https://github.com/xtdb/xtdb/blob/1.24.5/core/src/xtdb/api.clj#L278-L278)
 [^xtql-sql]: [api.clj `(defn- xtql->sql`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L61-L71), unchanged since v2.0.0-beta8.3
 [^execute-tx-throws]: [api.clj line 320, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L320-L320), unchanged since v2.0.0-beta8.3
-[^obs-guard-aborts]: Observed on XTDB v2.2.0: example `guard-aborts` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-guard-commits]: Observed on XTDB v2.2.0: example `guard-commits` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-guard-no-params]: Observed on XTDB v2.2.0: example `guard-no-params` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
-[^obs-guard-params-need-parens]: Observed on XTDB v2.2.0: example `guard-params-need-parens` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
+[^obs-guard-aborts]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-guard-commits]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-guard-no-params]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-guard-params-need-parens]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^sql-assert]: [txs.md § `ASSERT`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/sql/txs.md?plain=1#L99-L132), unchanged since v2.1.0-rc0
 [^sql-op]: [tx_ops.clj `(defmethod parse-tx-op :sql [`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/tx_ops.clj#L53-L57), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^txs-atomic]: [txs-in-xtdb.md line 34, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L34-L34), unchanged since v2.1.0-rc0
 [^xtql-in-sql]: [Sql.g4 line 704, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/antlr/xtdb/antlr/Sql.g4#L704-L704), unchanged since v2.0.0-beta8
-[^obs-delete-unwritten-table]: Observed on XTDB v2.2.0: example `delete-unwritten-table-fails` in [examples.edn](../../evals/xtdb-1-to-2/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-1-to-2/releases.edn) lists the tags.
+[^obs-delete-unwritten-table]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1.
 [^v1-delete]: [datalog-transactions.adoc line 146, xtdb/xtdb 1.24.5](https://github.com/xtdb/xtdb/blob/1.24.5/docs/language-reference/modules/ROOT/pages/datalog-transactions.adoc#L146-L146)

@@ -7,13 +7,9 @@ description: Write, read and debug XTQL queries for XTDB 2.x — the Clojure/EDN
 
 Written from `xtdb/xtdb` at tag `v2.2.0`. Each claim carries a footnote
 that points either at the docs section or source form it was read from,
-or, where no source says it, at an example in the xtdb-skills eval that
-shows it on a live XTDB node. `citations.edn` names those spans and
-examples and `citations.lock.json` records the spans' hashes, so a newer
-XTDB release can be diffed against just the parts this skill relies on
-(see [Keeping this skill current](#keeping-this-skill-current)). The
-citation check proves a cited span still exists unchanged, not that the
-claim reads it correctly — when a claim matters, read its footnote.
+or, where no source says it, at the XTDB release a live node showed it
+on. A footnote shows where a claim comes from, not that the claim reads
+it correctly — when a claim matters, read its footnote.
 
 ## Versions
 
@@ -22,7 +18,6 @@ candidates included, its cited span has read the same ("unchanged
 since"), or since which tag the eval saw its example hold ("holds on
 every tag the eval ran since"); "differs in" and "fails on" name later
 tags off that line, such as a patch release of an older minor version.
-`evals/<skill>/releases.edn` lists the result on every tag.
 
 Before relying on a claim, find the project's XTDB version: the
 `com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
@@ -412,20 +407,6 @@ recorded by `t` and valid at `t`, with no temporal filter on any
 `:for-valid-time` or `:for-system-time` still overrides the default for that
 table.[^current-time-valid-time][^temporal-filters]
 
-## Keeping this skill current
-
-In the xtdb-skills dev shell, from the repo root:
-
-```sh
-skill-citations drift skills/xtdb-xtql-queries --to latest
-```
-
-reports, for each footnote, whether its cited span is unchanged, changed
-(with the diff), moved to another file, or missing at the newer tag, and
-which sections above cite it. Files under the watched paths that changed
-but are cited nowhere are listed as possible gaps. Update the sections
-the report names, then `bump` to the new tag.
-
 ## Related skills
 
 When one of these applies and it's in your skill listing, load it
@@ -454,34 +435,34 @@ apply it from memory.
 [^query-options]: [queries.md § Query options, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L650-L698), unchanged since v2.1.0-rc0
 [^expressions]: [queries.md § Expressions, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L480-L485), unchanged since v2.1.0-rc0
 [^src-parse-expr]: [xtql.clj `(defn parse-expr`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L106-L170), unchanged since v2.2.0-rc0; differs in v2.1.1
-[^obs-args-map-ignored]: Observed on XTDB v2.2.0: example `args-map-ignored` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-q-in-return]: Observed on XTDB v2.2.0: example `q-in-return` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-q-in-with]: Observed on XTDB v2.2.0: example `q-in-with` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-row-count-zero]: Observed on XTDB v2.2.0: example `row-count-zero` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-star-in-unify]: Observed on XTDB v2.2.0: example `star-in-unify` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-v1-map]: Observed on XTDB v2.2.0: example `v1-query-map` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
+[^obs-args-map-ignored]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-q-in-return]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-q-in-with]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-row-count-zero]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-star-in-unify]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-map]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^src-xt-q]: [api.clj `(defn plan-q`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L94-L118), unchanged since v2.2.0-rc1; differs in v2.1.1
-[^obs-exists-in-where]: Observed on XTDB v2.2.0: example `not-exists-vector` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-exists-with-fn]: Observed on XTDB v2.2.0: example `exists-bare` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-rel-ids]: Observed on XTDB v2.2.0: example `rel-ids` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-temporal-columns]: Observed on XTDB v2.2.0: example `temporal-columns` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
+[^obs-exists-in-where]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-exists-with-fn]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-rel-ids]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-temporal-columns]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^rel]: [queries.md § Rel(ation), v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L298-L329), unchanged since v2.1.0-rc0
-[^obs-current-system-to]: Observed on XTDB v2.2.0: example `current-system-to-absent` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-system-columns]: Observed on XTDB v2.2.0: example `system-columns` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-pull]: Observed on XTDB v2.2.0: example `pull-one` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-pull-cardinality]: Observed on XTDB v2.2.0: example `pull-cardinality` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-pull-no-match]: Observed on XTDB v2.2.0: example `pull-no-match` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-pull-star]: Observed on XTDB v2.2.0: example `pull-many` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-subquery-name-clash]: Observed on XTDB v2.2.0: example `subquery-name-clash` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-subquery-name-renamed]: Observed on XTDB v2.2.0: example `subquery-renamed` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
+[^obs-current-system-to]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-system-columns]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-pull]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-pull-cardinality]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-pull-no-match]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-pull-star]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-subquery-name-clash]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-subquery-name-renamed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
 [^array-length-dimension]: [other.md line 34, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/other.md?plain=1#L34-L34), unchanged since v2.2.0-beta1; differs in v2.1.1
-[^obs-char-length-fails]: Observed on XTDB v2.2.0: example `char-length-fails` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-character-length]: Observed on XTDB v2.2.0: example `character-length` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-list-lengths]: Observed on XTDB v2.2.0: example `list-lengths` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-nth-from-zero]: Observed on XTDB v2.2.0: example `nth-from-zero` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-pull-in-return]: Observed on XTDB v2.2.0: example `pull-in-return` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-set-cardinality-fails]: Observed on XTDB v2.2.0: example `set-cardinality-fails` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-set-length]: Observed on XTDB v2.2.0: example `set-length` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
+[^obs-char-length-fails]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-character-length]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-list-lengths]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-nth-from-zero]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-pull-in-return]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-set-cardinality-fails]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-set-length]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^src-array-length]: [expression.clj `(defmethod codegen-call [:array_length :list :i64]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2292-L2300), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^src-cardinality]: [expression.clj `(defmethod codegen-call [:cardinality :list]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2242-L2244), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^src-character-length]: [expression.clj `(defmethod codegen-call [:character_length :utf8]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L1568-L1570), unchanged since v2.2.0-beta1; differs in v2.1.1
@@ -491,24 +472,24 @@ apply it from memory.
 [^src-nth]: [expression.clj `(defmethod codegen-call [:nth :list :int]`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/expression.clj#L2225-L2237), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^string-length]: [string.md line 10, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/string.md?plain=1#L10-L10), unchanged since v2.1.0-rc0
 [^atomic-txs]: [txs-in-xtdb.md line 11, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/txs-in-xtdb.md?plain=1#L11-L11), unchanged since v2.1.0-rc0
-[^obs-frontier-step]: Observed on XTDB v2.2.0: example `frontier-step` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-two-hop]: Observed on XTDB v2.2.0: example `two-hop` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-union-all-unplanned]: Observed on XTDB v2.2.0: example `union-all-unplanned` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-up-to-three-hops]: Observed on XTDB v2.2.0: example `up-to-three-hops` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta8; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
+[^obs-frontier-step]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-two-hop]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
+[^obs-union-all-unplanned]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-up-to-three-hops]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.
 [^src-recursive-cte]: [sql.clj line 265, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/sql.clj#L265-L265), unchanged since v2.1.0-beta3
 [^src-union-all]: [xtql.clj `(defmethod parse-query 'union-all`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L614-L617), unchanged since v2.2.0-rc0; differs in v2.1.1
 [^src-unknown-op]: [xtql.clj `(defmethod parse-query :default`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L44-L45), unchanged since v2.2.0-rc0; differs in v2.1.1
 [^boolean-fns]: [predicates.md § Boolean functions, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/stdlib/predicates.md?plain=1#L29-L50), unchanged since v2.2.0-beta1; differs in v2.1.1
-[^obs-not-exists-fn]: Observed on XTDB v2.2.0: example `not-exists-fn` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-v1-get-attr]: Observed on XTDB v2.2.0: example `v1-get-attr` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-v1-or-clause]: Observed on XTDB v2.2.0: example `v1-or-clause` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
-[^obs-v1-rules]: Observed on XTDB v2.2.0: example `v1-rules` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-xtql-queries/releases.edn) lists the tags.
+[^obs-not-exists-fn]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-get-attr]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-or-clause]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-v1-rules]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^src-subquery-forms]: [xtql.clj line 141, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L141-L141), unchanged since v2.2.0-rc0; differs in v2.1.1
 [^src-unknown-clause]: [xtql.clj `(defmethod parse-unify-clause :default`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/xtql.clj#L77-L78), unchanged since v2.2.0-rc0; differs in v2.1.1
 [^current-time-valid-time]: [queries.md line 679, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L679-L679), unchanged since v2.1.0-rc0
-[^obs-current-time-default]: Observed on XTDB v2.2.0: example `current-time-default-valid-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
-[^obs-current-time-not-system-time]: Observed on XTDB v2.2.0: example `current-time-not-system-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
-[^obs-current-time-valid-time]: Observed on XTDB v2.2.0: example `current-time-sets-valid-time` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
-[^obs-snapshot-time]: Observed on XTDB v2.2.0: example `snapshot-time-hides-later-txs` in [examples.edn](../../evals/xtdb-xtql-queries/examples.edn), re-run by the eval's `examples` command.
+[^obs-current-time-default]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-current-time-not-system-time]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-current-time-valid-time]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta4.
+[^obs-snapshot-time]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta4.
 [^q-snapshot-time]: [api.clj line 156, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L156-L156), unchanged since v2.1.0-rc0
 [^aggregate]: [queries.md § Aggregate, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L81-L103), unchanged since v2.1.0-rc0

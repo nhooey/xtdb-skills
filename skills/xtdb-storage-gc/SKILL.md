@@ -10,7 +10,7 @@ collector one short section,[^gc-docs] so most footnotes cite the
 source; the rest cite the xtdb-skills eval's `storage` command, which runs the same
 writes on two nodes, with the collector on and off, and compares their
 storage directories. Kafka's retention defaults cite `apache/kafka` at
-`4.3.1`. `citations.edn` lists them. For what erase does to
+`4.3.1`. For what erase does to
 query results, see the `xtdb-erase-and-history` skill.
 
 ## Versions
@@ -20,7 +20,6 @@ candidates included, its cited span has read the same ("unchanged
 since"), or since which tag the eval saw its example hold ("holds on
 every tag the eval ran since"); "differs in" and "fails on" name later
 tags off that line, such as a patch release of an older minor version.
-`evals/<skill>/releases.edn` lists the result on every tag.
 
 Before relying on a claim, find the project's XTDB version: the
 `com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
@@ -130,7 +129,9 @@ so a node opened only to run queries still writes one.[^obs-replica-per-open] Th
 appends a no-op whenever an assert interval passes with nothing else to
 append,[^assert-noop][^assert-timeout][^election-driver] 100 ms on a
 local or in-memory log and a second on any other, such as
-Kafka.[^assert-interval] Each database
+Kafka.[^assert-interval] On a local log with no writes, a node's
+`REPLICA_LOG` grew about 276 bytes a second, some 24 MB a day, while
+`LOG` stayed empty.[^obs-replica-idle] Each database
 has its own replica log, so each grows this way.[^log-split] The log
 docs call the in-memory and local logs "unaffected" by the source and
 replica split;[^log-split-local] a local log still writes both files.
@@ -289,13 +290,13 @@ apply it from memory.
 [^log-split]: [log.md line 21, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L21-L21), unchanged since v2.2.0-beta1; differs in v2.1.1
 [^node-clj-key]: [node.clj `(defmethod apply-config! :garbage-collector`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/node.clj#L84-L85), unchanged since v2.1.0-beta1
 [^node-config]: [Xtdb.kt line 1642, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/Xtdb.kt#L1642-L1642), unchanged since v2.0.0-beta7
-[^obs-keeps-blocks]: Observed on XTDB v2.2.0: example `gc-keeps-recent-blocks` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
-[^obs-keeps-l0]: Observed on XTDB v2.2.0: example `gc-keeps-l0` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
-[^obs-legacy-refused]: Observed on XTDB v2.2.0: example `gc-legacy-interval-refused` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
-[^obs-log-untouched]: Observed on XTDB v2.2.0: example `gc-log-untouched` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.1.0-rc0; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
-[^obs-off-idle]: Observed on XTDB v2.2.0: example `gc-off-idle` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
-[^obs-superseded]: Observed on XTDB v2.2.0: example `gc-deletes-superseded` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
-[^obs-yaml-starts]: Observed on XTDB v2.2.0: example `gc-yaml-starts` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1; [releases.edn](../../evals/xtdb-storage-gc/releases.edn) lists the tags.
+[^obs-keeps-blocks]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-keeps-l0]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-legacy-refused]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-log-untouched]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-off-idle]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-superseded]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-yaml-starts]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
 [^polygon-erase]: [PolygonCalculator.kt `class PolygonCalculator(`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/bitemporal/PolygonCalculator.kt#L7-L48), unchanged since v2.2.0-rc2; differs in v2.1.1
 [^primary-db]: [db_catalog.clj `(defn primary-db`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/db_catalog.clj#L20-L23), unchanged since v2.1.0-beta1
 [^read-only-compactor]: [Database.kt line 328, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/database/Database.kt#L328-L328), unchanged since v2.2.0-rc0; differs in v2.1.1
@@ -321,5 +322,6 @@ apply it from memory.
 [^claim-leadership]: [LogProcessor.kt line 287, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L287-L287), unchanged since v2.2.0-beta3; differs in v2.1.1
 [^election-driver]: [LogProcessor.kt line 96, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/LogProcessor.kt#L96-L96), unchanged since v2.2.0-beta2; differs in v2.1.1
 [^log-split-local]: [log.md line 23, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/ops/config/log.md?plain=1#L23-L23), unchanged since v2.2.0-beta1; differs in v2.1.1
-[^obs-clj-interval]: Observed on XTDB v2.2.0: example `clj-interval-ignored` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
-[^obs-replica-per-open]: Observed on XTDB v2.2.0: example `replica-log-per-open` in [examples.edn](../../evals/xtdb-storage-gc/examples.edn), re-run by the eval's `storage` command.
+[^obs-clj-interval]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-replica-per-open]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-replica-idle]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta2; fails on v2.1.1.

@@ -213,11 +213,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1793221802,
-        "narHash": "sha256-z+NB1zTR3F1UjEu+GDseywxs1VmZLNMZYU76X6ySxzk=",
+        "lastModified": 1793439196,
+        "narHash": "sha256-QE2PgHLLIf0QyOZjX5NHYQaX96mUvZ/WUjClqmQTj/A=",
         "owner": "nhooey",
         "repo": "skill-authoring-skills",
-        "rev": "e34ce477c03247a1dc5617caa15db26543ef4d9f",
+        "rev": "d8cfdb77b3536a97ef4757ac2d06d4ff1ba3b580",
         "type": "github"
       },
       "original": {

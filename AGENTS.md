@@ -16,3 +16,8 @@ Agent skills for XTDB 2.x, built and installed through the Nix flake.
   pinned tag (`citations.edn`), or an observed result that
   `evals/` re-runs against XTDB. Run `skill-citations lock` after editing
   a skill.
+- A footnote holds only what an agent using the skill can act on: where
+  the claim was read, or what it was observed on and since which tag.
+  What backs it, meaning the example, its expected result and its result
+  on every tag, stays in `citations.edn`, `examples.edn` and
+  `releases.edn`, never in `SKILL.md`.

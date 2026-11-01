@@ -120,4 +120,5 @@
   {:id "obs-keeps-l0" :example "gc-keeps-l0"}
   {:id "obs-log-untouched" :example "gc-log-untouched"}
   {:id "obs-clj-interval" :example "clj-interval-ignored"}
-  {:id "obs-replica-per-open" :example "replica-log-per-open"}]}
+  {:id "obs-replica-per-open" :example "replica-log-per-open"}
+  {:id "obs-replica-idle" :example "replica-log-idle"}]}

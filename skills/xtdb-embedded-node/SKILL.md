@@ -10,8 +10,7 @@ source, or the xtdb-skills eval's `storage` command, which for this skill
 starts nodes of the classpath's xtdb-core in its own JVM and in new ones,
 reads the classpath, and builds uberjars with tools.build; no container
 runs. Arrow's own code cites `apache/arrow-java` at `v19.0.0`, and
-tools.build cites `clojure/tools.build` at `v0.10.10`. `citations.edn`
-lists them. What blocks write and when is in the `xtdb-write-path`
+tools.build cites `clojure/tools.build` at `v0.10.10`. What blocks write and when is in the `xtdb-write-path`
 skill, and the `:compactor` and `:garbage-collector` keys are in the
 `xtdb-storage-gc` skill.
 
@@ -22,7 +21,6 @@ candidates included, its cited span has read the same ("unchanged
 since"), or since which tag the eval saw its example hold ("holds on
 every tag the eval ran since"); "differs in" and "fails on" name later
 tags off that line, such as a patch release of an older minor version.
-`evals/<skill>/releases.edn` lists the result on every tag.
 
 Before relying on a claim, find the project's XTDB version: the
 `com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
@@ -260,23 +258,23 @@ apply it from memory.
 [^ledger-retain-arrow]: [BufferLedger.java line 177, apache/arrow-java v19.0.0](https://github.com/apache/arrow-java/blob/v19.0.0/memory/memory-core/src/main/java/org/apache/arrow/memory/BufferLedger.java#L177-L177)
 [^ledger-retain-xtdb]: [BufferLedger.java line 179, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/java/org/apache/arrow/memory/BufferLedger.java#L179-L179), unchanged since v2.1.0-rc0
 [^log-factory]: [log.clj `(defmethod ->log-factory ::local `, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/log.clj#L75-L79), unchanged since v2.1.0-rc0
-[^obs-add-opens-only]: Observed on XTDB v2.2.0: example `block-add-opens-only` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-autocloseable]: Observed on XTDB v2.2.0: example `node-autocloseable` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-block-without-opts]: Observed on XTDB v2.2.0: example `block-without-jvm-opts` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-default-servers]: Observed on XTDB v2.2.0: example `default-servers` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-flight-first-map]: Observed on XTDB v2.2.0: example `flight-sql-first-map-ignored` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-flight-nil]: Observed on XTDB v2.2.0: example `flight-sql-nil-ignored` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-flight-off]: Observed on XTDB v2.2.0: example `flight-sql-off` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-flight-port-refused]: Observed on XTDB v2.2.0: example `flight-sql-port-refused` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-flight-require-first]: Observed on XTDB v2.2.0: example `flight-sql-require-first` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-ledger-from-core]: Observed on XTDB v2.2.0: example `ledger-from-core` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-license-dir]: Observed on XTDB v2.2.0: example `license-dir-and-file` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-server-nil]: Observed on XTDB v2.2.0: example `server-nil` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-storage-v06]: Observed on XTDB v2.2.0: example `storage-v06` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-tcnative]: Observed on XTDB v2.2.0: example `tcnative-from-flight-sql` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-uber-collision]: Observed on XTDB v2.2.0: example `uber-license-collision` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-uber-default-ledger]: Observed on XTDB v2.2.0: example `uber-default-ledger` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
-[^obs-uber-fixed]: Observed on XTDB v2.2.0: example `uber-fixed-runs` in [examples.edn](../../evals/xtdb-embedded-node/examples.edn), re-run by the eval's `storage` command.
+[^obs-add-opens-only]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-autocloseable]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-block-without-opts]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-default-servers]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-flight-first-map]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-flight-nil]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-flight-off]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-flight-port-refused]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-flight-require-first]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-ledger-from-core]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.1.0-rc0.
+[^obs-license-dir]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-server-nil]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-storage-v06]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
+[^obs-tcnative]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-uber-collision]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta1; fails on v2.1.1.
+[^obs-uber-default-ledger]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta8.4.
+[^obs-uber-fixed]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc1; fails on v2.1.1.
 [^rollback-reads]: [Storage.kt line 68, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/storage/Storage.kt#L68-L68), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^server-host]: [ServerConfig.kt line 12, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/api/ServerConfig.kt#L12-L12), unchanged since v2.1.0-beta1
 [^server-nil]: [pgwire.clj `(defmethod xtn/apply-config! ::server`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/pgwire.clj#L1893-L1909), unchanged since v2.2.0-rc0; differs in v2.1.1

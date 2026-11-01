@@ -335,5 +335,74 @@
       }
     }
   },
-  "observed" : { }
+  "observed" : {
+    "obs-add-opens-only" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-autocloseable" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-block-without-opts" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-default-servers" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-flight-first-map" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-flight-nil" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-flight-off" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-flight-port-refused" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-flight-require-first" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-ledger-from-core" : {
+      "since" : "v2.1.0-rc0",
+      "fails" : [ ]
+    },
+    "obs-license-dir" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-server-nil" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-storage-v06" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-tcnative" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-uber-collision" : {
+      "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-uber-default-ledger" : {
+      "since" : "v2.0.0-beta8.4",
+      "fails" : [ ]
+    },
+    "obs-uber-fixed" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    }
+  }
 }

@@ -563,6 +563,10 @@
     }
   },
   "observed" : {
+    "obs-clj-interval" : {
+      "since" : "v2.2.0-rc1",
+      "fails" : [ "v2.1.1" ]
+    },
     "obs-keeps-blocks" : {
       "since" : "v2.2.0-beta1",
       "fails" : [ "v2.1.1" ]
@@ -581,6 +585,14 @@
     },
     "obs-off-idle" : {
       "since" : "v2.2.0-beta1",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-replica-idle" : {
+      "since" : "v2.2.0-beta2",
+      "fails" : [ "v2.1.1" ]
+    },
+    "obs-replica-per-open" : {
+      "since" : "v2.2.0-rc1",
       "fails" : [ "v2.1.1" ]
     },
     "obs-superseded" : {

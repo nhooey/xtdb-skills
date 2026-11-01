@@ -7,7 +7,7 @@ description: What XTDB 2.x keeps when you put, patch, delete or erase a document
 
 Written from `xtdb/xtdb` at tag `v2.2.0`. Each claim's footnote points at
 the docs section or source it was read from or at an example in the
-xtdb-skills eval that shows it on a live node; `citations.edn` lists them. For how erased
+xtdb-skills eval that shows it on a live node. For how erased
 data leaves disk, see the `xtdb-storage-gc` skill.
 
 ## Versions
@@ -17,7 +17,6 @@ candidates included, its cited span has read the same ("unchanged
 since"), or since which tag the eval saw its example hold ("holds on
 every tag the eval ran since"); "differs in" and "fails on" name later
 tags off that line, such as a patch release of an older minor version.
-`evals/<skill>/releases.edn` lists the result on every tag.
 
 Before relying on a claim, find the project's XTDB version: the
 `com.xtdb/xtdb-api` or `com.xtdb/xtdb-core` version in `deps.edn` or the
@@ -135,26 +134,26 @@ apply it from memory.
 [^system-time]: [time-in-xtdb.md § System time, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/about/time-in-xtdb.md?plain=1#L35-L81), unchanged since v2.1.0-rc0
 [^delete-docs]: [txs.md § `delete-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L129-L178), unchanged since v2.1.0-rc0
 [^erase-docs]: [txs.md § `erase-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L180-L208), unchanged since v2.1.0-rc0
-[^obs-delete-hides-current]: Observed on XTDB v2.2.0: example `delete-hides-current` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-delete-keeps-history]: Observed on XTDB v2.2.0: example `delete-keeps-history` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-erase-all-versions]: Observed on XTDB v2.2.0: example `erase-removes-all-versions` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-erase-per-table]: Observed on XTDB v2.2.0: example `erase-is-per-table` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-erase-then-put]: Observed on XTDB v2.2.0: example `erase-then-put` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-history-of-id]: Observed on XTDB v2.2.0: example `history-of-id` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-identical-put]: Observed on XTDB v2.2.0: example `identical-put-adds-version` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-patch-whole]: Observed on XTDB v2.2.0: example `patch-adds-whole-version` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta4; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-put-then-erase]: Observed on XTDB v2.2.0: example `put-then-erase` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-put-whole]: Observed on XTDB v2.2.0: example `put-stores-whole-document` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-delete-hides-current]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-delete-keeps-history]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-erase-all-versions]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-erase-per-table]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-erase-then-put]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-history-of-id]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-identical-put]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-patch-whole]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta4.
+[^obs-put-then-erase]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-put-whole]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
 [^patch-docs]: [txs.md § `patch-docs`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/txs.md?plain=1#L68-L127), unchanged since v2.1.0-rc0
 [^temporal-filters]: [queries.md § Temporal filters, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/docs/src/content/docs/reference/main/xtql/queries.md?plain=1#L162-L190), unchanged since v2.1.0-rc0
 [^client-delete]: [api.clj `(defn- delete-docs!`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L203-L211), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^client-erase]: [api.clj `(defn- erase-docs!`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L213-L216), unchanged since v2.2.0-rc1; differs in v2.1.1
 [^node-delete-erase]: [adbc.clj `(defn- op->tx-ops`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/clojure/xtdb/adbc.clj#L97-L119), unchanged since v2.2.0-rc1; differs in v2.1.1
-[^obs-absent-id]: Observed on XTDB v2.2.0: example `delete-absent-id-commits` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-delete-unwritten]: Observed on XTDB v2.2.0: example `delete-unwritten-table-fails` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-erase-unwritten]: Observed on XTDB v2.2.0: example `erase-unwritten-table-fails` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-from-unwritten]: Observed on XTDB v2.2.0: example `from-unwritten-table-empty` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.0.0-beta2; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-system-time-equal]: Observed on XTDB v2.2.0: example `system-time-equal-rejected` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-beta3; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
-[^obs-unwritten-whole-tx]: Observed on XTDB v2.2.0: example `unwritten-table-fails-whole-tx` in [examples.edn](../../evals/xtdb-erase-and-history/examples.edn), re-run by the eval's `examples` command, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1; [releases.edn](../../evals/xtdb-erase-and-history/releases.edn) lists the tags.
+[^obs-absent-id]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-delete-unwritten]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1.
+[^obs-erase-unwritten]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1.
+[^obs-from-unwritten]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.0.0-beta2.
+[^obs-system-time-equal]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-beta3; fails on v2.1.1.
+[^obs-unwritten-whole-tx]: Observed on XTDB v2.2.0, holds on every tag the eval ran since v2.2.0-rc0; fails on v2.1.1.
 [^resolver-system-time]: [TxResolver.kt line 215, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/core/src/main/kotlin/xtdb/indexer/TxResolver.kt#L215-L215), unchanged since v2.2.0-beta3; differs in v2.1.1
 [^submit-tx-opts]: [api.clj `(defn submit-tx`, v2.2.0](https://github.com/xtdb/xtdb/blob/v2.2.0/api/src/main/clojure/xtdb/api.clj#L258-L303), unchanged since v2.2.0-beta2; differs in v2.1.1
