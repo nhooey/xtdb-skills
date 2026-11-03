@@ -13,7 +13,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # The data and document-hygiene repos' "all" packs: every skill each
+    # The data, document and writing repos' "all" packs: every skill each
     # repo outputs. Each follows only nixpkgs, keeping its own compatible
     # agent-skill-flake; the combiner still runs from the one pinned above.
     data-skills = {
@@ -21,8 +21,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    document-hygiene-skills = {
-      url = "github:nhooey/document-hygiene-skills";
+    document-skills = {
+      url = "github:nhooey/document-skills";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -37,6 +37,11 @@
         agent-skill-flake.follows = "agent-skill-flake";
       };
     };
+
+    writing-skills = {
+      url = "github:nhooey/writing-skills";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -44,8 +49,9 @@
       nixpkgs,
       agent-skill-flake,
       data-skills,
-      document-hygiene-skills,
+      document-skills,
       skillspkgs-combinations,
+      writing-skills,
       ...
     }@inputs:
     agent-skill-flake.lib.mkDevshellSkillsFlake {
@@ -55,8 +61,9 @@
       envName = "agent-skills-xtdb-skills-devshell";
       sources = [
         { source = data-skills; }
-        { source = document-hygiene-skills; }
+        { source = document-skills; }
         { source = skillspkgs-combinations.combinations.authoring-with-git; }
+        { source = writing-skills; }
       ];
     };
 }
