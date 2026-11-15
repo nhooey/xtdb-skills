@@ -1,6 +1,6 @@
 ---
 name: xtdb-1-to-2
-description: What XTDB 1.x (and early 2.x betas) offered that XTDB 2.x no longer has, and what to write instead — so code written from memory of XTDB 1 isn't copied into a 2.x project. Use when porting or reviewing XTDB 1 code, or whenever a query or transaction uses XTDB 1's API or Datalog — `{:find … :where …}` maps, `:rules`, `or`, `or-join`, `not`, `not-join`, `get-attr`, `pull-many`, `xt/db`, `open-db`, `open-q`, `entity-history`, `with-tx`, `::xt/put`, `::xt/match`, `::xt/evict`, `::xt/fn` transaction functions, `crux.api` — a conditional write (insert or update only if a query holds, `::xt/match`, `ASSERT`), or the removed 2.x ops `:put-fn`, `:call`, `:insert-into`, `:update`, `:delete`, `:erase`, `:assert-exists`, `:assert-not-exists`. Pinned to XTDB v2.2.0 and, for XTDB 1, to 1.24.5, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an example re-run against a live node.
+description: What XTDB 1 and the early 2.x betas offered that XTDB 2.x no longer has, and what to write instead, so code recalled from XTDB 1 isn't copied into a 2.x project. Pinned to XTDB v2.2.0 and, for XTDB 1, to 1.24.5; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when porting or reviewing XTDB 1 code; when code uses XTDB 1's API or Datalog (`{:find … :where …}` maps, `:rules`, `or`, `or-join`, `not`, `not-join`, `get-attr`, `pull-many`, `xt/db`, `open-db`, `open-q`, `entity-history`, `with-tx`, `::xt/put`, `::xt/match`, `::xt/evict`, `::xt/fn`, `crux.api`); for a conditional write (insert or update only if a query holds, `ASSERT`); or when code uses the removed 2.x ops `:put-fn`, `:call`, `:insert-into`, `:update`, `:delete`, `:erase`, `:assert-exists` or `:assert-not-exists`.
 ---
 
 # Coming from XTDB 1 (XTDB 2.x)
@@ -178,8 +178,8 @@ functions are gone.[^put-fn-removed][^call-removed]
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-xtql-queries`: writing the XTQL that replaces a Datalog query, including graph traversals without rules.
 - `xtdb-erase-and-history`: what `:put-docs`, `:delete-docs` and `:erase-docs` keep in history, and reading it.
