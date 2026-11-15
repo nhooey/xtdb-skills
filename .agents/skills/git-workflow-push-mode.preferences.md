@@ -1,0 +1,2 @@
+- Mode: 2 (PRs always, never push to main)
+- On-branch behavior: push the branch and open a pull request
