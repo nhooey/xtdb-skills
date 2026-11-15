@@ -1,6 +1,6 @@
 ---
 name: xtdb-erase-and-history
-description: What XTDB 2.x keeps when you put, patch, delete or erase a document — every write is a new version with the whole document, delete keeps history, erase-docs removes an id's entire history in one table, and there is no partial erase. Use when deleting or erasing data in XTDB 2.x, dropping old versions while keeping the current row, reading a row's history, or working out why history grows; when a delete-docs or erase-docs fails with "Table not found", or when giving a transaction its own :system-time. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the docs, the source or an example re-run against a live node.
+description: What XTDB 2.x keeps in history when you put, patch, delete or erase a document. Every write is a new version carrying the whole document, delete keeps history, erase-docs removes an id's entire history in one table, and there is no partial erase. Also reading a row's history and giving a transaction its own :system-time. Pinned to XTDB v2.2.0; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when deleting or erasing data in XTDB 2.x, dropping old versions while keeping the current row, reading a row's history, working out why history grows, when a delete-docs or erase-docs fails with "Table not found", or when setting a transaction's :system-time.
 ---
 
 # Erase, delete and history (XTDB 2.x)
@@ -123,8 +123,8 @@ explicit times, give each transaction a later one than the last.
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-storage-gc`: when erased data leaves disk, and what the garbage collector never deletes.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
