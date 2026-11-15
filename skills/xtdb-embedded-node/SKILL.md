@@ -1,6 +1,6 @@
 ---
 name: xtdb-embedded-node
-description: Run XTDB 2.x as an embedded, in-process node from Clojure — xtdb-core on the classpath, `xtdb.node/start-node` with a Clojure node map (:log, :storage, :server, :flight-sql, :compactor, :garbage-collector, :indexer), closing it with `with-open`, and the JVM options it needs (--add-opens=java.base/java.nio=ALL-UNNAMED and the rest). Use when starting an XTDB node inside a Clojure app, test or REPL; when a node starts but stops ingesting with "sun.misc.Unsafe or java.nio.DirectByteBuffer.<init>(long, int) not available"; when turning off its Postgres-wire or Flight SQL server (:server nil, :flight-sql); when an uberjar of xtdb-core fails on a case-insensitive filesystem such as macOS's with "Cannot write META-INF/license/... as parent dir is a file from another lib" (netty-tcnative-boringssl-static via Arrow Flight SQL); when xtdb-core's own org.apache.arrow.memory.BufferLedger and arrow-memory-core's clash on the classpath or in an uberjar; or when asking whether a node's storage (the `v06` directory, Storage VERSION 6) carries over between XTDB releases. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run by the eval.
+description: Run XTDB 2.x as an embedded, in-process node from Clojure, covering xtdb-core on the classpath, the JVM options it needs, `xtdb.node/start-node` with a node map, closing it with `with-open`, turning off its servers, building an uberjar of xtdb-core, and storage across releases. Pinned to XTDB v2.2.0; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when starting an XTDB node inside a Clojure app, test or REPL; when a node stops ingesting with "sun.misc.Unsafe or java.nio.DirectByteBuffer.<init>(long, int) not available"; when turning off its Postgres-wire or Flight SQL server (:server nil, :flight-sql); when an uberjar of xtdb-core fails on a case-insensitive filesystem such as macOS's with "Cannot write META-INF/license/... as parent dir is a file from another lib"; when two copies of org.apache.arrow.memory.BufferLedger clash; or when asking whether a node's `v06` storage carries over between releases.
 ---
 
 # The embedded node (XTDB 2.x)
@@ -200,7 +200,6 @@ that prefers xtdb-core's copy fixes it:
 
 That uberjar held xtdb-core's `BufferLedger.class`, and a node started
 from it, with the four JVM options, answered a query.[^obs-uber-fixed]
-The eval's `xtdb-eval.uber` namespace runs exactly these builds.
 
 ## Storage across releases
 
@@ -224,8 +223,8 @@ another release, compare the two releases' storage versions.
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-write-path`: what a block is, when one is cut, and the files it writes under the storage-version directory.
 - `xtdb-storage-gc`: the `:garbage-collector` and `:compactor` keys of a node map, and what the collector deletes.
