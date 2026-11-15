@@ -1,6 +1,6 @@
 ---
 name: xtdb-xtql-queries
-description: Write, read and debug XTQL queries for XTDB 2.x — the Clojure/EDN query language built from `from`, `rel`, `unify` and `->` pipelines, with binding specs, temporal filters and subqueries. Use when writing or reviewing XTQL, translating XTDB 1.x Datalog into XTQL, traversing a graph or asked for a recursive or transitive query (XTQL has no recursion), or when code passes a list form to `xt/q`. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the docs or source at that tag, or an example re-run against a live node.
+description: Write, read and debug XTQL queries for XTDB 2.x, the Clojure/EDN query language built from `from`, `rel`, `unify` and `->` pipelines, covering binding specs, joins, temporal filters, subqueries and their arguments, graph traversals without recursion, string and list functions, nested fields, and query options. Pinned to XTDB v2.2.0; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when writing or reviewing XTQL, translating XTDB 1.x Datalog into XTQL, traversing a graph or asked for a recursive or transitive query (XTQL has no recursion), or when code passes a list form to `xt/q`.
 ---
 
 # XTQL queries (XTDB 2.x)
@@ -411,8 +411,8 @@ table.[^current-time-valid-time][^temporal-filters]
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-erase-and-history`: reading a row's history, and what delete and erase leave to query.
 - `xtdb-history-cost-design`: reading an entity split across two tables as of a time.
