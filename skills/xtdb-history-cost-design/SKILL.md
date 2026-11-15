@@ -1,6 +1,6 @@
 ---
 name: xtdb-history-cost-design
-description: Keep XTDB 2.x history small by splitting a document's fast-changing fields into their own table, so a price or stock change doesn't store the whole document again. Use when designing XTDB 2.x tables for large documents with a few volatile fields, when storage grows faster than the data, or when reading a split entity back as of a time. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the docs or an example re-run against a live node.
+description: Keep XTDB 2.x history small by splitting a document's fast-changing fields into their own table under the same `:xt/id`, so a price or stock change doesn't store the whole document again, and read the halves back as of a time with `unify`. Pinned to XTDB v2.2.0; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when designing XTDB 2.x tables for large documents with a few volatile fields, when storage grows faster than the data, or when reading a split entity back as of a time.
 ---
 
 # Splitting volatile fields (XTDB 2.x)
@@ -80,8 +80,8 @@ map:[^joins][^obs-split-left-join]
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-erase-and-history`: what each put, patch, delete and erase keeps in history.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.
