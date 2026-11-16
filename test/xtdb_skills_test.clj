@@ -97,5 +97,10 @@
         r (drift-report [["skills/a" (str/join "\n" (repeat 1000 line))]] nil)]
     (is (< (count r) 50100))
     (is (str/ends-with? r "```\n\nCut at 50,000 characters; the whole report is in the run's log.\n"))
+    (testing "every code block is closed, wherever the cut lands"
+      (doseq [width (range 1 40)
+              :let [skill (str "skills/" (apply str (repeat width "s")))
+                    r (drift-report (repeat 3000 [skill "x"]) nil)]]
+        (is (even? (count (re-seq #"(?m)^```" r))) (str "skill name width " width))))
     (testing "no line is cut short"
       (is (every? #(or (not (str/starts-with? % "x")) (= line %)) (str/split-lines r))))))

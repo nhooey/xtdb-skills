@@ -215,9 +215,12 @@ line boundary with its code block closed."
                               (str "## " skill "\n\n```\n" (drift-summary out) "\n```\n\n"))))]
     (if (<= (count body) report-limit)
       body
-      (let [cut (subs body 0 report-limit)]
-        (str (subs cut 0 (inc (str/last-index-of cut "\n")))
-             "```\n\nCut at 50,000 characters; the whole report is in the run's log.\n")))))
+      (let [cut (subs body 0 report-limit)
+            kept (subs cut 0 (inc (str/last-index-of cut "\n")))
+            open? (odd? (count (re-seq #"(?m)^```" kept)))]
+        (str kept
+             (when open? "```\n")
+             "\nCut at 50,000 characters; the whole report is in the run's log.\n")))))
 
 ;; ---------------------------------------------------------------------------
 ;; Shell: the checkout, running processes, printing and exiting.
