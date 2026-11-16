@@ -205,7 +205,7 @@ salaries   :xt/id (-> employees), :salary (int); salaries change over VALID
    :prompt "List the id and value of every order worth more than the average order value."
    :expected [{:id 102, :order-value 1200} {:id 105, :order-value 610}]}
 
-  ;; No longer held out: its subquery name-clash trap is now in the skill.
+  ;; Not held out: the skill covers its subquery name-clash trap.
   {:id "t40-argmax-per-group"
    :prompt "For each customer that has orders, return their name and the id of their most valuable order."
    :expected [{:customer-name "Ada", :order-id 102} {:customer-name "Brian", :order-id 105}

@@ -55,8 +55,7 @@
       systems = import inputs.systems;
       imports = [
         # Bundles numtide/devshell + the motd, install-skills startup, and the
-        # standard (ci/dev/maintenance) + skills command lists, replacing the
-        # hand-rolled devshell wiring this repo used to carry. The runtime
+        # standard (ci/dev/maintenance) + skills command lists. The runtime
         # `skills-devshell/` sub-flake is reconciled by the module's startup.
         inputs.agent-skill-flake.flakeModules.devshellSkills
         inputs.treefmt-nix.flakeModule
