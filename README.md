@@ -49,6 +49,17 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 `nix fmt` formats with treefmt (nixfmt, shfmt, yamlfmt).
 
+`menu` lists the dev shell's commands:
+
+| Command | What it does |
+| --- | --- |
+| `check` | `nix flake check`, the same checks CI runs |
+| `fmt` | `nix fmt` |
+| `update-flake` | Update every flake input and rewrite `flake.lock` |
+| `skill-citations` | Lock, verify or drift-check a skill's citations (see [Citing XTDB sources](#citing-xtdb-sources)) |
+| `update-skills-devshell` | Bump the `skills-devshell/` sub-flake's lock, which pins the authoring skill set |
+| `reap-skills` | Remove every skill this dev shell installed into `.claude/skills/` |
+
 ## Skills in this repo
 
 | Name | Description | Link |
