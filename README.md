@@ -113,7 +113,7 @@ Every Monday, `.github/workflows/citation-drift.yml` runs `xtdb-skills drift` th
 
 A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 60 tasks with their expected rows, 9 of the newest marked `:holdout` so no revision of the skill is tuned to them.
 
-`xtdb-skills node start` runs the eval's node in Docker, at the version `evals/deps.edn` pins for the client (`--port` and `--version` change them), and `xtdb-skills node stop` removes it. The `xtdb-skills eval` commands run `evals/` against it:
+`xtdb-skills node start` runs the eval's node in Docker, at the version `evals/deps.edn` pins for the client (`--port` and `--version` change them), and `xtdb-skills node stop` removes it. The `xtdb-skills eval` commands run `evals/` against it, on port 15432 unless `--port` or `XTDB_PORT` names another:
 
 | Command | What it does |
 | --- | --- |
