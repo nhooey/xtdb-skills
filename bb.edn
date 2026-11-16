@@ -1,10 +1,11 @@
 ;; `bb test` runs the unit tests: the eval's pure parts, the release
-;; script's tag ordering and merging, and the skills' names. None needs XTDB,
-;; Docker or the network, so `nix flake check` runs them too.
+;; script's tag ordering and merging, the xtdb-skills tool's parsing, plans
+;; and drift report, and the skills' names. None needs XTDB, Docker or the
+;; network, so `nix flake check` runs them too.
 {:paths ["evals/src" "evals/test" "test"]
  :tasks {test {:doc "Run the unit tests"
                :requires ([clojure.test :as t])
-               :task (let [nss '[xtdb-eval.compare-test eval-releases-test skills-test]
+               :task (let [nss '[xtdb-eval.compare-test eval-releases-test xtdb-skills-test skills-test]
                            _ (apply require nss)
                            {:keys [fail error]} (apply t/run-tests nss)]
                        (when (pos? (+ fail error))

@@ -75,15 +75,38 @@
         { pkgs, system, ... }:
         let
           inherit (inputs) skill-authoring-skills;
+          skill-citations = skill-authoring-skills.packages.${system}.skill-citations;
+
+          # The repository's commands (tests, the eval and its node, the
+          # release sweep, the drift report) as one Babashka tool. It acts
+          # on the checkout holding the current directory, so the copy in
+          # the store runs the working tree's evals and scripts.
+          xtdb-skills = pkgs.writeShellApplication {
+            name = "xtdb-skills";
+            runtimeInputs = [
+              pkgs.babashka
+              pkgs.clojure
+              pkgs.git
+              skill-citations
+            ];
+            text = ''exec bb ${./scripts/xtdb-skills.clj} "$@"'';
+          };
         in
         {
-          packages = base.packages.${system};
+          packages = base.packages.${system} // {
+            inherit xtdb-skills;
+          };
 
-          # `skill-citations` is an app as well as a dev-shell command, so the
-          # scheduled drift workflow can run it, at the version this flake
-          # locks, without entering the shell.
+          # `skill-citations` and `xtdb-skills` are apps as well as dev-shell
+          # commands, so the scheduled drift workflow can run them, at the
+          # versions this flake locks, without entering the shell.
           apps = base.apps.${system} // {
             inherit (skill-authoring-skills.apps.${system}) skill-citations;
+            xtdb-skills = {
+              type = "app";
+              program = "${xtdb-skills}/bin/xtdb-skills";
+              meta.description = "Run the xtdb-skills repository's commands";
+            };
           };
 
           checks =
@@ -119,13 +142,19 @@
           # The devShell (motd, install-skills startup reconciling the
           # `skills-devshell/` sub-flake, and the standard + skills command
           # lists) comes from the imported devshellSkills module; this adds
-          # the citation checker alongside its skills commands.
+          # the repository's own tool and the citation checker.
           devshells.default.commands = [
+            {
+              category = "dev";
+              name = "xtdb-skills";
+              help = "run the unit tests, the evals and their XTDB node, the release sweep or the drift report";
+              package = xtdb-skills;
+            }
             {
               category = "skills";
               name = "skill-citations";
               help = "lock, verify or drift-check a skill's upstream citations";
-              package = skill-authoring-skills.packages.${system}.skill-citations;
+              package = skill-citations;
             }
           ];
 
