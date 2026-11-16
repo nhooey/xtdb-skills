@@ -8,14 +8,17 @@ Agent skills for XTDB 2.x, built and installed through the Nix flake.
   that talks to XTDB is Clojure through the XTDB client (`xt/q` with XTQL
   data, `xt/submit-tx` with `:put-docs` ops); data files are EDN, except
   where Nix must read them (JSON). Skills cover XTQL and XTDB 2.x only,
-  not XTDB's SQL. The one exception is a conditional write's guard: an
-  `[:sql "ASSERT [NOT] EXISTS (XTQL ($$ … $$, ?))" args]` op whose
+  not XTDB's SQL, so every example and eval runs XTQL through the
+  client the skills teach. The one exception is a conditional write's
+  guard: an `[:sql "ASSERT [NOT] EXISTS (XTQL ($$ … $$, ?))" args]` op whose
   predicate is an XTQL query, since nothing else checks a query inside a
   transaction.
 - Every claim in a skill carries a footnote: a span of `xtdb/xtdb` at the
   pinned tag (`citations.edn`), or an observed result that
-  `evals/` re-runs against XTDB. Run `skill-citations lock` after editing
-  a skill.
+  `evals/` re-runs against XTDB, so a new XTDB release is checked
+  against only what a skill relies on. Run `skill-citations lock` after
+  editing a skill: `nix flake check` fails while the lock, the footnotes
+  and the cited spans disagree.
 - A footnote holds only what an agent using the skill can act on: where
   the claim was read, or what it was observed on and since which tag.
   What backs it, meaning the example, its expected result and its result
