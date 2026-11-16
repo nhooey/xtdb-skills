@@ -1,5 +1,5 @@
 ;; Observations for the xtdb-embedded-node skill, made by
-;; `clojure -M:eval storage xtdb-embedded-node` from evals/. Every check runs
+;; `xtdb-skills eval storage xtdb-embedded-node`. Every check runs
 ;; against the classpath's xtdb-core, with no container:
 ;; - most start a node in the eval's own process from a Clojure node map;
 ;; - `flight-sql-first-map-ignored`, `flight-sql-require-first`,

@@ -49,10 +49,13 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 `nix fmt` formats with treefmt (nixfmt, shfmt, yamlfmt).
 
-`bb test` runs the unit tests, which need no XTDB, Docker or network. They cover:
+`xtdb-skills` (`scripts/xtdb-skills.clj`) runs the repository's commands; `xtdb-skills --help` lists them, and each takes `--help` and, where it runs something, `--dry-run`. Outside the dev shell, `nix run .#xtdb-skills --` runs the same tool.
+
+`xtdb-skills test` runs the unit tests, which need no XTDB, Docker or network. They cover:
 
 - the eval's row comparison, private-table rewriting and skill-block parsing (`evals/src/xtdb_eval/compare.clj`, tested in `evals/test/`)
 - the tag ordering and record merging in `scripts/eval-releases.clj`
+- the `xtdb-skills` tool's argument parsing, the commands it plans and the drift issue it writes
 - that each skill folder holds the skill its frontmatter names, every skill a skill names in backticks exists, and every eval suite points at its skill (`test/`)
 
 `nix flake check` runs them as `checks.<system>.unit-tests`.
@@ -61,6 +64,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 | Command | What it does |
 | --- | --- |
+| `xtdb-skills` | Run the unit tests, the evals and their XTDB node, the release sweep or the drift report (see [Measuring a skill](#measuring-a-skill)) |
 | `check` | `nix flake check`, the same checks CI runs |
 | `fmt` | `nix fmt` |
 | `update-flake` | Update every flake input and rewrite `flake.lock` |
@@ -103,27 +107,25 @@ skill-citations pairs  skills/<skill>                # each citing passage besid
 
 `nix flake check` runs `verify` for every skill with a lock, as `checks.<system>.citations-<skill>` from that flake's `lib.citationChecks`, fetching only the cited files at the locked commits. GitHub Actions runs it on every push to `master` and every pull request (`.github/workflows/ci.yml`).
 
-Every Monday, `.github/workflows/citation-drift.yml` runs `drift --to latest` for each skill through the flake's `skill-citations` app, pre-release tags included. While any cited span differs, it keeps one open issue holding the latest report and the steps to bump. `drift` skips the observed footnotes, so a bump also moves the eval's XTDB image and client to the new version and re-runs `examples` and `storage`.
+Every Monday, `.github/workflows/citation-drift.yml` runs `xtdb-skills drift` through the flake's `xtdb-skills` app, which runs `skill-citations drift --to latest` for each skill, pre-release tags included. While any cited span differs, it keeps one open issue holding the latest report and the steps to bump. `drift` skips the observed footnotes, so a bump also moves the eval's XTDB image and client to the new version and re-runs `xtdb-skills eval examples` and `xtdb-skills eval storage`.
 
 ## Measuring a skill
 
 A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 60 tasks with their expected rows, 9 of the newest marked `:holdout` so no revision of the skill is tuned to them.
 
-```sh
-docker run -d --rm --name xtdb-eval -p 15432:5432 ghcr.io/xtdb/xtdb:2.2.0
-cd evals
-clojure -M:eval seed xtdb-xtql-queries                 # load seed.edn
-clojure -M:eval prompt xtdb-xtql-queries > tasks.txt   # the sheet an answerer gets
-clojure -M:eval score xtdb-xtql-queries baseline.edn with-skill.edn   # {task-id query-string}
-clojure -M:eval examples xtdb-xtql-queries xtdb-erase-and-history xtdb-history-cost-design xtdb-1-to-2
-clojure -M:eval storage xtdb-storage-gc                # about 2 minutes; needs Docker
-clojure -M:eval storage xtdb-write-path                # under a minute; needs Docker
-clojure -M:eval storage xtdb-embedded-node             # about a minute; no Docker
-```
+`xtdb-skills node start` runs the eval's node in Docker, at the version `evals/deps.edn` pins for the client (`--port` and `--version` change them), and `xtdb-skills node stop` removes it. The `xtdb-skills eval` commands run `evals/` against it:
+
+| Command | What it does |
+| --- | --- |
+| `xtdb-skills eval seed SUITE` | Load the suite's `seed.edn` |
+| `xtdb-skills eval prompt SUITE` | Print the task sheet an answerer gets |
+| `xtdb-skills eval score SUITE ANSWERS.edn...` | Score answer files, each `{task-id query-string}` |
+| `xtdb-skills eval examples SUITE...` | Run each suite's `examples.edn` |
+| `xtdb-skills eval storage SUITE` | Run the storage checks: `xtdb-storage-gc` about 2 minutes, `xtdb-write-path` under one, both with Docker; `xtdb-embedded-node` about a minute, without |
 
 `storage` starts nodes of its own. For `xtdb-storage-gc` it starts two, one with the garbage collector on and one with it off, writes the same rows to both, and compares their storage directories. For `xtdb-write-path` it starts one that cuts a block every 50 rows, writes in three steps, and lists the files each step leaves. For `xtdb-embedded-node` it starts nodes in its own JVM and in new ones, from Clojure node maps, and runs `clojure -M:uber` (`evals/src/xtdb_eval/uber.clj`), which builds uberjars of xtdb-core with tools.build in a JVM of its own. The `:eval` alias gives the JVM the options XTDB's docs give for an in-process node.
 
-`bb scripts/eval-releases.clj SUITE...` runs suites against every XTDB 2.x tag that has an image and a client on Maven Central, betas and release candidates included (`--storage` for the storage suites, `--tags REGEX` to narrow it), and writes `evals/SUITE/releases.edn`. `skill-citations lock` turns that, and each cited span's history across tags, into the footnotes: "unchanged since v2.0.0-beta7", "holds on every tag the eval ran since …", and "differs in" or "fails on" for later tags off that line. Each skill's "Versions" section tells the agent to check the project's XTDB version against them.
+`xtdb-skills releases SUITE...` (`scripts/eval-releases.clj`) runs suites against every XTDB 2.x tag that has an image and a client on Maven Central, betas and release candidates included (`--storage` for the storage suites, `--tags REGEX` to narrow it), and writes `evals/SUITE/releases.edn`. `skill-citations lock` turns that, and each cited span's history across tags, into the footnotes: "unchanged since v2.0.0-beta7", "holds on every tag the eval ran since …", and "differs in" or "fails on" for later tags off that line. Each skill's "Versions" section tells the agent to check the project's XTDB version against them.
 
 An example in `examples.edn` with `:tx` is a transaction that must fail with its `:expect-error`, and one with `:absent-vars` names client functions that must not resolve; `xtdb-1-to-2` uses both to show XTDB 2.2.0 rejecting XTDB 1 code.
 
