@@ -1,6 +1,6 @@
 ---
 name: xtdb-storage-gc
-description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and runs on each database's indexing leader at every block boundary, deleting files that compaction has superseded; and know what it never deletes — level-0 files and the source and replica logs. Use when an XTDB 2.x node's storage directory keeps growing, when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map, when a v2.1 YAML config with approxRunInterval stops starting or a Clojure node map still sets :approx-run-interval, when an idle node's REPLICA_LOG keeps growing, or when asking whether erased data has left disk, what the disk or memory cache (diskCache, memoryCache, maxSizeRatio) holds, whether DETACH DATABASE frees space, or how to drop or truncate a table. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
+description: Tune or turn off XTDB 2.x's storage garbage collector, which is on by default and deletes files compaction has superseded at every block boundary, and know what it never deletes, level-0 files and the source and replica logs. Pinned to XTDB v2.2.0; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when an XTDB 2.x node's storage directory keeps growing; when configuring garbageCollector in node YAML or :garbage-collector in a Clojure node map; when a v2.1 YAML config with approxRunInterval won't start or a node map still sets :approx-run-interval; when an idle node's REPLICA_LOG keeps growing; or when asking whether erased data has left disk, what the disk or memory cache (diskCache, memoryCache, maxSizeRatio) holds, whether DETACH DATABASE frees space, or how to drop or truncate a table.
 ---
 
 # Storage garbage collection (XTDB 2.x)
@@ -110,7 +110,7 @@ nodes kept as many level-0 files, 48 each.[^obs-keeps-l0]
 
 It never touches the logs: it deletes only block files, offloaded
 payloads and trie files through the buffer pool.[^block-gc][^trie-gc]
-Each database now has two logs, a source log for client writes and a
+Each database has two logs, a source log for client writes and a
 replica log for the leader's output.[^log-split][^dbs-leader] A local
 log keeps them as `LOG` and `REPLICA_LOG` files in its
 directory,[^local-log][^local-replica-log][^log-local-disk] append-only
@@ -235,8 +235,8 @@ nothing.[^gc-all][^gc-await][^primary-db]
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-write-path`: what a block and a level-0 file are, and what each block writes.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.

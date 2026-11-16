@@ -1,6 +1,6 @@
 ---
 name: xtdb-write-path
-description: How a write travels through XTDB 2.x, from the source log through the in-memory live index to the object store, and what it leaves there — what a block is, what decides where its boundary falls (rowsPerBlock rows, default 102400, or flushDuration, default 15 minutes), and what a level-0 file is (each block writes one data file and one meta file per table that took rows). Use when working out which files an XTDB 2.x node writes and when, what "block", "level 0" or "L0" means, why recent writes aren't in storage yet, what the `v06` storage-version directory is and whether storage carries over to another release, or when tuning rowsPerBlock or flushDuration. Pinned to XTDB v2.2.0, and each footnote says since which XTDB tag, betas included, it holds; every claim cites the source or docs, or an observation re-run against a live node.
+description: How a write travels through XTDB 2.x and what it leaves in storage, covering the source and replica logs, the in-memory live index, blocks and what decides where a boundary falls (rowsPerBlock, default 102400 rows, or flushDuration, default 15 minutes), the level-0 data and meta file each block writes per table that took rows, and the `v06` storage-version directory. Pinned to XTDB v2.2.0; every claim's footnote names where it was read or observed and the XTDB tag it holds since. Use when working out which files an XTDB 2.x node writes and when, what "block", "level 0" or "L0" means, why recent writes aren't in storage yet, whether storage carries over to another release, or when tuning rowsPerBlock or flushDuration.
 ---
 
 # The write path (XTDB 2.x)
@@ -102,8 +102,8 @@ release, compare the two releases' versions.
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-storage-gc`: which of the files a block writes the garbage collector deletes, and which, level-0 files and the logs among them, it never does.
 - `xtdb-storage-growth`: why an XTDB 2.x node's storage keeps growing, and which skill answers each cause.

@@ -1,6 +1,6 @@
 ---
 name: xtdb-storage-growth
-description: Route a question about XTDB 2.x storage growing — disk usage climbing, an object store or storage directory getting bigger, logs or Kafka topics filling up, data not shrinking after a delete or erase, a disk cache filling the disk, a detached database still on disk, "why is XTDB using so much space", "how do I reclaim space", "does XTDB ever delete anything", "does erase free disk" — to the skills that answer each cause. It holds no facts of its own; it sorts the growth into history versions, uncollected files, logs or unerased data, and loads the skill for each. Use whenever an XTDB 2.x node's storage, disk, object store, log or Kafka topic grows, or someone asks how to shrink it.
+description: Route a question about XTDB 2.x storage growing to the skills that answer each cause. It holds no facts of its own; it sorts the growth into new history versions, files the garbage collector hasn't deleted, the source and replica logs, and data deleted but not erased, and loads the skill for each. Use whenever an XTDB 2.x node's disk, storage directory, object store, disk cache, log or Kafka topic grows, data doesn't shrink after a delete or erase, a detached database is still on disk, or someone asks why XTDB uses so much space, how to reclaim it, whether XTDB ever deletes anything, or whether erase frees disk.
 ---
 
 # Why XTDB storage grows (XTDB 2.x)
@@ -14,8 +14,9 @@ so go through every branch, not only the first that fits.
 
 1. **Is it new versions?** Do writes repeat unchanged documents, or
    rewrite a large document to change a few fields? Load
-   `xtdb-erase-and-history` for what each write keeps in history, and `xtdb-history-cost-design` for splitting volatile
-   fields into their own table.
+   `xtdb-erase-and-history` for what each write keeps in history, and
+   `xtdb-history-cost-design` for splitting volatile fields into their
+   own table.
 2. **Is it files the collector hasn't deleted, or never will?** Is the
    garbage collector on, and what are `blocksToKeep` and
    `garbageLifetime`? Is compaction running? Load `xtdb-storage-gc`, and
@@ -38,8 +39,8 @@ Answer from the loaded skills, with their footnotes, not from memory.
 
 When one of these applies and it's in your skill listing, load it
 without asking. If it isn't in your listing, tell the user which skill is
-missing and ask whether to install it from nhooey/xtdb-skills; don't
-apply it from memory.
+missing and ask whether to install it from the same collection this skill
+came from; don't apply it from memory.
 
 - `xtdb-erase-and-history`: what each put, patch, delete and erase keeps in history.
 - `xtdb-history-cost-design`: splitting volatile fields into their own table, so history grows more slowly.
