@@ -49,7 +49,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 `nix fmt` formats with treefmt (nixfmt, shfmt, yamlfmt).
 
-`xtdb-skills` (`scripts/xtdb-skills.clj`) runs the repository's commands; `xtdb-skills --help` lists them, and each takes `--help` and, where it runs something, `--dry-run`. Outside the dev shell, `nix run .#xtdb-skills --` runs the same tool.
+`xtdb-skills` (`scripts/xtdb-skills.clj`) runs the repository's commands; `xtdb-skills --help` lists them, and each takes `--help`, and every one but `drift` takes `--dry-run`. Outside the dev shell, `nix run .#xtdb-skills --` runs the same tool.
 
 `xtdb-skills test` runs the unit tests, which need no XTDB, Docker or network. They cover:
 
