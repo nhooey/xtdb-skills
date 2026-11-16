@@ -1,5 +1,5 @@
 ;; Examples for the xtdb-erase-and-history skill, run by
-;; `clojure -M:eval examples xtdb-erase-and-history` from evals/. Each
+;; `xtdb-skills eval examples xtdb-erase-and-history`. Each
 ;; example's :setup transactions run first, in `:run/…` tables private to
 ;; the run (see src/xtdb_eval.clj). An example with :query is an
 ;; observation the skill cites; one without is a block in the skill.

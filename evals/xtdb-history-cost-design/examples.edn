@@ -1,5 +1,5 @@
 ;; Examples for the xtdb-history-cost-design skill, run by
-;; `clojure -M:eval examples xtdb-history-cost-design` from evals/. Setups
+;; `xtdb-skills eval examples xtdb-history-cost-design`. Setups
 ;; write with explicit valid times so as-of reads have a past to read; the
 ;; `:run/…` and :private tables are private to each example (see
 ;; src/xtdb_eval.clj).

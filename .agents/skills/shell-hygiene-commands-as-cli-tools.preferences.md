@@ -1,0 +1,2 @@
+- Tools folder: scripts/
+- Fallback language: Babashka

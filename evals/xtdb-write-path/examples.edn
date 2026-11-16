@@ -1,5 +1,5 @@
 ;; Observations for the xtdb-write-path skill, made by
-;; `clojure -M:eval storage xtdb-write-path` from evals/. That command starts
+;; `xtdb-skills eval storage xtdb-write-path`. That command starts
 ;; :image on a fresh data directory with node.yaml, which cuts a block every
 ;; 50 rows and runs no compactor or collector, then writes in three steps,
 ;; waiting :settle-ms after each: 10 rows to :docs, 50 more, and one

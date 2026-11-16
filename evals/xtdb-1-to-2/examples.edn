@@ -1,4 +1,4 @@
-;; Examples run by `clojure -M:eval examples xtdb-1-to-2` from evals/. They
+;; Examples run by `xtdb-skills eval examples xtdb-1-to-2`. They
 ;; need no seed: each sets up its own private tables.
 ;;
 ;; An example without :query, :tx or :absent-vars is one of the skill's

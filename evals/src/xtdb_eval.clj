@@ -24,16 +24,14 @@
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.java.shell :as shell]
-            [clojure.set :as set]
             [clojure.string :as str]
-            [clojure.walk :as walk]
+            [xtdb-eval.compare :refer [compare-rows expected-error private-tables skill-blocks]]
             [xtdb.api :as xt])
-  (:import [java.io File PushbackReader StringReader]
+  (:import [java.io File]
            [java.lang AutoCloseable]
            [java.nio.file Files]
            [java.nio.file.attribute FileAttribute]
-           [java.time Instant OffsetDateTime ZonedDateTime]
-           [java.util Date]))
+           [java.time Instant]))
 
 (def ^:private in-process?
   "Clients before XTDB v2.0.0-beta8.4 have no `xt/client`; with xtdb-core on
@@ -66,47 +64,7 @@
 (def ^:private run-id (str (System/currentTimeMillis)))
 (def ^:private example-count (atom 0))
 
-(defn- private-tables
-  "Rewrite `:run/x` keywords, and the keywords in `extra`, to `:x-<run id>-<n>`,
-  n unique to one example; also where they're written inside a string, such
-  as the XTQL embedded in an [:sql ...] op."
-  [n extra form]
-  (let [extra (set extra)
-        private (fn [k] (keyword (str (name k) "-" run-id "-" n)))
-        in-string (re-pattern (str ":(run/[\\w-]+"
-                                   (str/join (for [k extra] (str "|" (java.util.regex.Pattern/quote (name k)))))
-                                   ")(?![\\w/-])"))]
-    (walk/postwalk #(cond
-                      (and (keyword? %) (or (= "run" (namespace %)) (extra %))) (private %)
-                      (string? %) (str/replace % in-string (fn [[_ k]] (str (private (keyword k)))))
-                      :else %)
-                   form)))
-
 ;; --- comparison ------------------------------------------------------------
-
-(defn- norm-key [k]
-  (-> (if (= "xt" (namespace k)) (str "_" (name k)) (name k))
-      (str/replace "-" "_")))
-
-(defn- norm-val [v]
-  (cond
-    (number? v) (double v)
-    (instance? Date v) (str (.toInstant ^Date v))
-    (instance? ZonedDateTime v) (str (.toInstant ^ZonedDateTime v))
-    (instance? OffsetDateTime v) (str (.toInstant ^OffsetDateTime v))
-    (instance? Instant v) (str v)
-    :else v))
-
-(defn- norm-rows
-  "Rows keyed by normalised column name. Unless `exact-keys?`, every row
-  carries every column, absent ones as nil; with it, absent stays absent."
-  [rows cols exact-keys?]
-  (mapv (fn [row]
-          (merge (if exact-keys? {} (zipmap cols (repeat nil)))
-                 (into {} (map (fn [[k v]] [(norm-key k) (norm-val v)])) row)))
-        rows))
-
-(defn- columns [expected] (set (map norm-key (mapcat keys expected))))
 
 (defn- error-text
   "An exception's message and its XTDB error code, so an :expect-error can
@@ -121,25 +79,6 @@
     (catch Exception e
       {:error (error-text e)})))
 
-(defn- compare-rows [rows {:keys [expected ordered? exact-keys?]}]
-  (let [cols (columns expected)
-        got-cols (set (mapcat #(map norm-key (keys %)) rows))]
-    (if (and (seq rows) (not (set/subset? got-cols cols)))
-      [:wrong (str "columns " (sort got-cols) ", expected " (sort cols))]
-      (let [got (norm-rows rows cols exact-keys?)
-            want (norm-rows expected cols exact-keys?)
-            same (if ordered? (= got want) (= (frequencies got) (frequencies want)))]
-        (if same
-          [:pass nil]
-          [:wrong (str "got " (pr-str got) ", expected " (pr-str want))])))))
-
-(defn- expected-error [error expect-error]
-  (if (and error (str/includes? error expect-error))
-    [:pass nil]
-    [:wrong (if error
-              (str "error " (pr-str error) ", expected one containing " (pr-str expect-error))
-              "no error, expected one")]))
-
 (defn- judge
   "[status detail] for one example or task spec. Its :setup transactions run
   first. With a :tx, that transaction must fail with :expect-error, or commit
@@ -151,15 +90,15 @@
   [c query {:keys [args opts setup tx same-system-time private expect-error] :as spec}]
   (let [n (swap! example-count inc)
         tx-opts (if same-system-time {:system-time (.plusSeconds (Instant/now) 1)} {})
-        setup (private-tables n private setup)
+        setup (private-tables run-id n private setup)
         setup-error (try (doseq [[i tx] (map-indexed vector setup)]
                            (execute! c tx (if (= i (dec (count setup))) tx-opts {})))
                          nil
                          (catch Exception e (error-text e)))
-        query! #(run-query c (private-tables n private query) args opts)]
+        query! #(run-query c (private-tables run-id n private query) args opts)]
     (cond
       setup-error [:error (str "setup failed: " setup-error)]
-      tx (let [tx-error (try (execute! c (private-tables n private tx) tx-opts) nil
+      tx (let [tx-error (try (execute! c (private-tables run-id n private tx) tx-opts) nil
                              (catch Exception e (error-text e)))
                [status :as tx-result] (if expect-error
                                         (expected-error tx-error expect-error)
@@ -231,24 +170,6 @@
             :let [[status detail] (get-in results [n id])] :when (not= :pass status)]
       (println (str n " " id " " (name status) ": " detail)))))
 
-(defn- skill-blocks
-  "[[ids-or-nil forms line]] for every ```clojure block in the skill."
-  [path]
-  (let [lines (vec (str/split-lines (slurp (str path))))]
-    (loop [i 0, out []]
-      (if (>= i (count lines))
-        out
-        (if (= "```clojure" (str/trim (lines i)))
-          (let [j (loop [j (inc i)] (if (= "```" (str/trim (lines j))) j (recur (inc j))))
-                marker (when (pos? i) (re-matches #"^<!--\s*xtql-example:\s*(.*?)\s*-->\s*$" (lines (dec i))))
-                rdr (PushbackReader. (StringReader. (str/join "\n" (subvec lines (inc i) j))))
-                forms (binding [*read-eval* false]
-                        (loop [fs []]
-                          (let [f (read {:eof ::eof} rdr)]
-                            (if (= ::eof f) fs (recur (conj fs f))))))]
-            (recur (inc j) (conj out [(some-> marker second (str/split #"\s+")) forms (inc i)])))
-          (recur (inc i) out))))))
-
 (def ^:private results
   "{suite {example-id status}} from every `examples` run, for EVAL_RESULTS."
   (atom {}))
@@ -271,7 +192,7 @@
         skill-file (io/file suite skill)
         by-id (into {} (map (juxt :id identity)) example)
         report (fn [status id detail] (println (format "%-9s %s%s" (name status) id (if detail (str ": " detail) ""))))
-        from-skill (vec (for [[ids forms line] (skill-blocks skill-file) :when (not= ids ["skip"])]
+        from-skill (vec (for [[ids forms line] (skill-blocks (slurp skill-file)) :when (not= ids ["skip"])]
                           (cond
                             (nil? ids) [:unmarked (str "SKILL.md:" line) "precede it with <!-- xtql-example: id… --> or skip"]
                             (not= (count ids) (count forms)) [:mismatch (str "SKILL.md:" line) (str (count ids) " ids for " (count forms) " forms")]

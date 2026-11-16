@@ -1,5 +1,5 @@
 ;; Observations for the xtdb-storage-gc skill, made by
-;; `clojure -M:eval storage xtdb-storage-gc` from evals/. That command starts
+;; `xtdb-skills eval storage xtdb-storage-gc`. That command starts
 ;; :image twice on a fresh data directory, once with gc-on.yaml and once
 ;; with gc-off.yaml, writes the same rows to each, waits, and compares the
 ;; two storage directories; then it starts :image with gc-legacy.yaml, which

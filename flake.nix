@@ -55,8 +55,7 @@
       systems = import inputs.systems;
       imports = [
         # Bundles numtide/devshell + the motd, install-skills startup, and the
-        # standard (ci/dev/maintenance) + skills command lists, replacing the
-        # hand-rolled devshell wiring this repo used to carry. The runtime
+        # standard (ci/dev/maintenance) + skills command lists. The runtime
         # `skills-devshell/` sub-flake is reconciled by the module's startup.
         inputs.agent-skill-flake.flakeModules.devshellSkills
         inputs.treefmt-nix.flakeModule
@@ -76,32 +75,86 @@
         { pkgs, system, ... }:
         let
           inherit (inputs) skill-authoring-skills;
+          skill-citations = skill-authoring-skills.packages.${system}.skill-citations;
+
+          # The repository's commands (tests, the eval and its node, the
+          # release sweep, the drift report) as one Babashka tool. It acts
+          # on the checkout holding the current directory, so the copy in
+          # the store runs the working tree's evals and scripts.
+          xtdb-skills = pkgs.writeShellApplication {
+            name = "xtdb-skills";
+            runtimeInputs = [
+              pkgs.babashka
+              pkgs.clojure
+              pkgs.git
+              skill-citations
+            ];
+            text = ''exec bb ${./scripts/xtdb-skills.clj} "$@"'';
+          };
         in
         {
-          packages = base.packages.${system};
+          packages = base.packages.${system} // {
+            inherit xtdb-skills;
+          };
 
-          # `skill-citations` is an app as well as a dev-shell command, so the
-          # scheduled drift workflow can run it, at the version this flake
-          # locks, without entering the shell.
+          # `skill-citations` and `xtdb-skills` are apps as well as dev-shell
+          # commands, so the scheduled drift workflow can run them, at the
+          # versions this flake locks, without entering the shell.
           apps = base.apps.${system} // {
             inherit (skill-authoring-skills.apps.${system}) skill-citations;
+            xtdb-skills = {
+              type = "app";
+              program = "${xtdb-skills}/bin/xtdb-skills";
+              meta.description = "Run the xtdb-skills repository's commands";
+            };
           };
 
-          checks = skill-authoring-skills.lib.citationChecks {
-            inherit pkgs;
-            root = ./.;
-          };
+          checks =
+            skill-authoring-skills.lib.citationChecks {
+              inherit pkgs;
+              root = ./.;
+            }
+            // {
+              # `bb test`: the eval's and release script's pure functions,
+              # and the skills' names, none of which needs XTDB or Docker.
+              unit-tests =
+                pkgs.runCommand "xtdb-skills-unit-tests"
+                  {
+                    nativeBuildInputs = [ pkgs.babashka ];
+                    src = pkgs.lib.fileset.toSource {
+                      root = ./.;
+                      fileset = pkgs.lib.fileset.unions [
+                        ./bb.edn
+                        ./evals
+                        ./scripts
+                        ./skills
+                        ./test
+                      ];
+                    };
+                  }
+                  ''
+                    cd "$src"
+                    HOME="$TMPDIR" bb test
+                    touch "$out"
+                  '';
+            };
 
           # The devShell (motd, install-skills startup reconciling the
           # `skills-devshell/` sub-flake, and the standard + skills command
           # lists) comes from the imported devshellSkills module; this adds
-          # the citation checker alongside its skills commands.
+          # the repository's own tool and the citation checker.
           devshells.default.commands = [
+            {
+              category = "dev";
+              name = "xtdb-skills";
+              help = "run the unit tests, the evals and their XTDB node, the release sweep or the drift report";
+              package = xtdb-skills;
+            }
             {
               category = "skills";
               name = "skill-citations";
               help = "lock, verify or drift-check a skill's upstream citations";
-              package = skill-authoring-skills.packages.${system}.skill-citations;
+              package = skill-citations;
             }
           ];
 

@@ -1,4 +1,4 @@
-;; Examples run by `clojure -M:eval examples xtdb-xtql-queries` from evals/, against seed.edn.
+;; Examples run by `xtdb-skills eval examples xtdb-xtql-queries`, against seed.edn.
 ;;
 ;; An example without :query is one of the skill's own: each ```clojure
 ;; block in :skill is preceded by `<!-- xtql-example: id… -->`, one id per

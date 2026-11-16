@@ -1,5 +1,5 @@
 ;; Fixture for the XTQL eval: XTDB transactions, submitted in order by
-;; `clojure -M:eval seed`. Each table's columns are listed in tasks.edn.
+;; `xtdb-skills eval seed`. Each table's columns are listed in tasks.edn.
 ;; Seeding twice leaves every current and valid-time answer unchanged; it
 ;; only adds system-time versions, so no task counts those.
 [[[:put-docs :customers

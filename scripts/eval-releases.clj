@@ -20,10 +20,11 @@
 ;; tag's status and results, unless the run left it untested and the file
 ;; has it, and every other tag keeps what the file has.
 
-(require '[babashka.fs :as fs]
-         '[babashka.process :as p]
-         '[clojure.edn :as edn]
-         '[clojure.string :as str])
+(ns eval-releases
+  (:require [babashka.fs :as fs]
+            [babashka.process :as p]
+            [clojure.edn :as edn]
+            [clojure.string :as str]))
 
 (def root (str (fs/parent (fs/parent (fs/absolutize *file*)))))
 (def evals (str (fs/path root "evals")))
@@ -33,9 +34,19 @@
 
 (defn sh [& args] (apply p/shell {:out :string :err :string :continue true} args))
 
+(defn order-tags
+  "The 2.x tags among `names`, which come by commit date, in release
+  order: by version, then prereleases before the release, by commit date."
+  [names]
+  (->> names
+       (keep-indexed (fn [i t] (when-let [[_ v pre] (re-matches tag-re t)]
+                                 {:tag t :version (str v (when pre (str "-" pre)))
+                                  :order [(mapv parse-long (str/split v #"\.")) (if pre 0 1) i]})))
+       (sort-by :order)
+       (mapv #(dissoc % :order))))
+
 (defn tags
-  "Every 2.x tag of xtdb/xtdb in release order: by version, then
-  prereleases before the release, by commit date."
+  "Every 2.x tag of xtdb/xtdb in release order."
   []
   (let [git-dir (str (or (System/getenv "XDG_CACHE_HOME") (str (fs/home) "/.cache"))
                      "/skill-citations/github.com/xtdb/xtdb.git")
@@ -43,12 +54,7 @@
               "https://github.com/xtdb/xtdb.git")
         out (:out (sh "git" "--git-dir" git-dir "for-each-ref" "--sort=creatordate"
                       "--format=%(refname:short)" "refs/tags"))]
-    (->> (str/split-lines out)
-         (keep-indexed (fn [i t] (when-let [[_ v pre] (re-matches tag-re t)]
-                                   {:tag t :version (str v (when pre (str "-" pre)))
-                                    :order [(mapv parse-long (str/split v #"\.")) (if pre 0 1) i]})))
-         (sort-by :order)
-         (mapv #(dissoc % :order)))))
+    (order-tags (str/split-lines out))))
 
 (defn image? [version]
   (zero? (:exit (sh "docker" "manifest" "inspect" (str "ghcr.io/xtdb/xtdb:" version)))))
@@ -173,4 +179,6 @@
                      "\n"))
         (println "wrote" f)))))
 
-(-main *command-line-args*)
+;; Run as a script; `bb test` loads the file without running it.
+(when (= *file* (System/getProperty "babashka.file"))
+  (-main *command-line-args*))
