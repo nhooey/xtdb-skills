@@ -118,11 +118,7 @@ On 2026-10-31, fresh answerers took all 60 tasks, three runs per model, each run
 | Claude Sonnet 5.5 | 35, 40, 40 | 58, 60, 59 | 5, 5, 5 of 9 | 9, 9, 9 of 9 |
 | Claude Haiku 5.5 | 26, 22, 34 | 48, 60, 60 | 3, 2, 5 of 9 | 6, 9, 9 of 9 |
 
-Of the 15 misses with the skill, 12 were one Haiku run wrapping every `aggregate`'s specs in a vector, which the skill had no grouped example to rule out; it has one now. The other 3 were 2 extra returned columns and a call to `starts-with?`, which XTDB v2.2.0 rejects for two strings ("not applicable to types utf8 and utf8"). From memory, all 9 runs failed the subquery tasks t09, t10, t31–t37 and t40, the nested-field tasks t22, t33, t41–t43, the parameter task t49 and `pull` task t59.
-
-The run before it, on 2026-10-19 with the skill as it was then, scored 42, 42, 42 from memory and 60, 60, 60 with it on Opus; 40, 41, 40 and 59, 59, 59 on Sonnet; and 17, 18, 34 and 59, 59, 60 on Haiku. Its answer files weren't kept.
-
-Earlier, on 2026-10-15, fresh answerers on Claude Opus 5.5 scored 27/35 from memory and 35/35 with the skill. All 8 misses were subqueries (`exists?`, argument passing, `q` in `return`) and nested-field access, and 4 of those tasks were held out from the skill's revision. A reviewer subagent then checked the skill's claims against only what they cite: 15 of 68 went beyond their citations, and after rewording and observed footnotes, 7 of 62 still did. Those 7 were fixed in turn, and haven't been reviewed a third time.
+Of the 15 misses with the skill, 12 were one Haiku run wrapping every `aggregate`'s specs in a vector, which the skill rules out: `aggregate` takes its specs as separate arguments, never in a vector. The other 3 were 2 extra returned columns and a call to `starts-with?`, which XTDB v2.2.0 rejects for two strings ("not applicable to types utf8 and utf8"). From memory, all 9 runs failed the subquery tasks t09, t10, t31–t37 and t40, the nested-field tasks t22, t33, t41–t43, the parameter task t49 and `pull` task t59.
 
 ## Adding a new skill
 
