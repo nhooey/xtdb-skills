@@ -86,10 +86,35 @@
             inherit (skill-authoring-skills.apps.${system}) skill-citations;
           };
 
-          checks = skill-authoring-skills.lib.citationChecks {
-            inherit pkgs;
-            root = ./.;
-          };
+          checks =
+            skill-authoring-skills.lib.citationChecks {
+              inherit pkgs;
+              root = ./.;
+            }
+            // {
+              # `bb test`: the eval's and release script's pure functions,
+              # and the skills' names, none of which needs XTDB or Docker.
+              unit-tests =
+                pkgs.runCommand "xtdb-skills-unit-tests"
+                  {
+                    nativeBuildInputs = [ pkgs.babashka ];
+                    src = pkgs.lib.fileset.toSource {
+                      root = ./.;
+                      fileset = pkgs.lib.fileset.unions [
+                        ./bb.edn
+                        ./evals
+                        ./scripts
+                        ./skills
+                        ./test
+                      ];
+                    };
+                  }
+                  ''
+                    cd "$src"
+                    HOME="$TMPDIR" bb test
+                    touch "$out"
+                  '';
+            };
 
           # The devShell (motd, install-skills startup reconciling the
           # `skills-devshell/` sub-flake, and the standard + skills command

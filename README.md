@@ -49,6 +49,14 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 `nix fmt` formats with treefmt (nixfmt, shfmt, yamlfmt).
 
+`bb test` runs the unit tests, which need no XTDB, Docker or network. They cover:
+
+- the eval's row comparison, private-table rewriting and skill-block parsing (`evals/src/xtdb_eval/compare.clj`, tested in `evals/test/`)
+- the tag ordering and record merging in `scripts/eval-releases.clj`
+- that each skill folder holds the skill its frontmatter names, every skill a skill names in backticks exists, and every eval suite points at its skill (`test/`)
+
+`nix flake check` runs them as `checks.<system>.unit-tests`.
+
 `menu` lists the dev shell's commands:
 
 | Command | What it does |
