@@ -45,7 +45,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 ## Development
 
-`nix develop` (or direnv) enters the `xtdb-skills` devShell. On startup it reconciles the authoring skill set pinned in the `skills-devshell/` sub-flake into `.claude/skills/` at project scope, so those skills never become inputs of the root flake.
+`nix develop` (or direnv) enters the `xtdb-skills` devShell. On startup it reconciles the skill set pinned in the `skills-devshell/` sub-flake, skillspkgs' `skill-collections` combination with no additions, into `.claude/skills/` at project scope, so those skills never become inputs of the root flake.
 
 `nix fmt` formats with treefmt (nixfmt, shfmt, yamlfmt).
 
@@ -69,7 +69,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 | `fmt` | `nix fmt` |
 | `update-flake` | Update every flake input and rewrite `flake.lock` |
 | `skill-citations` | Lock, verify or drift-check a skill's citations (see [Citing XTDB sources](#citing-xtdb-sources)) |
-| `update-skills-devshell` | Bump the `skills-devshell/` sub-flake's lock, which pins the authoring skill set |
+| `update-skills-devshell` | Bump the `skills-devshell/` sub-flake's lock, which pins skillspkgs' `skill-collections` combination |
 | `reap-skills` | Remove every skill this dev shell installed into `.claude/skills/` |
 
 ## Skills in this repo
