@@ -3,6 +3,7 @@
   frontmatter names, every skill one names exists, and every eval suite
   points at a skill."
   (:require [babashka.fs :as fs]
+            [clj-yaml.core :as yaml]
             [clojure.edn :as edn]
             [clojure.test :refer [deftest is testing]]))
 
@@ -13,9 +14,18 @@
 
 (defn- skill-names [] (set (map fs/file-name (skill-dirs))))
 
-(defn- frontmatter-name [text]
-  (when-let [[_ fm] (re-find #"(?s)\A---\n(.*?)\n---\n" text)]
-    (some->> (re-find #"(?m)^name:\s*(\S+)\s*$" fm) second)))
+(defn- frontmatter-name
+  "The `name` in a SKILL.md's frontmatter, read as YAML."
+  [text]
+  (when-let [[_ fm] (re-find #"(?s)\A---\r?\n(.*?)\r?\n---\r?\n" text)]
+    (:name (yaml/parse-string fm))))
+
+(deftest frontmatter-name-reads-yaml
+  (is (= "xtdb-a" (frontmatter-name "---\nname: xtdb-a\ndescription: d\n---\nbody\n")))
+  (is (= "xtdb-a" (frontmatter-name "---\nname: \"xtdb-a\"\ndescription: d\n---\n")))
+  (is (= "xtdb-a" (frontmatter-name "---\nname: 'xtdb-a' # the folder\n---\n")))
+  (is (= "xtdb-a" (frontmatter-name "---\r\nname: xtdb-a\r\n---\r\n")))
+  (is (nil? (frontmatter-name "# no frontmatter\n"))))
 
 (deftest each-skill-folder-holds-the-skill-it-names
   (is (seq (skill-dirs)))
