@@ -78,3 +78,25 @@
          (merge-record {:tags [["v1" :tested]] :results {"ex" [["v1" :pass]]}}
                        {:tags [["v1" :runner-error]] :results {"ex" [["v1" :wrong]]}}
                        ordered))))
+
+(def parse-args (resolve 'eval-releases/parse-args))
+
+(deftest parse-args-reads-suites-and-options
+  (is (= {:suites ["a" "b"] :storage true :tags "v2\\.1"}
+         (parse-args ["a" "--storage" "b" "--tags" "v2\\.1"]))))
+
+(deftest parse-args-rejects-a-misspelled-option
+  (testing "a typo must not fall back to a full sweep that overwrites releases.edn"
+    (is (= {:error "Unknown option: --storge"} (parse-args ["xtdb-storage-gc" "--storge"])))))
+
+(deftest parse-args-rejects-tags-without-a-regex
+  (is (= {:error "Missing value for option --tags"} (parse-args ["a" "--tags"]))))
+
+(deftest parse-args-needs-a-suite
+  (is (= {:error "expected at least one SUITE"} (parse-args ["--storage"]))))
+
+(deftest parse-args-rejects-a-misspelled-option-after-a-later-suite
+  (is (= {:error "Unknown option: --storge"} (parse-args ["a" "--tags" "v2" "b" "--storge"]))))
+
+(deftest parse-args-rejects-a-bare-dash
+  (is (= {:error "Unexpected argument: -"} (parse-args ["a" "-"]))))
