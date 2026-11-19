@@ -45,11 +45,11 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 
 ## Development
 
-`nix develop` (or direnv) enters the `xtdb-skills` devShell. On startup it reconciles the authoring skill set pinned in the `skills-devshell/` sub-flake into `.claude/skills/` at project scope, so those skills never become inputs of the root flake.
+`nix develop` (or direnv) enters the `xtdb-skills` devShell. On startup it reconciles the skill set pinned in the `skills-devshell/` sub-flake, skillspkgs' `skill-collections` combination with no additions, into `.claude/skills/` at project scope, so those skills never become inputs of the root flake.
 
 `nix fmt` formats with treefmt (nixfmt, shfmt, yamlfmt).
 
-`xtdb-skills` (`scripts/xtdb-skills.clj`) runs the repository's commands; `xtdb-skills --help` lists them, and each takes `--help` and, where it runs something, `--dry-run`. Outside the dev shell, `nix run .#xtdb-skills --` runs the same tool.
+`xtdb-skills` (`scripts/xtdb-skills.clj`) runs the repository's commands; `xtdb-skills --help` lists them, and each takes `--help`, and every one but `drift` takes `--dry-run`. Outside the dev shell, `nix run .#xtdb-skills --` runs the same tool.
 
 `xtdb-skills test` runs the unit tests, which need no XTDB, Docker or network. They cover:
 
@@ -69,7 +69,7 @@ Home Manager users can install the aggregate declaratively with `agent-skill-fla
 | `fmt` | `nix fmt` |
 | `update-flake` | Update every flake input and rewrite `flake.lock` |
 | `skill-citations` | Lock, verify or drift-check a skill's citations (see [Citing XTDB sources](#citing-xtdb-sources)) |
-| `update-skills-devshell` | Bump the `skills-devshell/` sub-flake's lock, which pins the authoring skill set |
+| `update-skills-devshell` | Bump the `skills-devshell/` sub-flake's lock, which pins skillspkgs' `skill-collections` combination |
 | `reap-skills` | Remove every skill this dev shell installed into `.claude/skills/` |
 
 ## Skills in this repo
@@ -113,7 +113,7 @@ Every Monday, `.github/workflows/citation-drift.yml` runs `xtdb-skills drift` th
 
 A citation check proves a cited span is unchanged, not that the skill reads it correctly. `evals/` measures each skill against a real XTDB instead, with one suite directory per skill. It is Clojure and talks to the node through the XTDB client. Every suite has an `examples.edn` holding the expected result of every example in the skill plus the observations its footnotes cite; an example's `:setup` transactions run first, in tables private to that example. `xtdb-xtql-queries` also has `seed.edn`, its fixture as transactions, and `tasks.edn`, 60 tasks with their expected rows, 9 of the newest marked `:holdout` so no revision of the skill is tuned to them.
 
-`xtdb-skills node start` runs the eval's node in Docker, at the version `evals/deps.edn` pins for the client (`--port` and `--version` change them), and `xtdb-skills node stop` removes it. The `xtdb-skills eval` commands run `evals/` against it:
+`xtdb-skills node start` runs the eval's node in Docker, at the version `evals/deps.edn` pins for the client (`--port` and `--version` change them), and `xtdb-skills node stop` removes it. The `xtdb-skills eval` commands run `evals/` against it, on port 15432 unless `--port` or `XTDB_PORT` names another:
 
 | Command | What it does |
 | --- | --- |

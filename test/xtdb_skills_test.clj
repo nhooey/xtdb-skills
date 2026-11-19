@@ -9,6 +9,7 @@
 
 (def parse (resolve 'xtdb-skills/parse))
 (def plan (resolve 'xtdb-skills/plan))
+(def resolve-invocation (resolve 'xtdb-skills/resolve-invocation))
 (def help-text (resolve 'xtdb-skills/help-text))
 (def client-version (resolve 'xtdb-skills/client-version))
 (def drift-summary (resolve 'xtdb-skills/drift-summary))
@@ -27,9 +28,9 @@
     (is (= {:help ["eval" "seed"]} (parse ["eval" "seed" "suite" "-h"])))))
 
 (deftest parse-reads-a-command
-  (is (= {:command ["eval" "score"] :opts {:port 15432} :args ["s" "a.edn" "b.edn"]}
+  (is (= {:command ["eval" "score"] :opts {} :args ["s" "a.edn" "b.edn"]}
          (parse ["eval" "score" "s" "a.edn" "b.edn"])))
-  (is (= {:command ["releases"] :opts {:port 15432 :storage true :tags "v2\\.1"} :args ["s"]}
+  (is (= {:command ["releases"] :opts {:storage true :tags "v2\\.1"} :args ["s"]}
          (parse ["releases" "s" "--storage" "--tags" "v2\\.1"])))
   (is (= {:command ["node" "start"] :opts {:port 1 :version "2.1.0"} :args []}
          (parse ["node" "start" "--port" "1" "--version" "2.1.0"])))
@@ -63,7 +64,7 @@
   (is (= "2.2.0" (client-version "{:deps {com.xtdb/xtdb-api {:mvn/version \"2.2.0\"}}}"))))
 
 (deftest plans
-  (let [p #(plan "/r" "2.2.0" (parse %))]
+  (let [p #(plan "/r" "2.2.0" (resolve-invocation (parse %) {:cwd "/home"}))]
     (testing "the eval runs from evals/ with the port in XTDB_PORT"
       (is (= {:cmd ["clojure" "-M:eval" "examples" "a" "b"] :dir "/r/evals" :env {"XTDB_PORT" "9"}}
              (p ["eval" "examples" "a" "b" "--port" "9"]))))
@@ -79,6 +80,28 @@
              (:cmd (p ["releases" "s" "--storage" "--tags" "v2"])))))
     (testing "test runs the bb task from the checkout"
       (is (= {:cmd ["bb" "test"] :dir "/r"} (p ["test"]))))))
+
+(deftest resolve-invocation-takes-the-port-from-xtdb-port
+  (let [r #(get-in (resolve-invocation (parse %1) {:cwd "/home" :env-port %2}) [:opts :port])]
+    (testing "XTDB_PORT when --port isn't given, as the eval itself reads it"
+      (is (= 16000 (r ["eval" "examples" "s"] 16000)))
+      (is (= 16000 (r ["node" "start"] 16000)))
+      (is (= 16000 (r ["releases" "s"] 16000))))
+    (testing "--port over XTDB_PORT"
+      (is (= 9 (r ["eval" "examples" "s" "--port" "9"] 16000))))
+    (testing "15432 with neither"
+      (is (= 15432 (r ["eval" "seed" "s"] nil))))
+    (testing "no port for a command that takes none"
+      (is (nil? (r ["eval" "prompt" "s"] 16000))))))
+
+(deftest resolve-invocation-reads-answer-files-from-the-callers-directory
+  (testing "the eval runs from evals/, so a relative answer file is resolved first"
+    (is (= ["s" "/home/out/a.edn" "/abs/b.edn"]
+           (:args (resolve-invocation (parse ["eval" "score" "s" "out/a.edn" "/abs/b.edn"])
+                                      {:cwd "/home"})))))
+  (testing "a suite name and other commands' arguments stay as given"
+    (is (= ["s" "id-1"]
+           (:args (resolve-invocation (parse ["eval" "storage" "s" "id-1"]) {:cwd "/home"}))))))
 
 (deftest drift-summary-drops-diff-lines
   (is (= "skills/a\n  [changed] x\n  context"
@@ -97,5 +120,10 @@
         r (drift-report [["skills/a" (str/join "\n" (repeat 1000 line))]] nil)]
     (is (< (count r) 50100))
     (is (str/ends-with? r "```\n\nCut at 50,000 characters; the whole report is in the run's log.\n"))
+    (testing "every code block is closed, wherever the cut lands"
+      (doseq [width (range 1 40)
+              :let [skill (str "skills/" (apply str (repeat width "s")))
+                    r (drift-report (repeat 3000 [skill "x"]) nil)]]
+        (is (even? (count (re-seq #"(?m)^```" r))) (str "skill name width " width))))
     (testing "no line is cut short"
       (is (every? #(or (not (str/starts-with? % "x")) (= line %)) (str/split-lines r))))))

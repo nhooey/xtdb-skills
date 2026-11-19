@@ -19,9 +19,13 @@
 ;; With --tags, it merges into the file instead: each tag run replaces that
 ;; tag's status and results, unless the run left it untested and the file
 ;; has it, and every other tag keeps what the file has.
+;;
+;; An unknown option, --tags without a regex, or no SUITE is a usage error
+;; (exit 2) before any tag runs or any file is written.
 
 (ns eval-releases
-  (:require [babashka.fs :as fs]
+  (:require [babashka.cli :as cli]
+            [babashka.fs :as fs]
             [babashka.process :as p]
             [clojure.edn :as edn]
             [clojure.string :as str]))
@@ -139,10 +143,38 @@
     {:tags (in-order tags)
      :results (into (sorted-map) (for [[id r] results :when (seq r)] [id (in-order r)]))}))
 
+(def usage "usage: bb scripts/eval-releases.clj SUITE... [--tags REGEX] [--storage]")
+
+(defn parse-args
+  "`args` as {:suites [...] :storage bool :tags regex-string-or-nil}, or
+  {:error msg} for an unknown option, --tags without a value, or no suite.
+  babashka.cli stops reading options at the first suite after one, so
+  each run of options between suites is parsed in turn."
+  [args]
+  (try
+    (loop [args args suites [] opts {}]
+      (let [{o :opts more :args} (cli/parse-args args {:spec {:storage {:coerce :boolean}
+                                                              :tags {:coerce :string}}
+                                                       :restrict true})
+            [names rest-args] (split-with #(not (str/starts-with? % "-")) more)
+            suites (into suites names)
+            opts (merge opts o)]
+        (cond (= rest-args args) {:error (str "Unexpected argument: " (first args))}
+              (seq rest-args) (recur rest-args suites opts)
+              (empty? suites) {:error "expected at least one SUITE"}
+              :else {:suites suites :storage (boolean (:storage opts)) :tags (:tags opts)})))
+    (catch clojure.lang.ExceptionInfo e
+      {:error (ex-message e)})))
+
 (defn -main [args]
-  (let [storage? (some #{"--storage"} args)
-        tag-filter (some-> (second (drop-while #(not= "--tags" %) args)) re-pattern)
-        suites (vec (remove #(or (str/starts-with? % "--") (and tag-filter (= (str tag-filter) %))) args))
+  (let [{:keys [error suites storage] tag-regex :tags} (parse-args args)
+        _ (when error
+            (binding [*out* *err*]
+              (println (str "eval-releases: " error))
+              (println usage))
+            (System/exit 2))
+        storage? storage
+        tag-filter (some-> tag-regex re-pattern)
         every-tag (tags)
         all (cond->> every-tag tag-filter (filter #(re-find tag-filter (:tag %))))
         record (atom (into {} (for [s suites] [s {:tags [] :results (sorted-map)}])))]

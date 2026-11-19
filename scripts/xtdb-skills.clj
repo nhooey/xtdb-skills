@@ -28,7 +28,7 @@
 (def default-port 15432)
 (def container "xtdb-eval")
 
-(def port-opt {:port {:desc "Host port of the eval's XTDB node" :coerce :long :default default-port}})
+(def port-opt {:port {:desc "Host port of the eval's XTDB node (default: XTDB_PORT, else 15432)" :coerce :long}})
 (def dry-run-opt {:dry-run {:desc "Print the command instead of running it" :coerce :boolean}})
 
 (def commands
@@ -168,6 +168,20 @@ usage, help and options."
   [deps-edn]
   (get-in (edn/read-string deps-edn) [:deps 'com.xtdb/xtdb-api :mvn/version]))
 
+(defn resolve-invocation
+  "`parsed` with what the caller's shell supplies: for a command that takes
+--port and wasn't given one, `env-port` (XTDB_PORT, which the eval and the
+release script read too) or else 15432; and score's answer files resolved
+against `cwd`, the caller's directory, since the eval runs from evals/."
+  [{:keys [command] :as parsed} {:keys [cwd env-port]}]
+  (cond-> parsed
+    (contains? (:spec (commands command)) :port)
+    (update-in [:opts :port] #(or % env-port default-port))
+
+    (= ["eval" "score"] command)
+    (update :args (fn [[suite & answers]]
+                    (into [suite] (map #(str (fs/path cwd %))) answers)))))
+
 (defn plan
   "The process `command` runs: {:cmd [...] :dir dir :env {...}}. `root` is
 the checkout; `version` is the client version evals/deps.edn pins."
@@ -215,9 +229,12 @@ line boundary with its code block closed."
                               (str "## " skill "\n\n```\n" (drift-summary out) "\n```\n\n"))))]
     (if (<= (count body) report-limit)
       body
-      (let [cut (subs body 0 report-limit)]
-        (str (subs cut 0 (inc (str/last-index-of cut "\n")))
-             "```\n\nCut at 50,000 characters; the whole report is in the run's log.\n")))))
+      (let [cut (subs body 0 report-limit)
+            kept (subs cut 0 (inc (str/last-index-of cut "\n")))
+            open? (odd? (count (re-seq #"(?m)^```" kept)))]
+        (str kept
+             (when open? "```\n")
+             "\nCut at 50,000 characters; the whole report is in the run's log.\n")))))
 
 ;; ---------------------------------------------------------------------------
 ;; Shell: the checkout, running processes, printing and exiting.
@@ -268,7 +285,11 @@ line boundary with its code block closed."
                 2)
       (= ["drift"] command) (drift! (root) parsed)
       :else (let [r (root)
-                  pl (plan r (client-version (slurp (str (fs/path r "evals" "deps.edn")))) parsed)]
+                  invocation (resolve-invocation
+                              parsed
+                              {:cwd (str (fs/cwd))
+                               :env-port (some-> (System/getenv "XTDB_PORT") parse-long)})
+                  pl (plan r (client-version (slurp (str (fs/path r "evals" "deps.edn")))) invocation)]
               (if (:dry-run opts)
                 (do (println (str (when (seq (:env pl))
                                     (str (str/join " " (for [[k v] (:env pl)] (str k "=" v))) " "))
